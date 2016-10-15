@@ -196,5 +196,5 @@ def index(request):
             'isin_conf': isin_conf,
             'mostra_risultati': mostra_risultati
         }
-    return render(request, 'Simulatore/index.html', context)
+    return render(request, 'simulatore/index.html', context)
 
