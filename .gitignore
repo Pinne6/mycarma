@@ -6,3 +6,5 @@ db.sqlite3
 .DS_Store
 testenv
 devenv
+settings.py
+*.json
