@@ -22,7 +22,6 @@ from django.template import loader
 from .models import *
 import datetime
 import os.path
-import googlecharts
 import numpy as np
 
 version = '0.04.00'
