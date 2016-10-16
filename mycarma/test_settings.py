@@ -4,4 +4,4 @@ from .settings import *
 
 DEBUG = True
 
-TEMPLATE_DEBUG = DEBUG
+STATIC_ROOT = "home/carma/mycarma/static"

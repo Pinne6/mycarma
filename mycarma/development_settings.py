@@ -4,8 +4,6 @@ from .settings import *
 
 DEBUG = True
 
-TEMPLATE_DEBUG = DEBUG
+STATIC_ROOT = "C:\\Users\\fesposti\\Box Sync\\mycarma\\static"
 
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, "static")
-print(STATIC_ROOT)
+# print(STATIC_ROOT)
