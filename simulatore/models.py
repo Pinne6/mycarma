@@ -2,6 +2,7 @@ from django.db import models
 
 # Create your models here.
 
+
 class Pacco:
     def __init__(self, package_number, ticker, order_type, buy_price, sell_price, take, quantity_buy, quantity_sell,
                  adj, carica):
