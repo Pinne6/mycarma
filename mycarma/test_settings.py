@@ -6,8 +6,6 @@ DEBUG = True
 
 STATIC_ROOT = "home/carma/mycarma/static"
 
-SERVER_REMOTO = True
-
 
 def show_toolbar(request):
     return True
