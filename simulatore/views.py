@@ -202,7 +202,8 @@ def index(request):
         context = {
             'prova': prova,
             'isin_conf': isin_conf,
-            'mostra_risultati': mostra_risultati
+            'mostra_risultati': mostra_risultati,
+            'server_remoto': settings.SERVER_REMOTO
         }
     return render(request, 'simulatore/index.html', context)
 
