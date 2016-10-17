@@ -31,10 +31,10 @@ version = '0.04.00'
 
 
 def index(request):
-    # if settings.SERVER_REMOTO:
-    #    dire = "/home/carma/dati/isin.conf"
-    # else:
-    dire = "C:\\Users\\fesposti\\Box Sync\\Simulatore\\intra\\isin.conf"
+    if settings.SERVER_REMOTO:
+       dire = "/home/carma/dati/isin.conf"
+    else:
+        dire = "C:\\Users\\fesposti\\Box Sync\\Simulatore\\intra\\isin.conf"
     isin_conf = []
     if os.path.exists(dire):
         with open(dire) as f:
@@ -44,10 +44,10 @@ def index(request):
     if request.method == "POST":
         prova = 'Ciao POST'
         start_time = datetime.datetime.today()
-        # if settings.SERVER_REMOTO:
-        #     folder = "/home/carma/dati/intra/"
-        # else:
-        folder = "C:\\Users\\fesposti\\Downloads\\dati agosto\\"
+        if settings.SERVER_REMOTO:
+            folder = "/home/carma/dati/intra/"
+        else:
+            folder = "C:\\Users\\fesposti\\Downloads\\dati agosto\\"
         crea_isin = request.POST.get('isin')
         print(prova)
         crea_limite_inferiore = float(request.POST.get('crea_limite_inferiore'))
