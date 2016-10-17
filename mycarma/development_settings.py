@@ -6,4 +6,4 @@ DEBUG = True
 
 STATIC_ROOT = "C:\\Users\\fesposti\\Box Sync\\mycarma\\static"
 
-SERVER_REMOTO = False
+SERVER_DEV = True

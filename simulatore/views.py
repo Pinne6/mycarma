@@ -31,8 +31,8 @@ version = '0.04.00'
 
 
 def index(request):
-    if settings.SERVER_REMOTO:
-       dire = "/home/carma/dati/isin.conf"
+    if settings.SERVER_DEV is False:
+        dire = "/home/carma/dati/isin.conf"
     else:
         dire = "C:\\Users\\fesposti\\Box Sync\\Simulatore\\intra\\isin.conf"
     isin_conf = []
@@ -44,7 +44,7 @@ def index(request):
     if request.method == "POST":
         prova = 'Ciao POST'
         start_time = datetime.datetime.today()
-        if settings.SERVER_REMOTO:
+        if settings.SERVER_DEV is False:
             folder = "/home/carma/dati/intra/"
         else:
             folder = "C:\\Users\\fesposti\\Downloads\\dati agosto\\"
@@ -203,7 +203,7 @@ def index(request):
             'prova': prova,
             'isin_conf': isin_conf,
             'mostra_risultati': mostra_risultati,
-            'server_remoto': settings.SERVER_REMOTO,
+            'server_remoto': settings.SERVER_DEV,
             'dire': dire
         }
     return render(request, 'simulatore/index.html', context)
