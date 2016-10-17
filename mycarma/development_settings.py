@@ -6,4 +6,4 @@ DEBUG = True
 
 STATIC_ROOT = "C:\\Users\\fesposti\\Box Sync\\mycarma\\static"
 
-# print(STATIC_ROOT)
+SERVER_REMOTO = False

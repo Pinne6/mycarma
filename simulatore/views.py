@@ -1,6 +1,8 @@
 # Create your views here.
 
 """
+0.04.01 - 17/10/2016
+- impostato diverse configurazioni per test e development, punta ai dati corretti sul server remoto
 0.04.00 - 13/10/2016
 - cambiato db in MySQL
 0.03.00 - 10/10/2016
@@ -23,12 +25,16 @@ from .models import *
 import datetime
 import os.path
 import numpy as np
+from django.conf import settings
 
 version = '0.04.00'
 
 
 def index(request):
-    dire = "C:\\Users\\fesposti\\Box Sync\\Simulatore\\intra\\isin.conf"
+    if settings.SERVER_REMOTO:
+        dire = "/home/carma/dati/isin.conf"
+    else:
+        dire = "C:\\Users\\fesposti\\Box Sync\\Simulatore\\intra\\isin.conf"
     isin_conf = []
     if os.path.exists(dire):
         with open(dire) as f:
@@ -38,7 +44,10 @@ def index(request):
     if request.method == "POST":
         prova = 'Ciao POST'
         start_time = datetime.datetime.today()
-        folder = "C:\\Users\\fesposti\\Downloads\\dati agosto\\"
+        if settings.SERVER_REMOTO:
+            folder = "/home/carma/dati/intra/"
+        else:
+            folder = "C:\\Users\\fesposti\\Downloads\\dati agosto\\"
         crea_isin = request.POST.get('isin')
         print(prova)
         crea_limite_inferiore = float(request.POST.get('crea_limite_inferiore'))
