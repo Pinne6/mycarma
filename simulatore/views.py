@@ -203,7 +203,8 @@ def index(request):
             'prova': prova,
             'isin_conf': isin_conf,
             'mostra_risultati': mostra_risultati,
-            'server_remoto': settings.SERVER_REMOTO
+            'server_remoto': settings.SERVER_REMOTO,
+            'dire': dire
         }
     return render(request, 'simulatore/index.html', context)
 
