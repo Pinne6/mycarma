@@ -1,6 +1,8 @@
 # Create your views here.
 
 """
+0.05.00 - 18/10/2016
+- versione funzionante
 0.04.01 - 17/10/2016
 - impostato diverse configurazioni per test e development, punta ai dati corretti sul server remoto
 0.04.00 - 13/10/2016
@@ -27,7 +29,7 @@ import os.path
 import numpy as np
 from django.conf import settings
 
-version = '0.04.00'
+version = '0.05.00'
 
 
 def index(request):
@@ -84,6 +86,7 @@ def index(request):
         tappeto = []
         storico = []
         take_array = []
+        take_array_size = 0
         while crea_take_inizio <= (crea_take_fine + 0.0001):
             tappeto_singolo = Tappeto(crea_isin, crea_limite_inferiore, crea_limite_superiore,
                                                          crea_step, crea_take_inizio, crea_quantita_acquisto,
@@ -168,8 +171,13 @@ def index(request):
             maxi = np.amax(xarr, axis=0)
             maxi_index = np.argmax(xarr, axis=0)
             print(maxi)
-            for item in maxi_index:
-                take_array.append(tappeto[item].take)
+            if maxi_index.size > 1:
+                for item in maxi_index:
+                    take_array.append(tappeto[item].take)
+                    take_array_size = 1
+            else:
+                take_array = maxi_index
+                take_array_size = 0
             print(take_array)
 
                 # for Operazione in Tappeto.operazioni:
@@ -193,7 +201,8 @@ def index(request):
             'take_fine': crea_take_fine,
             'take_incremento': crea_take_incremento,
             'tipo_commissione': tipo_commissione,
-            'take_array': take_array
+            'take_array': take_array,
+            'take_array_size': take_array_size
         }
     else:
         prova = 'Ciao stronzo'

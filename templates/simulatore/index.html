@@ -741,7 +741,8 @@
 			<h3 class="text-center">
 				h3. Lorem ipsum dolor sit amet.
 			</h3>
-			<table class="table table-hover table-condensed">
+			{% if take_array_size > 1 %}
+            <table class="table table-hover table-condensed">
 				<thead>
 					<tr>
 						<th>
@@ -765,6 +766,7 @@
                     {% endfor %}
 				</tbody>
 			</table>
+            {% endif %}
 		</div>
 	</div>
   </div>
