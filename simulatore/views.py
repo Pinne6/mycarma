@@ -106,7 +106,7 @@ def index(request):
                     tappeto[c].storico.append(Storico(data_ciclo))
                     data_ciclo += datetime.timedelta(days=1)
             for i in range(data_diff.days + 1):
-                if setting.SERVER_DEV is False:
+                if settings.SERVER_DEV is False:
                     filename = folder + crea_isin + "/" + data_inizio.strftime("%Y%m%d") + ".csv"
                 else:
                     filename = folder + crea_isin + "\\" + data_inizio.strftime("%Y%m%d") + ".csv"
