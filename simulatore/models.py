@@ -1,6 +1,16 @@
 from django.db import models
+from django.contrib.auth.models import User
+
 
 # Create your models here.
+
+
+class UserPerm(models.Model):
+    class Meta:
+        permissions = (
+            ("take_fisso", "Può simulare senza limiti a take fisso"),
+            ("take_variabile", "Può simulare senza limiti a take variabile"),
+        )
 
 
 class Pacco:
@@ -95,7 +105,6 @@ class Pacco:
 
 
 class Operazione:
-
     def __init__(self, tipo, data, ora, prezzo, quantita, gain, commissioni, prezzo_teorico):
         self.data = data
         self.ora = ora
@@ -109,7 +118,6 @@ class Operazione:
 
 
 class Storico:
-
     def __init__(self, data):
         self.data = data
         self.valore = 0
@@ -132,7 +140,6 @@ class Storico:
 
 
 class Tappeto:
-
     isin = ''
     limite_inferiore = 0
     limite_superiore = 0
@@ -177,9 +184,19 @@ class Tappeto:
             self.tick = 5
         else:
             self.tick = 4
-        prima_vendita = self.primo_acquisto + self.take + self.step
         check = round(round((self.primo_acquisto - self.limite_inferiore), self.tick) / self.step, self.tick)
+        check2 = round(round((self.limite_superiore - self.limite_inferiore), self.tick) / self.step, self.tick)
         # controlli per verificare che i parametri abbiano senso
+        if not check.is_integer():
+            # se il primo acquisto non è multiplo dello step, arrotondo alla cifra inferiore
+            self.primo_acquisto = round(
+                (((self.primo_acquisto - self.limite_inferiore) // self.step) * self.step) + self.limite_inferiore,
+                self.tick)
+        if not check2.is_integer():
+            self.limite_superiore = round(
+                (((self.limite_superiore - self.limite_inferiore) // self.step) * self.step) + self.limite_inferiore,
+                self.tick)
+        prima_vendita = round(self.primo_acquisto + self.take + self.step, self.tick)
         pacchi_acquisto = []
         pacchi_vendita = []
         pacchi_stato = []

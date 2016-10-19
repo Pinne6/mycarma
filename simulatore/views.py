@@ -1,6 +1,8 @@
 # Create your views here.
 
 """
+0.06.00 - 19/10/2016
+- form validation
 0.05.00 - 18/10/2016
 - versione funzionante
 0.04.01 - 17/10/2016
@@ -87,6 +89,22 @@ def index(request):
         storico = []
         take_array = []
         take_array_size = 0
+        check = round(round((crea_primo_acquisto - crea_limite_inferiore), tick) / crea_step, tick)
+        check2 = round(round((crea_limite_superiore - crea_limite_inferiore), tick) / crea_step, tick)
+        # controlli per verificare che i parametri abbiano senso
+        if not check.is_integer():
+            # se il primo acquisto non è multiplo dello step, arrotondo alla cifra inferiore
+            crea_primo_acquisto = round(
+                (((crea_primo_acquisto - crea_limite_inferiore) // crea_step) * crea_step) + crea_limite_inferiore,
+                tick)
+            print(check)
+            check = 'Yes'
+        if not check2.is_integer():
+            crea_limite_superiore = round(
+                (((crea_limite_superiore - crea_limite_inferiore) // crea_step) * crea_step) + crea_limite_inferiore,
+                tick)
+            print(check2)
+            check2 = 'Yes'
         while crea_take_inizio <= (crea_take_fine + 0.0001):
             tappeto_singolo = Tappeto(crea_isin, crea_limite_inferiore, crea_limite_superiore,
                                                          crea_step, crea_take_inizio, crea_quantita_acquisto,
@@ -205,7 +223,11 @@ def index(request):
             'take_incremento': crea_take_incremento,
             'tipo_commissione': tipo_commissione,
             'take_array': take_array,
-            'take_array_size': take_array_size
+            'take_array_size': take_array_size,
+            'data_oggi': datetime.datetime.strftime(datetime.date.today(), "%Y-%m-%d"),
+            'data_max': datetime.datetime.strftime(datetime.date.today() - datetime.timedelta(days=-14), "%Y-%m-%d"),
+            'check': check,
+            'check2': check2
         }
     else:
         prova = 'Ciao stronzo'
@@ -216,7 +238,9 @@ def index(request):
             'isin_conf': isin_conf,
             'mostra_risultati': mostra_risultati,
             'server_remoto': settings.DEBUG,
-            'dire': dire
+            'dire': dire,
+            'data_oggi': datetime.datetime.strftime(datetime.date.today(), "%Y-%m-%d"),
+            'data_max': datetime.datetime.strftime(datetime.date.today() - datetime.timedelta(days=18), "%Y-%m-%d")
         }
     return render(request, 'simulatore/index.html', context)
 
