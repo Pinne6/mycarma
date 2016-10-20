@@ -1,6 +1,8 @@
 # Create your views here.
 
 """
+0.07.00 - 20/10/2016
+- inserite statistiche della simulazione totale nel database
 0.06.00 - 19/10/2016
 - form validation
 0.05.00 - 18/10/2016
@@ -107,22 +109,23 @@ def index(request):
             check2 = 'Yes'
         while crea_take_inizio <= (crea_take_fine + 0.0001):
             tappeto_singolo = Tappeto(crea_isin, crea_limite_inferiore, crea_limite_superiore,
-                                                         crea_step, crea_take_inizio, crea_quantita_acquisto,
-                                                         crea_quantita_vendita, crea_primo_acquisto, crea_checkFX, tick,
-                                                         tipo_tappeto, percentuale_incrementale, tipo_steptake,
-                                                         tipo_commissione, commissione, min_commissione,
-                                                         max_commissione, crea_in_carico)
+                                      crea_step, crea_take_inizio, crea_quantita_acquisto,
+                                      crea_quantita_vendita, crea_primo_acquisto, crea_checkFX, tick,
+                                      tipo_tappeto, percentuale_incrementale, tipo_steptake,
+                                      tipo_commissione, commissione, min_commissione,
+                                      max_commissione, crea_in_carico)
             tappeto.append(tappeto_singolo)
             crea_take_inizio += crea_take_incremento
         if request.POST.get('bottone') == 'simula':
             take_migliore_data = []
             data_diff = data_fine - data_inizio
-            # per ogni data cerco il file del tick by tick
+            # per ogni tappeto creo lo storico vuoto di ogni data
             for c in range(0, len(tappeto), +1):
                 data_ciclo = data_inizio
                 for i in range(data_diff.days + 1):
                     tappeto[c].storico.append(Storico(data_ciclo))
                     data_ciclo += datetime.timedelta(days=1)
+            # per ogni data cerco il file del tick by tick
             for i in range(data_diff.days + 1):
                 if settings.SERVER_DEV is False:
                     filename = folder + crea_isin + "/" + data_inizio.strftime("%Y%m%d") + ".csv"
@@ -137,6 +140,7 @@ def index(request):
                 storico.append(Storico(data_inizio))
                 ultimo_prezzo = 0
                 # print(filename)
+                # per ogni file giornaliero ciclo tra tutti i prezzi
                 for a in range(len(intra) - 1, 0, -1):
                     if intra[a][1] == '':
                         continue
@@ -147,25 +151,50 @@ def index(request):
                     if prezzo == ultimo_prezzo:
                         continue
                     ultimo_prezzo = prezzo
+                    # se il prezzo è diverso dall'ultimo prezzo allora ciclo tra tutti i tappeti per eseguire operazione
+                    # ciclo tra tutti i tappeti
                     for c in range(0, len(tappeto), +1):
+                        # ciclo tra tutti i pacchi di un tappeto
                         for b in range(0, len(tappeto[c].pacchi), +1):
                             if tappeto[c].pacchi[b].order_type == "ACQAZ" and tappeto[c].pacchi[b].buy_price >= prezzo:
                                 tappeto[c].pacchi[b].acquisto(prezzo, tappeto[c], data, ora, storico)
                                 # print("Eseguito acquisto a " + str(prezzo))
-                            elif tappeto[c].pacchi[b].order_type == "VENAZ" and tappeto[c].pacchi[b].sell_price <= prezzo:
+                            elif tappeto[c].pacchi[b].order_type == "VENAZ" and tappeto[c].pacchi[
+                                b].sell_price <= prezzo:
                                 tappeto[c].pacchi[b].vendita(prezzo, tappeto[c], data, ora, storico)
                                 # print("Eseguito vendita a " + str(prezzo))
                 data_inizio += datetime.timedelta(days=1)
                 take_data = []
+            # dividere per 1 milione per avere i secondi
+            time = datetime.datetime.today() - start_time
+            x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+            if x_forwarded_for:
+                ip = x_forwarded_for.split(',')[0]
+            else:
+                ip = request.META.get('REMOTE_ADDR')  # Real IP address of client Machine
+            SimulazioneStatistiche.objects.create(durata=time, user_id=request.user, indirizzo_ip=ip, isin=crea_isin,
+                                                  limite_inferiore=crea_limite_inferiore,
+                                                  limite_superiore=crea_limite_superiore, step=crea_step,
+                                                  quantita_acquisto=crea_quantita_acquisto,
+                                                  quantita_vendita=crea_quantita_vendita,
+                                                  primo_acquisto=crea_primo_acquisto, take_inizio=crea_take_inizio_2,
+                                                  take_fine=crea_take_fine,
+                                                  take_incremento=crea_take_incremento, in_carico=crea_in_carico,
+                                                  tipo_commissione=tipo_commissione, commissione=commissione,
+                                                  min_commissione=min_commissione, max_commissione=max_commissione)
+            # per ogni tappeto creo le statistiche andando a vedere i pacchi eseguiti
             for item in tappeto:
                 item.nr_acquisti = sum(pack.nr_acquisti for pack in item.pacchi)
                 item.nr_vendite = sum(pack.nr_vendite for pack in item.pacchi)
                 item.gain = sum(pack.gain for pack in item.pacchi)
                 item.commissioni = sum(pack.commissioni for pack in item.pacchi)
                 item.profitto = item.gain - item.commissioni
+                item.rendimento = round(((item.gain - item.commissioni) / item.valore_max) * 100, 2)
                 print(
-                    "Take: " + str(item.take) + " Acquisti: " + str(item.nr_acquisti) + " Vendite: " + str(item.nr_vendite) + " Gain: " +
-                    str(item.gain) + " Profitto: " + str(item.profitto))
+                    "Take: " + str(item.take) + " Acquisti: " + str(item.nr_acquisti) + " Vendite: " + str(
+                        item.nr_vendite) + " Gain: " +
+                    str(item.gain) + " Profitto: " + str(item.profitto) + " Valore max: " + str(item.valore_max) +
+                    " Rendimento: " + str(item.rendimento))
             data_inizio = data_inizio_2
             """
             for sto in storico:
@@ -200,9 +229,6 @@ def index(request):
                 take_array = maxi_index
                 take_array_size = 0
             print(take_array)
-
-                # for Operazione in Tappeto.operazioni:
-                #     print(str(Operazione.data) + " " + str(Operazione.ora) + " " + str(Operazione.prezzo) + " " + str(Operazione.gain))
             time = datetime.datetime.today() - start_time
             print(time)
         # context è un dizionario che associa variabili del template a oggetti python
@@ -243,4 +269,3 @@ def index(request):
             'data_max': datetime.datetime.strftime(datetime.date.today() - datetime.timedelta(days=18), "%Y-%m-%d")
         }
     return render(request, 'simulatore/index.html', context)
-

@@ -32,7 +32,9 @@
   $(document).ready(function() {
   $('#tabella_risultato_simulazione').dataTable({
       "paging": false,
-      "searching": false
+      "searching": false,
+      "order": [[ 12, 'desc' ]],
+      "info": false
   });
     });
   </script>

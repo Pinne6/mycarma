@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+import django.utils
 
 
 # Create your models here.
@@ -11,6 +12,63 @@ class UserPerm(models.Model):
             ("take_fisso", "Può simulare senza limiti a take fisso"),
             ("take_variabile", "Può simulare senza limiti a take variabile"),
         )
+
+
+class SimulazioneStatistiche(models.Model):
+    data_ora = models.DateTimeField(default=django.utils.timezone.now)
+    durata = models.DurationField()
+    user_id = models.ForeignKey(User)
+    indirizzo_ip = models.GenericIPAddressField()
+    isin = models.CharField(max_length=15)
+    limite_inferiore = models.DecimalField(max_digits=15, decimal_places=5)
+    limite_superiore = models.DecimalField(max_digits=15, decimal_places=5)
+    step = models.DecimalField(max_digits=15, decimal_places=5)
+    quantita_acquisto = models.IntegerField()
+    quantita_vendita = models.IntegerField()
+    primo_acquisto = models.DecimalField(max_digits=15, decimal_places=5)
+    take_inizio = models.DecimalField(max_digits=15, decimal_places=5)
+    take_fine = models.DecimalField(max_digits=15, decimal_places=5)
+    take_incremento = models.DecimalField(max_digits=15, decimal_places=5)
+    in_carico = models.IntegerField()
+    tipo_commissione = models.CharField(max_length=1)
+    commissione = models.DecimalField(max_digits=15, decimal_places=5)
+    min_commissione = models.DecimalField(max_digits=15, decimal_places=5)
+    max_commissione = models.DecimalField(max_digits=15, decimal_places=5)
+
+    def salvare(self):
+        self.save()
+
+
+class SimulazioneSingola(models.Model):
+    simulazione = models.ForeignKey(SimulazioneStatistiche, on_delete=models.CASCADE)
+    isin = models.CharField(max_length=15)
+    limite_inferiore = models.DecimalField(max_digits=15, decimal_places=5)
+    limite_superiore = models.DecimalField(max_digits=15, decimal_places=5)
+    step = models.DecimalField(max_digits=15, decimal_places=5)
+    quantita_acquisto = models.IntegerField()
+    quantita_vendita = models.IntegerField()
+    primo_acquisto = models.DecimalField(max_digits=15, decimal_places=5)
+    take = models.DecimalField(max_digits=15, decimal_places=5)
+    in_carico = models.IntegerField()
+    tipo_commissione = models.CharField(max_length=1)
+    commissione = models.DecimalField(max_digits=15, decimal_places=5)
+    min_commissione = models.DecimalField(max_digits=15, decimal_places=5)
+    max_commissione = models.DecimalField(max_digits=15, decimal_places=5)
+    nr_acquisti = models.IntegerField()
+    nr_vendite = models.IntegerField()
+    gain = models.DecimalField(max_digits=10, decimal_places=2)
+    commissioni = models.DecimalField(max_digits=10, decimal_places=2)
+    profitto = models.DecimalField(max_digits=10, decimal_places=2)
+    valore_attuale = models.DecimalField(max_digits=10, decimal_places=2)
+    valore_carico = models.DecimalField(max_digits=10, decimal_places=2)
+    valore_min = models.DecimalField(max_digits=10, decimal_places=2)
+    valore_max = models.DecimalField(max_digits=10, decimal_places=2)
+    quantita_totale = models.DecimalField(max_digits=10, decimal_places=2)
+    rendimento = models.DecimalField(max_digits=10, decimal_places=2)
+    rendimento_teorico = models.DecimalField(max_digits=10, decimal_places=2)
+
+    def salvare(self):
+        self.save()
 
 
 class Pacco:
@@ -50,6 +108,7 @@ class Pacco:
         self.commissioni += commissione
         tappeto.operazioni.append(Operazione(self.order_type, data, ora, prezzo, self.quantity_buy, gain, commissione,
                                              self.buy_price))
+        tappeto.operazione(self.order_type, data, ora, prezzo, self.quantity_buy, gain, commissione)
         # if data in storico:
         #    i = storico.index(data)
         #    storico[i].acquisti += 1
@@ -80,6 +139,7 @@ class Pacco:
         self.commissioni += commissione
         tappeto.operazioni.append(Operazione(self.order_type, data, ora, prezzo, self.quantity_sell, gain, commissione,
                                              self.sell_price))
+        tappeto.operazione(self.order_type, data, ora, prezzo, self.quantity_sell, gain, commissione)
         for item in tappeto.storico:
             if item.data == data:
                 item.nr_vendite += 1
@@ -235,5 +295,5 @@ class Tappeto:
         elif tipo_operazione == "VENAZ":
             self.quantita_totale -= quantita
             self.valore_attuale -= (prezzo * quantita)
-        if valore_attuale >= valore_max:
-            valore_max = valore_attuale
+        if self.valore_attuale >= self.valore_max:
+            self.valore_max = self.valore_attuale

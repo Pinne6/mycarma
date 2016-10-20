@@ -442,89 +442,95 @@
             <table class="table table-condensed table-bordered table-hover stripe" id="tabella_risultato_simulazione" style="font-size: 12px; text-align: center">
 				<thead>
 					<tr>
-						<th>
+						<th style="padding: 5px 5px; vertical-align: middle">
 							Inizio
 						</th>
-						<th>
+						<th style="padding: 5px 5px; vertical-align: middle">
 							Fine
 						</th>
-						<th>
-							Primo&#13;&#10;acquisto
+						<th style="padding: 5px 5px; vertical-align: middle">
+							Primo<br/>acquisto
 						</th>
-						<th>
+						<th style="padding: 5px 5px; vertical-align: middle">
 							Step
 						</th>
-                        <th>
+                        <th style="padding: 5px 5px; vertical-align: middle">
 							Take
 						</th>
-                        <th>
-							Quantità&#13;&#10;acquisto
+                        <th style="padding: 5px 5px; vertical-align: middle">
+							Quantità<br/>acquisto
 						</th>
-                        <th>
-							Quantità&#13;&#10;vendita
+                        <th style="padding: 5px 5px; vertical-align: middle">
+							Quantità<br/>vendita
 						</th>
-                        <th>
+                        <th style="padding: 5px 5px; vertical-align: middle">
 							Acquisti
 						</th>
-                        <th>
+                        <th style="padding: 5px 5px; vertical-align: middle">
 							Vendite
 						</th>
-                        <th>
+                        <th style="padding: 5px 5px; vertical-align: middle">
 							Gain
 						</th>
-                        <th>
+                        <th style="padding: 5px 5px; vertical-align: middle">
 							Commissioni
 						</th>
-                        <th>
+                        <th style="padding: 5px 5px; vertical-align: middle">
 							Profitto
 						</th>
-                        <th>
+                        <th style="padding: 5px 5px; vertical-align: middle">
 							Rendimento
 						</th>
+                        <th style="padding: 5px 5px; vertical-align: middle">
+                            Valore<br/>massimo
+                        </th>
 					</tr>
 				</thead>
 				<tbody>
 					{% for Tappeto in tappeto %}
                     <tr>
-						<td>
+						<td style="padding: 5px 5px">
 							{{ Tappeto.limite_inferiore }}
 						</td>
-						<td>
+						<td style="padding: 5px 5px">
 							{{ Tappeto.limite_superiore }}
 						</td>
-						<td>
+						<td style="padding: 5px 5px">
 							{{ Tappeto.primo_acquisto }}
 						</td>
-						<td>
+						<td style="padding: 5px 5px">
 							{{ Tappeto.step }}
 						</td>
-                        <td>
+                        <td style="padding: 5px 5px">
 							{{ Tappeto.take }}
 						</td>
-                        <td>
+                        <td style="padding: 5px 5px">
 							{{ Tappeto.quantita_acquisto }}
 						</td>
-                        <td>
+                        <td style="padding: 5px 5px">
 							{{ Tappeto.quantita_vendita }}
 						</td>
-                        <td>
+                        <td style="padding: 5px 5px">
 							{{ Tappeto.nr_acquisti }}
 						</td>
-                        <td>
+                        <td style="padding: 5px 5px">
 							{{ Tappeto.nr_vendite }}
 						</td>
-                        <td>
+                        <td style="padding: 5px 5px">
 							{{ Tappeto.gain }}
 						</td>
-                        <td>
+                        <td style="padding: 5px 5px">
 							{{ Tappeto.commissioni }}
 						</td>
-                        <td>
+                        <td style="padding: 5px 5px">
 							{{ Tappeto.profitto }}
 						</td>
-                        <td>
-							Default
+                        <td style="padding: 5px 5px">
+							{{ Tappeto.rendimento }}%
 						</td>
+                        <td style="padding: 5px 5px">
+                            {{ Tappeto.valore_max }}
+                        </td>
 					</tr>
                     {% endfor %}
 				</tbody>
