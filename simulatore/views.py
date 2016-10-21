@@ -1,6 +1,9 @@
 # Create your views here.
 
 """
+0.08.00 - 21/10/2016
+- inserite statistiche migliore e peggiore simulazione
+- creato database di test nel settings sul server
 0.07.00 - 20/10/2016
 - inserite statistiche della simulazione totale nel database
 0.06.00 - 19/10/2016
@@ -32,8 +35,9 @@ import datetime
 import os.path
 import numpy as np
 from django.conf import settings
+from django.db import transaction
 
-version = '0.05.00'
+version = '0.08.00'
 
 
 def index(request):
@@ -48,14 +52,12 @@ def index(request):
                 line = line.split("|")
                 isin_conf.append(line)
     if request.method == "POST":
-        prova = 'Ciao POST'
         start_time = datetime.datetime.today()
         if settings.SERVER_DEV is False:
             folder = "/home/carma/dati/intra/"
         else:
             folder = "C:\\Users\\fesposti\\Downloads\\dati agosto\\"
         crea_isin = request.POST.get('isin')
-        print(prova)
         crea_limite_inferiore = float(request.POST.get('crea_limite_inferiore'))
         crea_limite_superiore = float(request.POST.get('crea_limite_superiore'))
         crea_step = float(request.POST.get('step'))
@@ -172,18 +174,21 @@ def index(request):
                 ip = x_forwarded_for.split(',')[0]
             else:
                 ip = request.META.get('REMOTE_ADDR')  # Real IP address of client Machine
-            SimulazioneStatistiche.objects.create(durata=time, user_id=request.user, indirizzo_ip=ip, isin=crea_isin,
-                                                  limite_inferiore=crea_limite_inferiore,
-                                                  limite_superiore=crea_limite_superiore, step=crea_step,
-                                                  quantita_acquisto=crea_quantita_acquisto,
-                                                  quantita_vendita=crea_quantita_vendita,
-                                                  primo_acquisto=crea_primo_acquisto, take_inizio=crea_take_inizio_2,
-                                                  take_fine=crea_take_fine,
-                                                  take_incremento=crea_take_incremento, in_carico=crea_in_carico,
-                                                  tipo_commissione=tipo_commissione, commissione=commissione,
-                                                  min_commissione=min_commissione, max_commissione=max_commissione)
+            n = SimulazioneStatistiche.objects.create(durata=time, user_id=request.user, indirizzo_ip=ip,
+                                                      isin=crea_isin,
+                                                      limite_inferiore=crea_limite_inferiore,
+                                                      limite_superiore=crea_limite_superiore, step=crea_step,
+                                                      quantita_acquisto=crea_quantita_acquisto,
+                                                      quantita_vendita=crea_quantita_vendita,
+                                                      primo_acquisto=crea_primo_acquisto,
+                                                      take_inizio=crea_take_inizio_2,
+                                                      take_fine=crea_take_fine,
+                                                      take_incremento=crea_take_incremento, in_carico=crea_in_carico,
+                                                      tipo_commissione=tipo_commissione, commissione=commissione,
+                                                      min_commissione=min_commissione, max_commissione=max_commissione)
+            n.salvare()
             # per ogni tappeto creo le statistiche andando a vedere i pacchi eseguiti
-            for item in tappeto:
+            for count, item in enumerate(tappeto):
                 item.nr_acquisti = sum(pack.nr_acquisti for pack in item.pacchi)
                 item.nr_vendite = sum(pack.nr_vendite for pack in item.pacchi)
                 item.gain = sum(pack.gain for pack in item.pacchi)
@@ -195,6 +200,73 @@ def index(request):
                         item.nr_vendite) + " Gain: " +
                     str(item.gain) + " Profitto: " + str(item.profitto) + " Valore max: " + str(item.valore_max) +
                     " Rendimento: " + str(item.rendimento))
+                # se è il primo giro, inizializzo la simulazione migliore e peggiore al valore attuale
+                # a [0] metto il numero tappeto della simulazione migliore, a [1] quello peggiore
+                if count == 0:
+                    rendimento_max = item.rendimento
+                    rendimento_min = item.rendimento
+                    classifica_rendimenti = [count, count]
+                    continue
+                if item.rendimento > rendimento_max:
+                    rendimento_max = item.rendimento
+                    classifica_rendimenti[0] = count
+                elif item.rendimento < rendimento_min:
+                    classifica_rendimenti[1] = item.rendimento
+            simsingolamin = SimulazioneSingola(simulazione=n, isin=tappeto[classifica_rendimenti[1]].isin,
+                                               limite_inferiore=tappeto[classifica_rendimenti[1]].limite_inferiore,
+                                               limite_superiore=tappeto[classifica_rendimenti[1]].limite_superiore,
+                                               step=tappeto[classifica_rendimenti[1]].step,
+                                               quantita_acquisto=tappeto[classifica_rendimenti[1]].quantita_acquisto,
+                                               quantita_vendita=tappeto[classifica_rendimenti[1]].quantita_vendita,
+                                               primo_acquisto=tappeto[classifica_rendimenti[1]].primo_acquisto,
+                                               take=tappeto[classifica_rendimenti[1]].take,
+                                               in_carico=tappeto[classifica_rendimenti[1]].in_carico,
+                                               tipo_commissione=tappeto[classifica_rendimenti[1]].tipo_commissione,
+                                               commissione=tappeto[classifica_rendimenti[1]].commissione,
+                                               min_commissione=tappeto[classifica_rendimenti[1]].min_commissione,
+                                               max_commissione=tappeto[classifica_rendimenti[1]].max_commissione,
+                                               nr_acquisti=tappeto[classifica_rendimenti[1]].nr_acquisti,
+                                               nr_vendite=tappeto[classifica_rendimenti[1]].nr_vendite,
+                                               gain=tappeto[classifica_rendimenti[1]].gain,
+                                               commissioni=tappeto[classifica_rendimenti[1]].commissioni,
+                                               profitto=tappeto[classifica_rendimenti[1]].profitto,
+                                               valore_attuale=tappeto[classifica_rendimenti[1]].valore_attuale,
+                                               valore_carico=tappeto[classifica_rendimenti[1]].valore_carico,
+                                               valore_min=tappeto[classifica_rendimenti[1]].valore_min,
+                                               valore_max=tappeto[classifica_rendimenti[1]].valore_max,
+                                               quantita_totale=tappeto[classifica_rendimenti[1]].quantita_totale,
+                                               rendimento=tappeto[classifica_rendimenti[1]].rendimento,
+                                               rendimento_teorico=tappeto[classifica_rendimenti[1]].rendimento_teorico)
+            simsingolamax = SimulazioneSingola(simulazione=n, isin=tappeto[classifica_rendimenti[0]].isin,
+                                               limite_inferiore=tappeto[classifica_rendimenti[0]].limite_inferiore,
+                                               limite_superiore=tappeto[classifica_rendimenti[0]].limite_superiore,
+                                               step=tappeto[classifica_rendimenti[0]].step,
+                                               quantita_acquisto=tappeto[classifica_rendimenti[0]].quantita_acquisto,
+                                               quantita_vendita=tappeto[classifica_rendimenti[0]].quantita_vendita,
+                                               primo_acquisto=tappeto[classifica_rendimenti[0]].primo_acquisto,
+                                               take=tappeto[classifica_rendimenti[0]].take,
+                                               in_carico=tappeto[classifica_rendimenti[0]].in_carico,
+                                               tipo_commissione=tappeto[classifica_rendimenti[0]].tipo_commissione,
+                                               commissione=tappeto[classifica_rendimenti[0]].commissione,
+                                               min_commissione=tappeto[classifica_rendimenti[0]].min_commissione,
+                                               max_commissione=tappeto[classifica_rendimenti[0]].max_commissione,
+                                               nr_acquisti=tappeto[classifica_rendimenti[0]].nr_acquisti,
+                                               nr_vendite=tappeto[classifica_rendimenti[0]].nr_vendite,
+                                               gain=tappeto[classifica_rendimenti[0]].gain,
+                                               commissioni=tappeto[classifica_rendimenti[0]].commissioni,
+                                               profitto=tappeto[classifica_rendimenti[0]].profitto,
+                                               valore_attuale=tappeto[classifica_rendimenti[0]].valore_attuale,
+                                               valore_carico=tappeto[classifica_rendimenti[0]].valore_carico,
+                                               valore_min=tappeto[classifica_rendimenti[0]].valore_min,
+                                               valore_max=tappeto[classifica_rendimenti[0]].valore_max,
+                                               quantita_totale=tappeto[classifica_rendimenti[0]].quantita_totale,
+                                               rendimento=tappeto[classifica_rendimenti[0]].rendimento,
+                                               rendimento_teorico=tappeto[classifica_rendimenti[0]].rendimento_teorico)
+            SimulazioneSingola.objects.bulk_create([simsingolamax, simsingolamin])
+            # transaction.set_autocommit(False)
+            # SimulazioneSingola.objects.bulk_create(tappeti)
+            # transaction.commit()
+            # transaction.set_autocommit(True)
             data_inizio = data_inizio_2
             """
             for sto in storico:

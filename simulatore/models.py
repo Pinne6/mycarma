@@ -40,7 +40,7 @@ class SimulazioneStatistiche(models.Model):
 
 
 class SimulazioneSingola(models.Model):
-    simulazione = models.ForeignKey(SimulazioneStatistiche, on_delete=models.CASCADE)
+    simulazione = models.ForeignKey('SimulazioneStatistiche', on_delete=models.CASCADE)
     isin = models.CharField(max_length=15)
     limite_inferiore = models.DecimalField(max_digits=15, decimal_places=5)
     limite_superiore = models.DecimalField(max_digits=15, decimal_places=5)
@@ -66,6 +66,11 @@ class SimulazioneSingola(models.Model):
     quantita_totale = models.DecimalField(max_digits=10, decimal_places=2)
     rendimento = models.DecimalField(max_digits=10, decimal_places=2)
     rendimento_teorico = models.DecimalField(max_digits=10, decimal_places=2)
+    # checkFX = models.IntegerField()
+    # tick = models.IntegerField()
+    # tipo_tappetino = models.CharField(max_length=1)
+    # percentuale_incrementale = models.DecimalField(max_digits=15, decimal_places=5)
+    # tipo_steptake = models.CharField(max_length=1)
 
     def salvare(self):
         self.save()
