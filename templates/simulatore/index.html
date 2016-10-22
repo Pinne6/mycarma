@@ -52,7 +52,7 @@
                                 <div class="col-md-3 form-group-sm">
                                     <label for="crea_data_inizio">
                                         Data inizio
-                                    {% if user.is_authenticated and perms.UserPerm.take_singolo %}
+                                    {% if user.is_authenticated and perms.simulatore.take_fisso %}
                                     <input type="date" class="form-control" name="crea_data_inizio" required {% if bottone == 'crea' or bottone == 'simula' %}value="{{ data_inizio_2 }}" {% else %}value="2016-08-01"{% endif %}>
                                     {% else %}
                                     <input type="date" class="form-control" name="crea_data_inizio" required {% if bottone == 'crea' or bottone == 'simula' %}value="{{ data_inizio_2 }}" {% else %}value="{{ data_max }}"{% endif %} min="{{ data_max }}" max="{{ data_oggi }}">
@@ -62,7 +62,7 @@
                                 <div class="col-md-3 form-group-sm">
                                     <label for="crea_data_fine">
                                     Data fine
-                                    {% if user.is_authenticated and perms.UserPerm.take_singolo %}
+                                    {% if user.is_authenticated and perms.simulatore.take_fisso %}
                                     <input type="date" class="form-control" name="crea_data_fine" required {% if bottone == 'crea' or bottone == 'simula' %}value="{{ data_fine_2 }}" {% else %}value="2016-09-01"{% endif %}>
                                     {% else %}
                                     <input type="date" class="form-control" name="crea_data_fine" required {% if bottone == 'crea' or bottone == 'simula' %}value="{{ data_fine_2 }}" {% else %}value="{{ data_oggi }}"{% endif %} min="{{ data_max }}" max="{{ data_oggi }}">
@@ -189,7 +189,7 @@
                     </div>
                     <div class="tab-pane {% if tipo_take == 'take_variabile' %}active{% endif %}" id="panel-68911">
 						{% if user.is_authenticated %}
-                        {% if perms.UserPerm.take_variabile %}
+                        {% if perms.simulatore.take_variabile %}
                         <form role="form" method="post" class="form-horizontal" id="take_variabile">{% csrf_token %}
                         <input type="hidden" value="take_variabile" name="tipo_take">
                             <div class="row">

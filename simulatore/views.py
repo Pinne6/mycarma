@@ -1,6 +1,8 @@
 # Create your views here.
 
 """
+0.09.00 - 22/10/2016
+- sistemati i permessi
 0.08.00 - 21/10/2016
 - inserite statistiche migliore e peggiore simulazione
 - creato database di test nel settings sul server
@@ -36,8 +38,9 @@ import os.path
 import numpy as np
 from django.conf import settings
 from django.db import transaction
+from django.template import RequestContext
 
-version = '0.08.00'
+version = '0.09.00'
 
 
 def index(request):
@@ -304,6 +307,9 @@ def index(request):
             time = datetime.datetime.today() - start_time
             print(time)
         # context è un dizionario che associa variabili del template a oggetti python
+        david = User.objects.get(username="Doc68")
+        per = david.get_all_permissions()
+        print(per)
         context = {
             'bottone': request.POST.get('bottone'),
             'tipo_take': request.POST.get('tipo_take'),
@@ -325,7 +331,8 @@ def index(request):
             'data_oggi': datetime.datetime.strftime(datetime.date.today(), "%Y-%m-%d"),
             'data_max': datetime.datetime.strftime(datetime.date.today() - datetime.timedelta(days=-14), "%Y-%m-%d"),
             'check': check,
-            'check2': check2
+            'check2': check2,
+            'per': per
         }
     else:
         prova = 'Ciao stronzo'

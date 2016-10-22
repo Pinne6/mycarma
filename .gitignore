@@ -8,3 +8,4 @@ testenv
 devenv
 settings.py
 *.json
+wsgi.py
