@@ -1,6 +1,8 @@
 # Create your views here.
 
 """
+0.10.01 - 25/10/2016
+- tolto riferimento a pandas array che causava errore
 0.10.00 - 25/10/2016
 - implementato numpy array
 0.09.00 - 22/10/2016
@@ -151,7 +153,6 @@ def index(request):
                 pacchi_numpy = np.array(tappeto_singolo.numpy, dtype=dt)
             else:
                 pacchi_numpy = np.concatenate((pacchi_numpy, tappeto_singolo.numpy))
-            pacchi_df = pacchi_df.append(tappeto_singolo.df, ignore_index=True)
             crea_take_inizio += crea_take_incremento
             while_counter += 1
         # pacchi_numpy.dtype.names('tappeto', 'pacco', 'stato', 'prezzo_acquisto', 'prezzo_vendita')
