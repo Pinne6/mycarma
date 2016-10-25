@@ -73,6 +73,7 @@ def line_profiler(view=None, extra_view=None):
 
 #line_profiler
 def index(request):
+    print('richiesta: ' + str(request))
     if settings.SERVER_DEV is False:
         dire = "/home/carma/dati/isin.conf"
     else:
