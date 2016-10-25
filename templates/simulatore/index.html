@@ -9,7 +9,7 @@
 			<div class="tabbable" id="tabs-474851">
 				<ul class="nav nav-tabs">
 					<li {% if tipo_take != 'take_variabile' %}class="active"{% endif %}>
-						<a href="#panel-464241" data-toggle="tab">Take fisso {{ perms.simulatore.take_fisso }}</a>
+						<a href="#panel-464241" data-toggle="tab">Take fisso {{ user.is_authenticated }}{{ perms.simulatore.take_fisso }}</a>
 					</li>
 					<li {% if tipo_take == 'take_variabile' %}class="active"{% endif %}>
 						<a href="#panel-68911" data-toggle="tab">Take variabile {{ perms.simulatore.take_variabile }}</a>
