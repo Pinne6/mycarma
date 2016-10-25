@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 import django.utils
+import numpy as np
+import pandas as pd
 
 
 # Create your models here.
@@ -214,7 +216,7 @@ class Tappeto:
     def __init__(self, crea_isin, crea_limite_inferiore, crea_limite_superiore, crea_step, crea_take,
                  crea_quantita_acquisto, crea_quantita_vendita, crea_primo_acquisto, crea_checkFX, tick, tipo_tappeto,
                  percentuale_incrementale, tipo_steptake, tipo_commissione, commissione, min_commissione,
-                 max_commissione, in_carico):
+                 max_commissione, in_carico, while_counter):
         self.isin = crea_isin
         self.limite_inferiore = round(crea_limite_inferiore, tick)
         self.limite_superiore = round(crea_limite_superiore, tick)
@@ -233,6 +235,7 @@ class Tappeto:
         self.min_commissione = min_commissione
         self.max_commissione = max_commissione
         self.in_carico = in_carico
+        self.while_counter = while_counter
         self.nr_acquisti = 0
         self.nr_vendite = 0
         self.gain = 0
@@ -273,6 +276,7 @@ class Tappeto:
         i = 0
         pacco_acquisto = self.limite_inferiore
         pacco_vendita = round(pacco_acquisto + self.take, 5)
+        lista_per_panda = []
         while pacco_vendita <= self.limite_superiore:
             pacchi_acquisto.append(pacco_acquisto)
             pacchi_vendita.append(pacco_vendita)
@@ -291,8 +295,18 @@ class Tappeto:
             singolo_pacco = Pacco(i + 1, self.isin, pacchi_stato[i], pacchi_acquisto[i], pacchi_vendita[i], self.take,
                                   self.quantita_acquisto, self.quantita_vendita, 0, pacchi_carica[i])
             self.pacchi.append(singolo_pacco)
+            if pacchi_stato[i] == 'ACQAZ':
+                lista_per_panda.append((while_counter, i + 1, 0, pacchi_acquisto[i], pacchi_vendita[i]))
+            elif pacchi_stato[i] == 'VENAZ':
+                lista_per_panda.append((while_counter, i + 1, 1, pacchi_acquisto[i], pacchi_vendita[i]))
             i += 1
-
+        dt = np.dtype('int,int,int,float,float')
+        self.numpy = np.array(lista_per_panda, dtype=dt)
+        # self.numpy.dtype.names('tappeto', 'pacco', 'stato', 'prezzo_acquisto', 'prezzo_vendita')
+        self.df = pd.DataFrame(lista_per_panda, columns=['tappeto', 'pacco', 'stato', 'prezzo_acquisto', 'prezzo_vendita'])
+        self.df['tappeto'] = self.df['tappeto'].astype(int)
+        self.df['pacco'] = self.df['pacco'].astype(int)
+        self.df['stato'] = self.df['stato'].astype(int)
     def operazione(self, tipo_operazione, data, ora, prezzo, quantita, gain, commissioni):
         if tipo_operazione == "ACQAZ":
             self.quantita_totale += quantita

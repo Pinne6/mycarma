@@ -36,13 +36,37 @@ from .models import *
 import datetime
 import os.path
 import numpy as np
+import pandas as pd
 from django.conf import settings
 from django.db import transaction
 from django.template import RequestContext
+import mysql.connector
 
 version = '0.09.00'
 
 
+def line_profiler(view=None, extra_view=None):
+    import line_profiler
+
+    def wrapper(view):
+        def wrapped(*args, **kwargs):
+            prof = line_profiler.LineProfiler()
+            prof.add_function(view)
+            if extra_view:
+                [prof.add_function(v) for v in extra_view]
+            with prof:
+                resp = view(*args, **kwargs)
+            prof.print_stats()
+            return resp
+
+        return wrapped
+
+    if view:
+        return wrapper(view)
+    return wrapper
+
+
+#line_profiler
 def index(request):
     if settings.SERVER_DEV is False:
         dire = "/home/carma/dati/isin.conf"
@@ -59,7 +83,7 @@ def index(request):
         if settings.SERVER_DEV is False:
             folder = "/home/carma/dati/intra/"
         else:
-            folder = "C:\\Users\\fesposti\\Downloads\\dati agosto\\"
+            folder = "C:\\intra\\"
         crea_isin = request.POST.get('isin')
         crea_limite_inferiore = float(request.POST.get('crea_limite_inferiore'))
         crea_limite_superiore = float(request.POST.get('crea_limite_superiore'))
@@ -108,19 +132,31 @@ def index(request):
             check = 'Yes'
         if not check2.is_integer():
             crea_limite_superiore = round(
-                (((crea_limite_superiore - crea_limite_inferiore) // crea_step) * crea_step) + crea_limite_inferiore,
+                (
+                    ((
+                     crea_limite_superiore - crea_limite_inferiore) // crea_step) * crea_step) + crea_limite_inferiore,
                 tick)
             print(check2)
             check2 = 'Yes'
+        pacchi_df = pd.DataFrame(columns=['tappeto', 'stato', 'prezzo_acquisto', 'prezzo_vendita'])
+        dt = np.dtype('int,int,int,float,float')
+        while_counter = 1
         while crea_take_inizio <= (crea_take_fine + 0.0001):
             tappeto_singolo = Tappeto(crea_isin, crea_limite_inferiore, crea_limite_superiore,
                                       crea_step, crea_take_inizio, crea_quantita_acquisto,
                                       crea_quantita_vendita, crea_primo_acquisto, crea_checkFX, tick,
                                       tipo_tappeto, percentuale_incrementale, tipo_steptake,
                                       tipo_commissione, commissione, min_commissione,
-                                      max_commissione, crea_in_carico)
+                                      max_commissione, crea_in_carico, while_counter)
             tappeto.append(tappeto_singolo)
+            if while_counter == 1:
+                pacchi_numpy = np.array(tappeto_singolo.numpy, dtype=dt)
+            else:
+                pacchi_numpy = np.concatenate((pacchi_numpy, tappeto_singolo.numpy))
+            pacchi_df = pacchi_df.append(tappeto_singolo.df, ignore_index=True)
             crea_take_inizio += crea_take_incremento
+            while_counter += 1
+        # pacchi_numpy.dtype.names('tappeto', 'pacco', 'stato', 'prezzo_acquisto', 'prezzo_vendita')
         if request.POST.get('bottone') == 'simula':
             take_migliore_data = []
             data_diff = data_fine - data_inizio
@@ -131,21 +167,29 @@ def index(request):
                     tappeto[c].storico.append(Storico(data_ciclo))
                     data_ciclo += datetime.timedelta(days=1)
             # per ogni data cerco il file del tick by tick
+            contatore_acquisti = 0
+            contatore_vendite = 0
             for i in range(data_diff.days + 1):
                 if settings.SERVER_DEV is False:
                     filename = folder + crea_isin + "/" + data_inizio.strftime("%Y%m%d") + ".csv"
                 else:
                     filename = folder + crea_isin + "\\" + data_inizio.strftime("%Y%m%d") + ".csv"
                 intra = []
+                now1 = datetime.datetime.today()
                 if os.path.exists(filename):
                     with open(filename) as f:
                         for line in f:
                             line = line.split("|")
                             intra.append(line)
-                storico.append(Storico(data_inizio))
+                    storico.append(Storico(data_inizio))
+                    # print(datetime.datetime.today() - now1)
+                else:
+                    data_inizio += datetime.timedelta(days=1)
+                    continue
                 ultimo_prezzo = 0
                 # print(filename)
                 # per ogni file giornaliero ciclo tra tutti i prezzi
+                print('ciclo il file: ' + filename)
                 for a in range(len(intra) - 1, 0, -1):
                     if intra[a][1] == '':
                         continue
@@ -156,21 +200,26 @@ def index(request):
                     if prezzo == ultimo_prezzo:
                         continue
                     ultimo_prezzo = prezzo
-                    # se il prezzo è diverso dall'ultimo prezzo allora ciclo tra tutti i tappeti per eseguire operazione
+                    # se il prezzo è diverso dall'ultimo prezzo allora ciclo tra tutti i tappeti
+                    # per eseguire operazione
                     # ciclo tra tutti i tappeti
-                    for c in range(0, len(tappeto), +1):
-                        # ciclo tra tutti i pacchi di un tappeto
-                        for b in range(0, len(tappeto[c].pacchi), +1):
-                            if tappeto[c].pacchi[b].order_type == "ACQAZ" and tappeto[c].pacchi[b].buy_price >= prezzo:
-                                tappeto[c].pacchi[b].acquisto(prezzo, tappeto[c], data, ora, storico)
-                                # print("Eseguito acquisto a " + str(prezzo))
-                            elif tappeto[c].pacchi[b].order_type == "VENAZ" and tappeto[c].pacchi[
-                                b].sell_price <= prezzo:
-                                tappeto[c].pacchi[b].vendita(prezzo, tappeto[c], data, ora, storico)
-                                # print("Eseguito vendita a " + str(prezzo))
+                    # cerco dentro il dataframe dove stato = ACQAZ o VENAZ e prezzo
+                    lis_a = pacchi_df[(pacchi_df.stato == 0) & (pacchi_df.prezzo_acquisto >= prezzo)]
+                    lis_b = pacchi_df[(pacchi_df.stato == 1) & (pacchi_df.prezzo_vendita <= prezzo)]
+                    # print(pacchi_df)
+                    for row in lis_a.itertuples():
+                        contatore_acquisti += 1
+                        pacchi_df.set_value(row.Index, 'stato', 1)
+                        tappeto[int(row.tappeto) - 1].pacchi[int(row.pacco)].acquisto(prezzo, tappeto[int(row.tappeto) - 1], data, ora, storico)
+                    for row in lis_b.itertuples():
+                        contatore_vendite += 1
+                        pacchi_df.set_value(row.Index, 'stato', 0)
+                        tappeto[int(row.tappeto) - 1].pacchi[int(row.pacco)].vendita(prezzo, tappeto[int(row.tappeto) -1], data, ora, storico)
+                    # print(pacchi_df)
                 data_inizio += datetime.timedelta(days=1)
-                take_data = []
+            take_data = []
             # dividere per 1 milione per avere i secondi
+            print('Acquisti: ' + str(contatore_acquisti) + ' Vendite: ' + str(contatore_vendite))
             time = datetime.datetime.today() - start_time
             x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
             if x_forwarded_for:
@@ -186,9 +235,11 @@ def index(request):
                                                       primo_acquisto=crea_primo_acquisto,
                                                       take_inizio=crea_take_inizio_2,
                                                       take_fine=crea_take_fine,
-                                                      take_incremento=crea_take_incremento, in_carico=crea_in_carico,
+                                                      take_incremento=crea_take_incremento,
+                                                      in_carico=crea_in_carico,
                                                       tipo_commissione=tipo_commissione, commissione=commissione,
-                                                      min_commissione=min_commissione, max_commissione=max_commissione)
+                                                      min_commissione=min_commissione,
+                                                      max_commissione=max_commissione)
             n.salvare()
             # per ogni tappeto creo le statistiche andando a vedere i pacchi eseguiti
             for count, item in enumerate(tappeto):
@@ -214,12 +265,14 @@ def index(request):
                     rendimento_max = item.rendimento
                     classifica_rendimenti[0] = count
                 elif item.rendimento < rendimento_min:
-                    classifica_rendimenti[1] = item.rendimento
+                    rendimento_min = item.rendimento
+                    classifica_rendimenti[1] = count
             simsingolamin = SimulazioneSingola(simulazione=n, isin=tappeto[classifica_rendimenti[1]].isin,
                                                limite_inferiore=tappeto[classifica_rendimenti[1]].limite_inferiore,
                                                limite_superiore=tappeto[classifica_rendimenti[1]].limite_superiore,
                                                step=tappeto[classifica_rendimenti[1]].step,
-                                               quantita_acquisto=tappeto[classifica_rendimenti[1]].quantita_acquisto,
+                                               quantita_acquisto=tappeto[
+                                                   classifica_rendimenti[1]].quantita_acquisto,
                                                quantita_vendita=tappeto[classifica_rendimenti[1]].quantita_vendita,
                                                primo_acquisto=tappeto[classifica_rendimenti[1]].primo_acquisto,
                                                take=tappeto[classifica_rendimenti[1]].take,
@@ -239,12 +292,14 @@ def index(request):
                                                valore_max=tappeto[classifica_rendimenti[1]].valore_max,
                                                quantita_totale=tappeto[classifica_rendimenti[1]].quantita_totale,
                                                rendimento=tappeto[classifica_rendimenti[1]].rendimento,
-                                               rendimento_teorico=tappeto[classifica_rendimenti[1]].rendimento_teorico)
+                                               rendimento_teorico=tappeto[
+                                                   classifica_rendimenti[1]].rendimento_teorico)
             simsingolamax = SimulazioneSingola(simulazione=n, isin=tappeto[classifica_rendimenti[0]].isin,
                                                limite_inferiore=tappeto[classifica_rendimenti[0]].limite_inferiore,
                                                limite_superiore=tappeto[classifica_rendimenti[0]].limite_superiore,
                                                step=tappeto[classifica_rendimenti[0]].step,
-                                               quantita_acquisto=tappeto[classifica_rendimenti[0]].quantita_acquisto,
+                                               quantita_acquisto=tappeto[
+                                                   classifica_rendimenti[0]].quantita_acquisto,
                                                quantita_vendita=tappeto[classifica_rendimenti[0]].quantita_vendita,
                                                primo_acquisto=tappeto[classifica_rendimenti[0]].primo_acquisto,
                                                take=tappeto[classifica_rendimenti[0]].take,
@@ -264,7 +319,8 @@ def index(request):
                                                valore_max=tappeto[classifica_rendimenti[0]].valore_max,
                                                quantita_totale=tappeto[classifica_rendimenti[0]].quantita_totale,
                                                rendimento=tappeto[classifica_rendimenti[0]].rendimento,
-                                               rendimento_teorico=tappeto[classifica_rendimenti[0]].rendimento_teorico)
+                                               rendimento_teorico=tappeto[
+                                                   classifica_rendimenti[0]].rendimento_teorico)
             SimulazioneSingola.objects.bulk_create([simsingolamax, simsingolamin])
             # transaction.set_autocommit(False)
             # SimulazioneSingola.objects.bulk_create(tappeti)
@@ -307,9 +363,6 @@ def index(request):
             time = datetime.datetime.today() - start_time
             print(time)
         # context è un dizionario che associa variabili del template a oggetti python
-        david = User.objects.get(username="Doc68")
-        per = david.get_all_permissions()
-        print(per)
         context = {
             'bottone': request.POST.get('bottone'),
             'tipo_take': request.POST.get('tipo_take'),
@@ -329,10 +382,10 @@ def index(request):
             'take_array': take_array,
             'take_array_size': take_array_size,
             'data_oggi': datetime.datetime.strftime(datetime.date.today(), "%Y-%m-%d"),
-            'data_max': datetime.datetime.strftime(datetime.date.today() - datetime.timedelta(days=-14), "%Y-%m-%d"),
+            'data_max': datetime.datetime.strftime(datetime.date.today() - datetime.timedelta(days=-14),
+                                                   "%Y-%m-%d"),
             'check': check,
             'check2': check2,
-            'per': per
         }
     else:
         prova = 'Ciao stronzo'
