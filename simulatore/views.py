@@ -1,6 +1,8 @@
 # Create your views here.
 
 """
+0.10.04 - 25/10/2016
+- tolto i print
 0.10.03 - 25/10/2016
 - risolto permission nel file di configurazione apache
 0.10.02 - 25/10/2016
@@ -49,7 +51,7 @@ from django.db import transaction
 from django.template import RequestContext
 import mysql.connector
 
-version = '0.10.03'
+version = '0.10.04'
 
 
 def line_profiler(view=None, extra_view=None):
@@ -335,7 +337,7 @@ def index(request):
             i = 0
             for item in tappeto:
                 lista = [sto.profitto for sto in item.storico]
-                print(lista)
+                # print(lista)
                 if i == 0:
                     dt = np.dtype('float')
                     xarr = np.array(lista, dtype=dt)
@@ -343,10 +345,10 @@ def index(request):
                     xarr = np.vstack((xarr, np.array(lista)))
                 i += 1
             xarr.round(4)
-            print(xarr)
+            # print(xarr)
             maxi = np.amax(xarr, axis=0)
             maxi_index = np.argmax(xarr, axis=0)
-            print(maxi)
+            # print(maxi)
             if maxi_index.size > 1:
                 for item in maxi_index:
                     take_array.append(tappeto[item].take)
@@ -354,9 +356,9 @@ def index(request):
             else:
                 take_array = maxi_index
                 take_array_size = 0
-            print(take_array)
+            # print(take_array)
             time = datetime.datetime.today() - start_time
-            print(time)
+            # print(time)
         # context è un dizionario che associa variabili del template a oggetti python
         context = {
             'bottone': request.POST.get('bottone'),
