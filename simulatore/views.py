@@ -1,6 +1,8 @@
 # Create your views here.
 
 """
+0.10.03 - 25/10/2016
+- risolto permission nel file di configurazione apache
 0.10.02 - 25/10/2016
 - inserito print permission nel template per troubleshoot sul server di test
 0.10.01 - 25/10/2016
@@ -47,7 +49,7 @@ from django.db import transaction
 from django.template import RequestContext
 import mysql.connector
 
-version = '0.10.02'
+version = '0.10.03'
 
 
 def line_profiler(view=None, extra_view=None):
@@ -73,7 +75,6 @@ def line_profiler(view=None, extra_view=None):
 
 #line_profiler
 def index(request):
-    print('richiesta: ' + str(request))
     if settings.SERVER_DEV is False:
         dire = "/home/carma/dati/isin.conf"
     else:
