@@ -2,7 +2,6 @@ from django.db import models
 from django.contrib.auth.models import User
 import django.utils
 import numpy as np
-import pandas as pd
 
 
 # Create your models here.
@@ -269,7 +268,6 @@ class Tappeto:
         pacchi_vendita = []
         pacchi_stato = []
         pacchi_carica = []
-        tappeto = []
         self.pacchi = []
         self.operazioni = []
         self.storico = []
@@ -302,11 +300,7 @@ class Tappeto:
             i += 1
         dt = np.dtype('int,int,int,float,float')
         self.numpy = np.array(lista_per_panda, dtype=dt)
-        # self.numpy.dtype.names('tappeto', 'pacco', 'stato', 'prezzo_acquisto', 'prezzo_vendita')
-        self.df = pd.DataFrame(lista_per_panda, columns=['tappeto', 'pacco', 'stato', 'prezzo_acquisto', 'prezzo_vendita'])
-        self.df['tappeto'] = self.df['tappeto'].astype(int)
-        self.df['pacco'] = self.df['pacco'].astype(int)
-        self.df['stato'] = self.df['stato'].astype(int)
+
     def operazione(self, tipo_operazione, data, ora, prezzo, quantita, gain, commissioni):
         if tipo_operazione == "ACQAZ":
             self.quantita_totale += quantita

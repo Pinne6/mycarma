@@ -1,6 +1,8 @@
 # Create your views here.
 
 """
+0.10.00 - 25/10/2016
+- implementato numpy array
 0.09.00 - 22/10/2016
 - sistemati i permessi
 0.08.00 - 21/10/2016
@@ -36,13 +38,12 @@ from .models import *
 import datetime
 import os.path
 import numpy as np
-import pandas as pd
 from django.conf import settings
 from django.db import transaction
 from django.template import RequestContext
 import mysql.connector
 
-version = '0.09.00'
+version = '0.10.00'
 
 
 def line_profiler(view=None, extra_view=None):
@@ -128,7 +129,6 @@ def index(request):
             crea_primo_acquisto = round(
                 (((crea_primo_acquisto - crea_limite_inferiore) // crea_step) * crea_step) + crea_limite_inferiore,
                 tick)
-            print(check)
             check = 'Yes'
         if not check2.is_integer():
             crea_limite_superiore = round(
@@ -136,9 +136,7 @@ def index(request):
                     ((
                      crea_limite_superiore - crea_limite_inferiore) // crea_step) * crea_step) + crea_limite_inferiore,
                 tick)
-            print(check2)
             check2 = 'Yes'
-        pacchi_df = pd.DataFrame(columns=['tappeto', 'stato', 'prezzo_acquisto', 'prezzo_vendita'])
         dt = np.dtype('int,int,int,float,float')
         while_counter = 1
         while crea_take_inizio <= (crea_take_fine + 0.0001):
@@ -167,8 +165,6 @@ def index(request):
                     tappeto[c].storico.append(Storico(data_ciclo))
                     data_ciclo += datetime.timedelta(days=1)
             # per ogni data cerco il file del tick by tick
-            contatore_acquisti = 0
-            contatore_vendite = 0
             for i in range(data_diff.days + 1):
                 if settings.SERVER_DEV is False:
                     filename = folder + crea_isin + "/" + data_inizio.strftime("%Y%m%d") + ".csv"
@@ -189,7 +185,6 @@ def index(request):
                 ultimo_prezzo = 0
                 # print(filename)
                 # per ogni file giornaliero ciclo tra tutti i prezzi
-                print('ciclo il file: ' + filename)
                 for a in range(len(intra) - 1, 0, -1):
                     if intra[a][1] == '':
                         continue
@@ -204,22 +199,17 @@ def index(request):
                     # per eseguire operazione
                     # ciclo tra tutti i tappeti
                     # cerco dentro il dataframe dove stato = ACQAZ o VENAZ e prezzo
-                    lis_a = pacchi_df[(pacchi_df.stato == 0) & (pacchi_df.prezzo_acquisto >= prezzo)]
-                    lis_b = pacchi_df[(pacchi_df.stato == 1) & (pacchi_df.prezzo_vendita <= prezzo)]
-                    # print(pacchi_df)
-                    for row in lis_a.itertuples():
-                        contatore_acquisti += 1
-                        pacchi_df.set_value(row.Index, 'stato', 1)
-                        tappeto[int(row.tappeto) - 1].pacchi[int(row.pacco)].acquisto(prezzo, tappeto[int(row.tappeto) - 1], data, ora, storico)
-                    for row in lis_b.itertuples():
-                        contatore_vendite += 1
-                        pacchi_df.set_value(row.Index, 'stato', 0)
-                        tappeto[int(row.tappeto) - 1].pacchi[int(row.pacco)].vendita(prezzo, tappeto[int(row.tappeto) -1], data, ora, storico)
-                    # print(pacchi_df)
+                    lis_a = np.flatnonzero(np.logical_and(pacchi_numpy['f2'] == 0, pacchi_numpy['f3'] >= prezzo))
+                    lis_b = np.flatnonzero(np.logical_and(pacchi_numpy['f2'] == 1, pacchi_numpy['f4'] <= prezzo))
+                    for item in lis_a:
+                        pacchi_numpy[item]['f2'] = 1
+                        tappeto[pacchi_numpy[item]['f0'] - 1].pacchi[pacchi_numpy[item]['f1'] - 1].acquisto(prezzo, tappeto[pacchi_numpy[item]['f0'] - 1], data, ora, storico)
+                    for item in lis_b:
+                        pacchi_numpy[item]['f2'] = 0
+                        tappeto[pacchi_numpy[item]['f0'] - 1].pacchi[pacchi_numpy[item]['f1'] - 1].vendita(prezzo, tappeto[pacchi_numpy[item]['f0'] - 1], data, ora, storico)
                 data_inizio += datetime.timedelta(days=1)
             take_data = []
             # dividere per 1 milione per avere i secondi
-            print('Acquisti: ' + str(contatore_acquisti) + ' Vendite: ' + str(contatore_vendite))
             time = datetime.datetime.today() - start_time
             x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
             if x_forwarded_for:
@@ -249,11 +239,11 @@ def index(request):
                 item.commissioni = sum(pack.commissioni for pack in item.pacchi)
                 item.profitto = item.gain - item.commissioni
                 item.rendimento = round(((item.gain - item.commissioni) / item.valore_max) * 100, 2)
-                print(
-                    "Take: " + str(item.take) + " Acquisti: " + str(item.nr_acquisti) + " Vendite: " + str(
-                        item.nr_vendite) + " Gain: " +
-                    str(item.gain) + " Profitto: " + str(item.profitto) + " Valore max: " + str(item.valore_max) +
-                    " Rendimento: " + str(item.rendimento))
+                # print(
+                #     "Take: " + str(item.take) + " Acquisti: " + str(item.nr_acquisti) + " Vendite: " + str(
+                #         item.nr_vendite) + " Gain: " +
+                #     str(item.gain) + " Profitto: " + str(item.profitto) + " Valore max: " + str(item.valore_max) +
+                #     " Rendimento: " + str(item.rendimento))
                 # se è il primo giro, inizializzo la simulazione migliore e peggiore al valore attuale
                 # a [0] metto il numero tappeto della simulazione migliore, a [1] quello peggiore
                 if count == 0:
