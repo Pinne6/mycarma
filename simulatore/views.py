@@ -1,6 +1,8 @@
 # Create your views here.
 
 """
+0.11.00 - 26/10/2016
+- prima versione con login parziale
 0.10.04 - 25/10/2016
 - tolto i print
 0.10.03 - 25/10/2016
@@ -51,7 +53,7 @@ from django.db import transaction
 from django.template import RequestContext
 import mysql.connector
 
-version = '0.10.04'
+version = '0.11.00'
 
 
 def line_profiler(view=None, extra_view=None):

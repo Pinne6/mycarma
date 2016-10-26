@@ -22,8 +22,9 @@ from django.contrib.auth import views as auth_views
 urlpatterns = [
     url(r'^simulatore/', include('simulatore.urls')),
     url(r'^admin/', admin.site.urls),
-    url(r'^login/$', auth_views.login, name='login'),
-    url(r'^logout/$', auth_views.logout, name='logout'),
+    # url(r'^login/$', auth_views.login, name='login'),
+    # url(r'^logout/$', auth_views.logout, name='logout'),
+    url(r'^accounts/', include('allauth.urls')),
 ]  # + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 if settings.DEBUG:
