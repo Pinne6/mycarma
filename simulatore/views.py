@@ -1,6 +1,8 @@
 # Create your views here.
 
 """
+0.12.00 - 27/10/2016
+- implementato calcolo corretto gain con short
 0.11.00 - 26/10/2016
 - prima versione con login parziale
 0.10.04 - 25/10/2016
@@ -53,7 +55,7 @@ from django.db import transaction
 from django.template import RequestContext
 import mysql.connector
 
-version = '0.11.00'
+version = '0.12.00'
 
 
 def line_profiler(view=None, extra_view=None):

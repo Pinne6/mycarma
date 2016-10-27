@@ -114,7 +114,7 @@ class Pacco:
         self.commissioni += commissione
         tappeto.operazioni.append(Operazione(self.order_type, data, ora, prezzo, self.quantity_buy, gain, commissione,
                                              self.buy_price))
-        tappeto.operazione(self.order_type, data, ora, prezzo, self.quantity_buy, gain, commissione)
+        tappeto.operazione(self.order_type, data, ora, prezzo, self.quantity_buy, gain, commissione, self.carica)
         # if data in storico:
         #    i = storico.index(data)
         #    storico[i].acquisti += 1
@@ -130,12 +130,16 @@ class Pacco:
         storico[len(storico) - 1].commissioni += commissione
         storico[len(storico) - 1].profitto += (gain - commissione)
         self.order_type = "VENAZ"
+        if self.carica == 1:
+            self.carica = 0
+        else:
+            self.carica = 1
         return storico
 
     def vendita(self, prezzo, tappeto, data, ora, storico):
         self.nr_vendite += 1
         self.sell_price_real = prezzo
-        if self.carica == 0:
+        if self.carica == 1:
             gain = (prezzo * self.quantity_sell) - (self.buy_price_real * self.quantity_buy)
             self.gain += gain
             storico[len(storico) - 1].gain += gain
@@ -145,7 +149,7 @@ class Pacco:
         self.commissioni += commissione
         tappeto.operazioni.append(Operazione(self.order_type, data, ora, prezzo, self.quantity_sell, gain, commissione,
                                              self.sell_price))
-        tappeto.operazione(self.order_type, data, ora, prezzo, self.quantity_sell, gain, commissione)
+        tappeto.operazione(self.order_type, data, ora, prezzo, self.quantity_sell, gain, commissione, self.carica)
         for item in tappeto.storico:
             if item.data == data:
                 item.nr_vendite += 1
@@ -156,6 +160,10 @@ class Pacco:
         storico[len(storico) - 1].commissioni += commissione
         storico[len(storico) - 1].profitto += (gain - commissione)
         self.order_type = "ACQAZ"
+        if self.carica == 1:
+            self.carica = 0
+        else:
+            self.carica = 1
         return storico
 
     def calcola_commissioni(self, quantita, prezzo, tappeto):
@@ -301,12 +309,18 @@ class Tappeto:
         dt = np.dtype('int,int,int,float,float')
         self.numpy = np.array(lista_per_panda, dtype=dt)
 
-    def operazione(self, tipo_operazione, data, ora, prezzo, quantita, gain, commissioni):
-        if tipo_operazione == "ACQAZ":
+    def operazione(self, tipo_operazione, data, ora, prezzo, quantita, gain, commissioni, carica):
+        if tipo_operazione == "ACQAZ" and carica == 0:
             self.quantita_totale += quantita
             self.valore_attuale += (prezzo * quantita)
-        elif tipo_operazione == "VENAZ":
+        elif tipo_operazione == "ACQAZ" and carica == 1:
             self.quantita_totale -= quantita
             self.valore_attuale -= (prezzo * quantita)
+        elif tipo_operazione == "VENAZ" and carica == 1:
+            self.quantita_totale -= quantita
+            self.valore_attuale -= (prezzo * quantita)
+        elif tipo_operazione == "VENAZ" and carica == 0:
+            self.quantita_totale += quantita
+            self.valore_attuale += (prezzo * quantita)
         if self.valore_attuale >= self.valore_max:
             self.valore_max = self.valore_attuale
