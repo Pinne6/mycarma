@@ -1,6 +1,8 @@
 # Create your views here.
 
 """
+1.00.01 - 30/10/2016
+- inserito index nella app home
 1.00.00 - 30/10/2016
 - implementate variabili di sessione
 - implementato massimo valore teorico del tappeto
@@ -90,7 +92,7 @@ def dettagli_simulazione(request):
 
 # line_profiler
 def index(request):
-    version = '1.00.00'
+    version = '1.00.01'
     if settings.SERVER_DEV is False:
         dire = "/home/carma/dati/isin.conf"
     else:
