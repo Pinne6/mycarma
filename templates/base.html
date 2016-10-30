@@ -1,8 +1,10 @@
 {% load staticfiles %}
+{% load analytical %}
 {% load account socialaccount %}
 <!DOCTYPE html>
 <html lang="it">
   <head>
+    {% analytical_head_top %}
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -13,32 +15,207 @@
     <meta name="author" content="LayoutIt!">
 
     <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
-    <link href="{% static 'css/custom.css' %}" rel="stylesheet">
 	<script src="{% static 'js/jquery.min.js' %}"></script>
     <script src="{% static 'js/bootstrap.min.js' %}"></script>
     <script src="{% static 'js/scripts.js' %}"></script>
-    <script src="https://cdn.datatables.net/1.10.7/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/plug-ins/1.10.7/integration/bootstrap/3/dataTables.bootstrap.js"></script>
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.12/css/jquery.dataTables.min.css"/>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
     <!-- FormValidation CSS file -->
     <link rel="stylesheet" href="{% static 'formvalidation/dist/css/formValidation.min.css' %}">
     <!-- FormValidation plugin and the class supports validating Bootstrap form -->
     <script src="{% static 'formvalidation/dist/js/formValidation.min.js' %}"></script>
     <script src="{% static 'formvalidation/dist/js/framework/bootstrap.min.js'%}"></script>
+    <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.12/css/jquery.dataTables.css">
+    <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.12/js/jquery.dataTables.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/css/bootstrap-datepicker.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/js/bootstrap-datepicker.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/locales/bootstrap-datepicker.it.min.js"></script>
+    <link href="{% static 'css/custom.css' %}" rel="stylesheet">
 
 
 
+  {% analytical_head_bottom %}
   </head>
   <body>
+  {% analytical_body_top %}
   <script>
+  window.take_migliore = "dettagli_simulazione_".concat('{{ best_take }}'.replace(".",""));
+  window.take_migliore_operazioni = "dettagli_operazioni_".concat('{{ best_take }}'.replace(".",""));
   $(document).ready(function() {
-  $('#tabella_risultato_simulazione').dataTable({
+    var table = $('#tabella_risultato_simulazione').DataTable({
       "paging": false,
       "searching": false,
       "order": [[ 12, 'desc' ]],
       "info": false
-  });
     });
+    $('#tabella_risultato_simulazione').find('tbody').on('click', 'tr', function () {
+        var riga = table.row(this).data();
+        var take = riga[4].replace(".","");
+        var div1 = "dettagli_simulazione_";
+        var div2 = div1.concat(take);
+        $('#' + window.take_migliore).hide();
+        $('#' + div2).show();
+        window.take_migliore = div2;
+        var div_operazioni_1 = "dettagli_operazioni_";
+        var div_operazioni_2 = div_operazioni_1.concat(take);
+        $('#' + window.take_migliore_operazioni).hide();
+        $('#' + div_operazioni_2).show();
+        window.take_migliore_operazioni = div_operazioni_2;
+
+    });
+    $('#bottone_guida').on('click', function () {
+        $('#guida').show();
+    });
+    $('#bottone_guida_2').on('click', function () {
+        $('#guida').show();
+    });
+    $('#bottone_guida_chiudi').on('click', function () {
+        $('#guida').hide();
+    });
+    var date_input_singolo_fine_libero=$('input[id="crea_singolo_data_fine_libero"]'); //our date input has the name "date"
+    var options_singolo_fine_libero={
+        format: 'dd/mm/yyyy',
+        todayHighlight: true,
+        autoclose: true,
+        weekStart: 1,
+        todayBtn: "linked",
+        language: "it",
+        endDate: "today",
+        forceParse: false,
+    };
+    date_input_singolo_fine_libero.datepicker(options_singolo_fine_libero).on('changeDate', function(e) {
+        // Set the value for the date input
+        $("#selectedDate_fine").val($('input[id="crea_singolo_data_fine_libero"]').datepicker('getFormattedDate'));
+
+        // Revalidate it
+        $('#take_singolo').formValidation('revalidateField', 'selectedDate_fine');
+    });
+    var date_input_singolo_inizio_libero=$('input[id="crea_singolo_data_inizio_libero"]'); //our date input has the name "date"
+    var options_singolo_inizio_libero={
+        format: 'dd/mm/yyyy',
+        todayHighlight: true,
+        autoclose: true,
+        weekStart: 1,
+        todayBtn: "linked",
+        language: "it",
+        endDate: "today",
+        forceParse: false,
+    };
+    date_input_singolo_inizio_libero.datepicker(options_singolo_inizio_libero).on('changeDate', function(e) {
+        // Set the value for the date input
+        $("#selectedDate_inizio").val($('input[id="crea_singolo_data_inizio_libero"]').datepicker('getFormattedDate'));
+        // Revalidate it
+        $('#take_singolo').formValidation('revalidateField', 'selectedDate_inizio');
+    });
+    var date_input_singolo_fine_limitato=$('input[id="crea_singolo_data_fine_limitato"]'); //our date input has the name "date"
+    var options_singolo_fine_limitato={
+        format: 'dd/mm/yyyy',
+        todayHighlight: true,
+        autoclose: true,
+        weekStart: 1,
+        todayBtn: "linked",
+        language: "it",
+        startDate: "-15d",
+        endDate: "today",
+        forceParse: false,
+    };
+    date_input_singolo_fine_limitato.datepicker(options_singolo_fine_limitato).on('changeDate', function(e) {
+        // Set the value for the date input
+        $("#selectedDate_fine").val($('input[id="crea_singolo_data_fine_limitato"]').datepicker('getFormattedDate'));
+
+        // Revalidate it
+        $('#take_singolo').formValidation('revalidateField', 'selectedDate_fine');
+    });
+    var date_input_singolo_inizio_limitato=$('input[id="crea_singolo_data_inizio_limitato"]'); //our date input has the name "date"
+    var options_singolo_inizio_limitato={
+        format: 'dd/mm/yyyy',
+        todayHighlight: true,
+        autoclose: true,
+        weekStart: 1,
+        todayBtn: "linked",
+        language: "it",
+        startDate: "-15d",
+        endDate: "today",
+        forceParse: false,
+    };
+    date_input_singolo_inizio_limitato.datepicker(options_singolo_inizio_limitato).on('changeDate', function(e) {
+        // Set the value for the date input
+        $("#selectedDate_inizio").val($('input[id="crea_singolo_data_inizio_limitato"]').datepicker('getFormattedDate'));
+
+        // Revalidate it
+        $('#take_singolo').formValidation('revalidateField', 'selectedDate_inizio');
+    });
+    var date_input_variabile_fine_libero=$('input[id="crea_variabile_data_fine_libero"]'); //our date input has the name "date"
+    var options_variabile_fine_libero={
+        format: 'dd/mm/yyyy',
+        todayHighlight: true,
+        autoclose: true,
+        weekStart: 1,
+        todayBtn: "linked",
+        language: "it",
+        endDate: "today",
+        forceParse: false,
+    };
+    date_input_variabile_fine_libero.datepicker(options_variabile_fine_libero).on('changeDate', function(e) {
+        // Set the value for the date input
+        $("#selectedDate_variabile_fine").val($('input[id="crea_variabile_data_fine_libero"]').datepicker('getFormattedDate'));
+
+        // Revalidate it
+        $('#take_variabile').formValidation('revalidateField', 'selectedDate_variabile_fine');
+    });
+    var date_input_variabile_inizio_libero=$('input[id="crea_variabile_data_inizio_libero"]'); //our date input has the name "date"
+    var options_variabile_inizio_libero={
+        format: 'dd/mm/yyyy',
+        todayHighlight: true,
+        autoclose: true,
+        weekStart: 1,
+        todayBtn: "linked",
+        language: "it",
+        endDate: "today",
+        forceParse: false,
+    };
+    date_input_variabile_inizio_libero.datepicker(options_variabile_inizio_libero).on('changeDate', function(e) {
+        // Set the value for the date input
+        $("#selectedDate_variabile_inizio").val($('input[id="crea_variabile_data_inizio_libero"]').datepicker('getFormattedDate'));
+
+        // Revalidate it
+        $('#take_variabile').formValidation('revalidateField', 'selectedDate_variabile_inizio');
+    });  
+      /*
+  $('#tabella_risultato_simulazione').find('tbody').on('click', 'tr', function () {
+        var riga = table.row( this ).data();
+        var com_body = riga[4];
+        var row = $(this).index()+1;
+        var tappeto = "{{ tappeto_json|safe }}";
+        alert(row);
+        var csrftoken = $.cookie('csrftoken');
+
+        function csrfSafeMethod(method) {
+            // these HTTP methods do not require CSRF protection
+            return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+        }
+
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            }
+        });
+        $.ajax({
+            url: '{% url 'dettagli_simulazione' %}',
+            data: {
+                take: com_body,
+                tappeto: tappeto
+            },
+            type: 'POST',
+            success: function(data) {
+                $('#dettagli_simulazione').html(data);
+            }
+        });
+        alert( 'You clicked on '+data[0]+'\'s row' );
+    }); */
+  });
   </script>
   <div class="container-fluid">
 	<div class="row">
@@ -48,27 +225,28 @@
 
 					<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
 						 <span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span>
-					</button> <a class="navbar-brand" href="#">CARMA - Simulatore Tappeto</a>
+					</button> <a class="navbar-brand" href="#">MyCarMa</a>
 				</div>
 
 				<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
 					<ul class="nav navbar-nav">
 						<li class="{% block nav_class_home %}active{% endblock %}">
-							<a href="#">Home</a>
+							<a href="/">Home</a>
 						</li>
 						<li class="{% block nav_class_simulatore %}inactive{% endblock %}">
-							<a href="#">Simulatore</a>
+							<a href="simulatore/">Simulatore</a>
 						</li>
-					    <li class="{% block nav_class_carma %}inactive{% endblock %}">
+					    <!--
+                        <li class="{% block nav_class_carma %}inactive{% endblock %}">
 							<a href="#">CarMa</a>
-						</li>
+						</li>-->
                     </ul>
                     <form class="form-inline">
 					    <!--<a  href="#" class="btn-blu mrgn-top" data-toggle="modal" data-target="#at-helping">Help</a>-->
                         <ul class="nav navbar-nav navbar-right">
                             {% if not user.is_authenticated and not "/accounts/login" in request.get_full_path %}
                             <li><a href="#" data-toggle="modal" data-target="#at-login">Login</a></li>
-                            <li ><a href="#" data-toggle="modal" data-target="#at-signup">Registrati</a></li>
+                            <!--<li ><a href="#" data-toggle="modal" data-target="#at-signup">Registrati</a></li>-->
                             {% else %}
                             <li class="inactive"><a href="#">Ciao {{ user.username }}</a></li>
                             <li><a href="#" data-toggle="modal" data-target="#at-logout">Logout</a></li>
@@ -167,7 +345,9 @@
                                                     <span class="h6 signup-or-separator--text">Registrati</span>
                                                     <hr>
                                                 </div>
-                                                <button type="submit" class="btn-lgin" data-toggle="modal"  data-dismiss="modal" data-target="#at-signup-filling">Registrati con e-mail</button> <hr>
+                                                <p></p>
+                                                <p style="text-align: center">Per registrarti contatta gli sviluppatori CARMA sul forum <a target="_blank" href="http://www.finanzapertutti.com">www.finanzapertutti.com</a></p>
+                                                <!--<button type="submit" class="btn-lgin" data-toggle="modal"  data-dismiss="modal" data-target="#at-signup-filling">Registrati con e-mail</button> <hr>-->
                                     </div>
                                     <div class="modal-footer">
                                             <div class="row">
@@ -276,7 +456,6 @@
                     </section>
                 </div>
 			</nav>
-			{% block intestazione %}
             {% block messages %}
             {% if messages %}
             <div class="row">
@@ -292,16 +471,21 @@
             </div>
             {% endif %}
             {% endblock messages %}
+            {% block intestazione %}
             <h3 class="text-center">
 				Simulatore Tappeto
 			</h3>
 			<p class="text-center">
-				Lorem ipsum dolor sit amet, <strong>consectetur adipiscing elit</strong>. Aliquam eget sapien sapien. Curabitur in metus urna. In hac habitasse platea dictumst. Phasellus eu sem sapien, sed vestibulum velit. Nam purus nibh, lacinia non faucibus et, pharetra in dolor. Sed iaculis posuere diam ut cursus. <em>Morbi commodo sodales nisi id sodales. Proin consectetur, nisi id commodo imperdiet, metus nunc consequat lectus, id bibendum diam velit et dui.</em> Proin massa magna, vulputate nec bibendum nec, posuere nec lacus. <small>Aliquam mi erat, aliquam vel luctus eu, pharetra quis elit. Nulla euismod ultrices massa, et feugiat ipsum consequat eu.</small>
+				Il Simulatore Tappeto ti permette di applicare un qualunque tappeto al passato e analizzare quali sarebbero state le performance. Nella versione gratuita puoi simulare solo gli ultimi 15 giorni di borsa e con take fisso. <br />Nella versione full invece puoi simulare utilizzando dati a partire dal 2014 e con <strong>take variabile</strong>, ovvero il Simulatore si occuperà di <strong>trovare il take migliore per il tuo tappeto.</strong>. Per avere maggiori informazioni sulla versione full contatta gli sviluppatori.
 			</p>
             {% endblock %}
 		</div>
 	</div>
     {% block corpo_centrale %}{% endblock %}
   </div>
+  {% analytical_body_bottom %}
   </body>
+  <footer>
+      <p style="text-align: center">Tutti i contenuti sono protetti da copyright. MyCarma 2016. Versione {{ version }}</p>
+  </footer>
 </html>

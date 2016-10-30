@@ -166,7 +166,8 @@ class Pacco:
             self.carica = 1
         return storico
 
-    def calcola_commissioni(self, quantita, prezzo, tappeto):
+    @staticmethod
+    def calcola_commissioni(quantita, prezzo, tappeto):
         if tappeto.tipo_commissione == 'P':
             p = (prezzo * quantita * tappeto.commissione) / 100
             if p < tappeto.min_commissione:
@@ -301,9 +302,15 @@ class Tappeto:
             singolo_pacco = Pacco(i + 1, self.isin, pacchi_stato[i], pacchi_acquisto[i], pacchi_vendita[i], self.take,
                                   self.quantita_acquisto, self.quantita_vendita, 0, pacchi_carica[i])
             self.pacchi.append(singolo_pacco)
-            if pacchi_stato[i] == 'ACQAZ':
+            if pacchi_stato[i] == 'ACQAZ' and pacchi_carica[i] == 0:
                 lista_per_panda.append((while_counter, i + 1, 0, pacchi_acquisto[i], pacchi_vendita[i]))
-            elif pacchi_stato[i] == 'VENAZ':
+                self.valore_carico += pacchi_acquisto[i] * self.quantita_vendita
+            elif pacchi_stato[i] == 'ACQAZ' and pacchi_carica[i] == 1:
+                lista_per_panda.append((while_counter, i + 1, 0, pacchi_acquisto[i], pacchi_vendita[i]))
+            elif pacchi_stato[i] == 'VENAZ' and pacchi_carica[i] == 0:
+                lista_per_panda.append((while_counter, i + 1, 1, pacchi_acquisto[i], pacchi_vendita[i]))
+                self.valore_carico += pacchi_acquisto[i] * self.quantita_vendita
+            elif pacchi_stato[i] == 'VENAZ' and pacchi_carica[i] == 1:
                 lista_per_panda.append((while_counter, i + 1, 1, pacchi_acquisto[i], pacchi_vendita[i]))
             i += 1
         dt = np.dtype('int,int,int,float,float')

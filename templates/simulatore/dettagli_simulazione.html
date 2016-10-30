@@ -1,0 +1,100 @@
+<div class="col-md-4" id="dettagli_simulazione">
+    <br />
+    <div class="panel panel-success">
+        <div class="panel-heading">
+            <h3 class="panel-title">Risultato simulazione {{ isin }}</h3>
+        </div>
+        <table class="table table-condensed table-hover stripe table-sommario-tappeto">
+            <tbody>
+                <tr>
+                    <td>
+                        Storico
+                    </td>
+                    <td>
+                        {{ data_inizio }} - {{ data_fine }}
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Valore max teorico tappeto
+                    </td>
+                    <td>
+                        {{ take }} - {{ data_fine }}
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Valore max reale tappeto
+                    </td>
+                    <td>
+                        {{ dettagli_tappeto.valore_max }}
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Valore finale tappeto
+                    </td>
+                    <td>
+                        {{ data_inizio }} - {{ data_fine }}
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Acquisti
+                    </td>
+                    <td>
+                        {{ data_inizio }} - {{ data_fine }}
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Vendite
+                    </td>
+                    <td>
+                        {{ data_inizio }} - {{ data_fine }}
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Gain
+                    </td>
+                    <td>
+                        {{ data_inizio }} - {{ data_fine }}
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Commissioni
+                    </td>
+                    <td>
+                        {{ data_inizio }} - {{ data_fine }}
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Profitto
+                    </td>
+                    <td>
+                        {{ data_inizio }} - {{ data_fine }}
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Rendimento su max tappeto
+                    </td>
+                    <td>
+                        {{ data_inizio }} - {{ data_fine }}
+                    </td>
+                </tr>
+                <tr class="success">
+                    <td>
+                        Rendimento reale
+                    </td>
+                    <td>
+                        {{ data_inizio }} - {{ data_fine }}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

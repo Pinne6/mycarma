@@ -2,7 +2,7 @@
 {% block title %}Simulatore{% endblock %}
 {% block nav_class_home %}inactive{% endblock %}
 {% block nav_class_simulatore %}active{% endblock %}
-{% block nav_class_carma %}inactive{% endblock %}
+<!--{% block nav_class_carma %}inactive{% endblock %}-->
 {% block corpo_centrale %}
 	<div class="row">
 		<div class="col-md-5">
@@ -19,6 +19,8 @@
                     <div class="tab-pane {% if tipo_take != 'take_variabile' %}active{% endif %}" id="panel-464241">
                         <form role="form" method="post" class="form-horizontal" id="take_singolo">{% csrf_token %}
                         <input type="hidden" value="take_singolo" name="tipo_take">
+                        <input type="hidden" id="selectedDate_inizio" name="selectedDate_inizio" {% if request.session.data_inizio %}value="{{ request.session.data_inizio }}"{% else %}value="{{ data_max }}"{% endif %} />
+                        <input type="hidden" id="selectedDate_fine" name="selectedDate_fine" {% if request.session.data_fine %}value="{{ request.session.data_fine }}"{% else %}value="{{ data_oggi }}"{% endif %}/>
                             <div class="row">
                                 <div class="col-md-12">
                                     {% if not user.is_authenticated %}
@@ -32,9 +34,9 @@
                                     <label for="isin">
                                         Titolo
                                     <select class="form-control" name="isin" required>
-                                        {% if bottone == 'crea' or bottone == 'simula' %}
+                                        {% if request.session.isin %}
                                             {% for i,k in isin_conf %}
-                                                {% if i == isin %}
+                                                {% if i == request.session.isin %}
                                                     <option value="{{ i }}" selected>{{ k }}</option>
                                                 {% else %}
                                                     <option value="{{ i }}">{{ k }}</option>
@@ -53,9 +55,9 @@
                                     <label for="crea_data_inizio">
                                         Data inizio
                                     {% if user.is_authenticated and perms.simulatore.take_fisso %}
-                                    <input type="date" class="form-control" name="crea_data_inizio" required {% if bottone == 'crea' or bottone == 'simula' %}value="{{ data_inizio_2 }}" {% else %}value="2016-08-01"{% endif %}>
+                                    <input type="text" class="form-control" name="crea_data_inizio" id="crea_singolo_data_inizio_libero" {% if request.session.data_inizio %}value="{{ request.session.data_inizio }}" {% else %}value="{{ data_oggi }}"{% endif %}>
                                     {% else %}
-                                    <input type="date" class="form-control" name="crea_data_inizio" required {% if bottone == 'crea' or bottone == 'simula' %}value="{{ data_inizio_2 }}" {% else %}value="{{ data_max }}"{% endif %} min="{{ data_max }}" max="{{ data_oggi }}">
+                                    <input type="text" class="form-control" name="crea_data_inizio" id="crea_singolo_data_inizio_limitato" {% if request.session.data_inizio %}value="{{ request.session.data_inizio }}" {% else %}value="{{ data_max }}"{% endif %}>
                                     {% endif %}
                                     </label>
                                 </div>
@@ -63,9 +65,9 @@
                                     <label for="crea_data_fine">
                                     Data fine
                                     {% if user.is_authenticated and perms.simulatore.take_fisso %}
-                                    <input type="date" class="form-control" name="crea_data_fine" required {% if bottone == 'crea' or bottone == 'simula' %}value="{{ data_fine_2 }}" {% else %}value="2016-09-01"{% endif %}>
+                                    <input type="text" class="form-control" name="crea_data_fine" id="crea_singolo_data_fine_libero" {% if request.session.data_fine %}value="{{ request.session.data_fine }}" {% else %}value="{{ data_oggi }}" {% endif %}>
                                     {% else %}
-                                    <input type="date" class="form-control" name="crea_data_fine" required {% if bottone == 'crea' or bottone == 'simula' %}value="{{ data_fine_2 }}" {% else %}value="{{ data_oggi }}"{% endif %} min="{{ data_max }}" max="{{ data_oggi }}">
+                                    <input type="text" class="form-control" name="crea_data_fine" id="crea_singolo_data_fine_limitato" {% if request.session.data_fine %}value="{{ request.session.data_fine }}" {% else %}value="{{ data_oggi }}"{% endif %}>
                                     {% endif %}
                                     </label>
                                 </div>
@@ -74,13 +76,13 @@
                                 <div class="col-md-3 form-group-sm">
                                     <label for="crea_limite_inferiore">
                                         Limite inferiore
-                                    <input type="number" class="form-control" name="crea_limite_inferiore" required {% if bottone == 'crea' or bottone == 'simula' %}value="{{ primo_tappeto.limite_inferiore }}" {% else %}value="5.01"{% endif %} step="0.0001">
+                                    <input type="number" class="form-control" name="crea_limite_inferiore" required {% if request.session.limite_inferiore %}value="{{ request.session.limite_inferiore }}"{% endif %} placeholder="5.01" step="0.0001">
                                     </label>
                                 </div>
                                 <div class="col-md-3 form-group-sm">
                                     <label for="crea_limite_superiore">
                                         Limite superiore
-                                    <input type="number" class="form-control" name="crea_limite_superiore" required {% if bottone == 'crea' or bottone == 'simula' %}value="{{ primo_tappeto.limite_superiore }}" {% else %}value="10.01"{% endif %} step="0.0001">
+                                    <input type="number" class="form-control" name="crea_limite_superiore" required {% if request.session.limite_superiore %}value="{{ request.session.limite_superiore }}"{% endif %} placeholder="10.01" step="0.0001">
                                     </label>
                                     {% if check2 == 'Yes' %}
                                     <small class="help-block" data-fv-for="crea_limite_superiore" data-fv-result="INVALID" style="display: block;">Il limite superiore è stato modificato per essere multiplo di limite inferiore e step</small>
@@ -89,7 +91,7 @@
                                 <div class="col-md-3 form-group-sm">
                                     <label for="primo_acquisto">
                                         Livello primo acquisto
-                                    <input type="number" class="form-control" name="primo_acquisto" required {% if bottone == 'crea' or bottone == 'simula' %}value="{{ primo_tappeto.primo_acquisto }}" {% else %}value="6.06"{% endif %} step="0.0001">
+                                    <input type="number" class="form-control" name="primo_acquisto" required {% if request.session.primo_acquisto %}value="{{ request.session.primo_acquisto }}"{% endif %} placeholder="6.01" step="0.0001">
                                     </label>
                                     {% if check == 'Yes' %}
                                     <small class="help-block" data-fv-for="primo acquisto" data-fv-result="INVALID" style="display: block;">Il primo acquisto è stato modificato per essere multiplo di limite inferiore e step</small>
@@ -98,7 +100,7 @@
                                 <div class="col-md-3 form-group-sm">
                                     <label for="in carico">
                                         Numero pacchi in carico
-                                    <input type="number" class="form-control" name="in_carico" required {% if bottone == 'crea' or bottone == 'simula' %}value="{{ primo_tappeto.in_carico }}" {% else %}value="20"{% endif %} step="1">
+                                    <input type="number" class="form-control" name="in_carico" required {% if request.session.in_carico %}value="{{ request.session.in_carico }}"{% endif %} placeholder="20" step="1">
                                     </label>
                                 </div>
                             </div>
@@ -106,25 +108,25 @@
                                 <div class="col-md-3 form-group-sm">
                                     <label for="step">
                                         Step
-                                    <input type="number" class="form-control" name="step" required {% if bottone == 'crea' or bottone == 'simula' %}value="{{ primo_tappeto.step }}" {% else %}value="0.05"{% endif %} step="0.0001">
+                                    <input type="number" class="form-control" name="step" required {% if request.session.step %}value="{{ request.session.step }}"{% endif %} placeholder="0.1" step="0.0001">
                                     </label>
                                 </div>
                                 <div class="col-md-3 form-group-sm">
                                     <label for="take">
                                         Take
-                                    <input type="number" class="form-control" name="take" required {% if bottone == 'crea' or bottone == 'simula' %}value="{{ primo_tappeto.take }}" {% else %}value="0.13"{% endif %} step="0.0001">
+                                    <input type="number" class="form-control" name="take" required {% if request.session.take_inizio %}value="{{ request.session.take_inizio }}"{% endif %} placeholder="0.13" step="0.0001">
                                     </label>
                                 </div>
                                 <div class="col-md-3 form-group-sm">
                                     <label for="quantita_acquisto">
                                         Quantità acquisto
-                                    <input type="number" class="form-control" name="quantita_acquisto" required {% if bottone == 'crea' or bottone == 'simula' %}value="{{ primo_tappeto.quantita_acquisto }}" {% else %}value="100"{% endif %} step="1">
+                                    <input type="number" class="form-control" name="quantita_acquisto" required {% if request.session.quantita_acquisto %}value="{{ request.session.quantita_acquisto }}"{% endif %} placeholder="100" step="1">
                                     </label>
                                 </div>
                                 <div class="col-md-3 form-group-sm">
                                     <label for="quantita_vendita">
                                         Quantità vendita
-                                    <input type="number" class="form-control" name="quantita_vendita" required {% if bottone == 'crea' or bottone == 'simula' %}value="{{ primo_tappeto.quantita_vendita }}" {% else %}value="100"{% endif %} step="1">
+                                    <input type="number" class="form-control" name="quantita_vendita" required {% if request.session.quantita_vendita %}value="{{ request.session.quantita_vendita }}"{% endif %} placeholder="100" step="1">
                                     </label>
                                 </div>
                             </div>
@@ -133,11 +135,11 @@
                                     <label for="commissioni_tipo">
                                         Tipo commissioni
                                     <select class="form-control" name="commissioni_tipo" required>
-                                        {% if bottone == 'crea' or bottone == 'simula' %}
-                                            {% if tipo_commissione == 'P' %}
+                                        {% if request.session.tipo_commissione %}
+                                            {% if request.session.tipo_commissione == 'P' %}
                                         <option value="P" selected>Percentuale</option>
                                         <option value="F">Fissa</option>
-                                            {% elif tipo_commissione == 'F' %}
+                                            {% elif request.session.tipo_commissione == 'F' %}
                                         <option value="P">Percentuale</option>
                                         <option value="F" selected>Fissa</option>
                                             {% endif %}
@@ -151,24 +153,27 @@
                                 <div class="col-md-3 form-group-sm">
                                     <label for="commissioni_importo">
                                         Importo commissioni
-                                    <input type="number" class="form-control" name="commissioni_importo" required {% if bottone == 'crea' or bottone == 'simula' %}value="{{ primo_tappeto.commissione }}" {% else %}value="0.0019"{% endif %}  step="0.0001">
+                                    <input type="number" class="form-control" name="commissioni_importo" required {% if request.session.commissione %}value="{{ request.session.commissione }}" {% else %}value="0.19"{% endif %}  step="0.0001">
                                     </label>
                                 </div>
                                 <div class="col-md-3 form-group-sm">
                                     <label for="commissioni_min">
                                         Commissioni min
-                                    <input type="number" class="form-control" name="commissioni_min" required {% if bottone == 'crea' or bottone == 'simula' %}value="{{ primo_tappeto.min_commissione }}" {% else %}value="1"{% endif %}  step="0.0001">
+                                    <input type="number" class="form-control" name="commissioni_min" required {% if request.session.min_commissione %}value="{{ request.session.min_commissione }}" {% else %}value="1"{% endif %}  step="0.0001">
                                     </label>
                                 </div>
                                 <div class="col-md-3 form-group-sm">
                                     <label for="commissioni_max">
                                         Commissioni max
-                                    <input type="number" class="form-control" name="commissioni_max" required {% if bottone == 'crea' or bottone == 'simula' %}value="{{ primo_tappeto.max_commissione }}" {% else %}value="18"{% endif %}  step="0.0001">
+                                    <input type="number" class="form-control" name="commissioni_max" required {% if request.session.max_commissione %}value="{{ request.session.max_commissione }}" {% else %}value="18"{% endif %}  step="0.0001">
                                     </label>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-md-3">
+                                    <button type="button" class="btn btn-info" name="bottone" value="guida" id="bottone_guida">
+                                    Guida
+                                    </button>
                                 </div>
                                 <div class="col-md-3">
                                     <button type="submit" class="btn btn-primary" name="bottone" value="crea">
@@ -192,14 +197,16 @@
                         {% if perms.simulatore.take_variabile %}
                         <form role="form" method="post" class="form-horizontal" id="take_variabile">{% csrf_token %}
                         <input type="hidden" value="take_variabile" name="tipo_take">
+                        <input type="hidden" id="selectedDate_variabile_inizio" name="selectedDate_variabile_inizio" {% if request.session.data_inizio %}value="{{ request.session.data_inizio }}"{% else %}value="{{ data_max }}"{% endif %} />
+                        <input type="hidden" id="selectedDate_variabile_fine" name="selectedDate_variabile_fine" {% if request.session.data_fine %}value="{{ request.session.data_fine }}"{% else %}value="{{ data_oggi }}"{% endif %}/>
                             <div class="row">
                                 <div class="col-md-3 form-group-sm">
                                     <label for="isin">
                                         Titolo
                                     <select class="form-control" name="isin" required>
-                                        {% if bottone == 'crea' or bottone == 'simula' %}
+                                        {% if request.session.isin %}
                                             {% for i,k in isin_conf %}
-                                                {% if i == isin %}
+                                                {% if i == request.session.isin %}
                                                     <option value="{{ i }}" selected>{{ k }}</option>
                                                 {% else %}
                                                     <option value="{{ i }}">{{ k }}</option>
@@ -208,11 +215,7 @@
                                         {% else %}
                                             <option value="" disabled>Scegli il titolo</option>
                                             {% for i,k in isin_conf %}
-                                                {% if i == 'NL0010877643' %}
-                                                    <option value="{{ i }}" selected>{{ k }}</option>
-                                                {% else %}
-                                                    <option value="{{ i }}">{{ k }}</option>
-                                                {% endif %}
+                                                <option value="{{ i }}">{{ k }}</option>
                                             {% endfor %}
                                         {% endif %}
                                     </select>
@@ -221,13 +224,13 @@
                                 <div class="col-md-3 form-group-sm">
                                     <label for="crea_data_inizio">
                                         Data inizio
-                                    <input type="date" class="form-control" name="crea_data_inizio" required {% if bottone == 'crea' or bottone == 'simula' %}value="{{ data_inizio_2 }}" {% else %}value="2016-08-01"{% endif %}>
+                                    <input type="text" class="form-control" name="crea_data_inizio" id="crea_variabile_data_inizio_libero" required {% if request.session.data_inizio %}value="{{ request.session.data_inizio }}" {% else %}value="{{ data_oggi }}"{% endif %}>
                                     </label>
                                 </div>
                                 <div class="col-md-3 form-group-sm">
                                     <label for="crea_data_fine">
                                     Data fine
-                                    <input type="date" class="form-control" name="crea_data_fine" required {% if bottone == 'crea' or bottone == 'simula' %}value="{{ data_fine_2 }}" {% else %}value="2016-09-01"{% endif %}>
+                                    <input type="text" class="form-control" name="crea_data_fine" id="crea_variabile_data_fine_libero" required {% if request.session.data_fine %}value="{{ request.session.data_fine }}" {% else %}value="{{ data_oggi }}"{% endif %}>
                                     </label>
                                 </div>
                             </div>
@@ -235,25 +238,25 @@
                                 <div class="col-md-3 form-group-sm">
                                     <label for="crea_limite_inferiore">
                                         Limite inferiore
-                                    <input type="number" class="form-control" name="crea_limite_inferiore" required {% if bottone == 'crea' or bottone == 'simula' %}value="{{ primo_tappeto.limite_inferiore }}" {% else %}value="5.01"{% endif %}value="5.01"  step="0.0001">
+                                    <input type="number" class="form-control" name="crea_limite_inferiore" required {% if request.session.crea_limite_inferiore %}value="{{ request.session.crea_limite_inferiore }}"{% endif %} placeholder="5.01" step="0.0001">
                                     </label>
                                 </div>
                                 <div class="col-md-3 form-group-sm">
                                     <label for="crea_limite_superiore">
                                         Limite superiore
-                                    <input type="number" class="form-control" name="crea_limite_superiore" required {% if bottone == 'crea' or bottone == 'simula' %}value="{{ primo_tappeto.limite_superiore }}" {% else %}value="10.01"{% endif %}value="10.01"  step="0.0001">
+                                    <input type="number" class="form-control" name="crea_limite_superiore" required {% if request.session.limite_superiore %}value="{{ request.session.limite_superiore }}"{% endif %}placeholder="10.01"  step="0.0001">
                                     </label>
                                 </div>
                                 <div class="col-md-3 form-group-sm">
                                     <label for="primo_acquisto">
                                         Livello primo acquisto
-                                    <input type="number" class="form-control" name="primo_acquisto" required {% if bottone == 'crea' or bottone == 'simula' %}value="{{ primo_tappeto.primo_acquisto }}" {% else %}value="6.06"{% endif %}value="6.06"  step="0.0001">
+                                    <input type="number" class="form-control" name="primo_acquisto" required {% if request.session.primo_acquisto %}value="{{ request.session.primo_acquisto }}"{% endif %}placeholder="6.06"  step="0.0001">
                                     </label>
                                 </div>
                                 <div class="col-md-3 form-group-sm">
                                     <label for="in carico">
                                         Numero pacchi in carico
-                                    <input type="number" class="form-control" name="in_carico" required {% if bottone == 'crea' or bottone == 'simula' %}value="{{ primo_tappeto.in_carico }}" {% else %}value="20"{% endif %}value="20" step="1">
+                                    <input type="number" class="form-control" name="in_carico" required {% if request.session.in_carico %}value="{{ request.session.in_carico }}"{% endif %}placeholder="20" step="1">
                                     </label>
                                 </div>
                             </div>
@@ -261,25 +264,25 @@
                                 <div class="col-md-3 form-group-sm">
                                     <label for="step">
                                         Step
-                                    <input type="number" class="form-control" name="step" required {% if bottone == 'crea' or bottone == 'simula' %}value="{{ primo_tappeto.step }}" {% else %}value="0.05"{% endif %}value="0.05"  step="0.0001">
+                                    <input type="number" class="form-control" name="step" required {% if request.session.step %}value="{{ request.session.step }}"{% endif %}placeholder="0.05"  step="0.0001">
                                     </label>
                                 </div>
                                 <div class="col-md-3 form-group-sm">
                                     <label for="take_inizio">
                                         Take iniziale
-                                    <input type="number" class="form-control" name="take_inizio" required {% if bottone == 'crea' or bottone == 'simula' %}value="{{ take_inizio }}" {% else %}value="0.1"{% endif %}step="0.0001">
+                                    <input type="number" class="form-control" name="take_inizio" required {% if request.session.take_inizio %}value="{{ request.session.take_inizio }}"{% endif %} placeholder="0.1" step="0.0001">
                                     </label>
                                 </div>
                                 <div class="col-md-3 form-group-sm">
                                     <label for="take_fine">
                                         Take finale
-                                    <input type="number" class="form-control" name="take_fine" required {% if bottone == 'crea' or bottone == 'simula' %}value="{{ take_fine }}" {% else %}value="0.11"{% endif %}step="0.0001">
+                                    <input type="number" class="form-control" name="take_fine" required {% if request.session.take_fine %}value="{{ request.session.take_fine }}"{% endif %} placeholder="0.2" step="0.0001">
                                     </label>
                                 </div>
                                 <div class="col-md-3 form-group-sm">
                                     <label for="take">
                                         Incremento del take
-                                    <input type="number" class="form-control" name="take_incremento" required {% if bottone == 'crea' or bottone == 'simula' %}value="{{ take_incremento }}" {% else %}value="0.01"{% endif %}step="0.0001">
+                                    <input type="number" class="form-control" name="take_incremento" required {% if request.session.take_incremento %}value="{{ request.session.take_incremento }}"{% endif %} placeholder="0.01" step="0.0001">
                                     </label>
                                 </div>
                             </div>
@@ -287,13 +290,13 @@
                                 <div class="col-md-3 form-group-sm">
                                     <label for="quantita_acquisto">
                                         Quantità acquisto
-                                    <input type="number" class="form-control" name="quantita_acquisto" required {% if bottone == 'crea' or bottone == 'simula' %}value="{{ primo_tappeto.quantita_acquisto }}" {% else %}value="100"{% endif %}value="100"  step="1">
+                                    <input type="number" class="form-control" name="quantita_acquisto" required {% if request.session.quantita_acquisto %}value="{{ request.session.quantita_acquisto }}"{% endif %}placeholder="100"  step="1">
                                     </label>
                                 </div>
                                 <div class="col-md-3 form-group-sm">
                                     <label for="quantita_vendita">
                                         Quantità vendita
-                                    <input type="number" class="form-control" name="quantita_vendita" required {% if bottone == 'crea' or bottone == 'simula' %}value="{{ primo_tappeto.quantita_vendita }}" {% else %}value="100"{% endif %}value="100" step="1">
+                                    <input type="number" class="form-control" name="quantita_vendita" required {% if request.session.quantita_vendita %}value="{{ request.session.quantita_vendita }}"{% endif %}placeholder="100" step="1">
                                     </label>
                                 </div>
                             </div>
@@ -302,11 +305,11 @@
                                     <label for="commissioni_tipo">
                                         Tipo commissioni
                                     <select class="form-control" name="commissioni_tipo" required>
-                                        {% if bottone == 'crea' or bottone == 'simula' %}
-                                            {% if tipo_commissione == 'P' %}
+                                        {% if request.session.tipo_commissione %}
+                                            {% if request.session.tipo_commissione == 'P' %}
                                         <option value="P" selected>Percentuale</option>
                                         <option value="F">Fissa</option>
-                                            {% elif tipo_commissione == 'F' %}
+                                            {% elif request.session.tipo_commissione == 'F' %}
                                         <option value="P">Percentuale</option>
                                         <option value="F" selected>Fissa</option>
                                             {% endif %}
@@ -320,24 +323,27 @@
                                 <div class="col-md-3 form-group-sm">
                                     <label for="commissioni_importo">
                                         Importo commissioni
-                                    <input type="number" class="form-control" name="commissioni_importo" required {% if bottone == 'crea' or bottone == 'simula' %}value="{{ primo_tappeto.commissione }}" {% else %}value="0.0019"{% endif %}value="0.0019"  step="0.0001">
+                                    <input type="number" class="form-control" name="commissioni_importo" required {% if request.session.commissione %}value="{{ request.session.commissione }}" {% else %}value="0.19"{% endif %} step="0.0001">
                                     </label>
                                 </div>
                                 <div class="col-md-3 form-group-sm">
                                     <label for="commissioni_min">
                                         Commissioni min
-                                    <input type="number" class="form-control" name="commissioni_min" required {% if bottone == 'crea' or bottone == 'simula' %}value="{{ primo_tappeto.min_commissione }}" {% else %}value="1"{% endif %}value="1"  step="0.0001">
+                                    <input type="number" class="form-control" name="commissioni_min" required {% if request.session.min_commissione %}value="{{ request.session.min_commissione }}" {% else %}value="1"{% endif %} step="0.0001">
                                     </label>
                                 </div>
                                 <div class="col-md-3 form-group-sm">
                                     <label for="commissioni_max">
                                         Commissioni max
-                                    <input type="number" class="form-control" name="commissioni_max" required {% if bottone == 'crea' or bottone == 'simula' %}value="{{ primo_tappeto.max_commissione }}" {% else %}value="18"{% endif %}value="18"  step="0.0001">
+                                    <input type="number" class="form-control" name="commissioni_max" required {% if request.session.max_commissione %}value="{{ request.session.max_commissione }}" {% else %}value="18"{% endif %} step="0.0001">
                                     </label>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-md-3">
+                                    <button type="button" class="btn btn-info" name="bottone" value="guida" id="bottone_guida_2">
+                                    Guida
+                                    </button>
                                 </div>
                                 <div class="col-md-3">
                                     <button type="submit" class="btn btn-primary" name="bottone" value="crea">
@@ -374,10 +380,304 @@
 					</div>
 				</div>
 			</div>
+            <div class="col-md-6" {{ mostra_risultati }}>
+                <br />
+			    {% for singolo_tappeto in tappeto %}
+                    <div class="panel panel-success" {% if not singolo_tappeto.take == best_take %}style="display: none"{% endif %} id="dettagli_simulazione_{{ singolo_tappeto.take|cut:"." }}">
+                <div class="panel-heading">
+                    <h3 class="panel-title"><strong>Risultato simulazione {{ isin }}</strong></h3>
+                </div>
+                <table class="table table-condensed table-hover stripe table-sommario-tappeto">
+                    <tbody>
+                        <tr>
+                            <td>
+                                Storico
+                            </td>
+                            <td>
+                                {{ data_inizio }} - {{ data_fine }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Take
+                            </td>
+                            <td>
+                                &euro; {{ singolo_tappeto.take }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Valore max teorico tappeto
+                            </td>
+                            <td>
+                                &euro; {{ singolo_tappeto.valore_carico }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Valore max reale tappeto
+                            </td>
+                            <td>
+                                &euro; {{ singolo_tappeto.valore_max }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Valore finale tappeto
+                            </td>
+                            <td>
+                                &euro; {{ singolo_tappeto.valore_attuale }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Acquisti
+                            </td>
+                            <td>
+                                {{ singolo_tappeto.nr_acquisti }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Vendite
+                            </td>
+                            <td>
+                                {{ singolo_tappeto.nr_vendite }}
+                            </td>
+                        </tr>-
+                        <tr>
+                            <td>
+                                Gain
+                            </td>
+                            <td>
+                                &euro; {{ singolo_tappeto.gain }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Commissioni
+                            </td>
+                            <td>
+                                &euro; {{ singolo_tappeto.commissioni }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Profitto
+                            </td>
+                            <td>
+                                {{ singolo_tappeto.profitto }}
+                            </td>
+                        </tr>
+                        <tr class="success">
+                            <td>
+                                <strong>Rendimento reale</strong>
+                            </td>
+                            <td>
+                                <strong>{{ singolo_tappeto.rendimento }}%</strong>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+                {% endfor %}
+            </div>
+            <div class="col-md-6" {{ mostra_risultati }}>
+                {% if bottone == 'simula' and tipo_take == 'take_variabile' %}
+                    <br />
+                    <p>Nella tabella in alto a destra trovi il risultato della simulazione a take variabile. Ogni riga corrisponde a un tappeto con un take diverso.</p>
+                    <p>La tabella è ordinata per rendimento, quindi la prima riga in alto ti mostra il tappeto migliore.</p>
+                    <p>Se clicchi sui nomi delle colonne della tabella puoi cambiare l'ordine della tabella.</p>
+                    <p><strong>Clicca su una riga della tabella in alto a destra per aggiornare il riepilogo del tappeto qui accanto e l'elenco delle operazioni qui sotto.</strong></p>
+                {% elif bottone == 'crea' and tipo_take == 'take_variabile' %}
+                    <br />
+                    <p>Nella tabella in alto a destra trovi la struttura del tappeto che hai appena creato.</p>
+                    <p>A titolo di esempio è riportato solo il tappeto con il take iniziale della simulazione.</p>
+                    <p><strong>Se la struttura corrisponde a quello che vuoi simulare, clicca sul bottone simula per avviare la simulazione</strong></p>
+                    <p>altrimenti modifica i parametri e clicca sul bottone crea tappeto.</p>
+                {% elif bottone == 'crea' and tipo_take == 'take_singolo' %}
+                    <br />
+                    <p>Nella tabella in alto a destra trovi la struttura del tappeto che hai appena creato.</p>
+                    <p><strong>Se la struttura corrisponde a quello che vuoi simulare, clicca sul bottone simula per avviare la simulazione</strong></p>
+                    <p>altrimenti modifica i parametri e clicca sul bottone crea tappeto.</p>
+                {% endif %}
+            </div>
 		</div>
 		<div class="col-md-7">
+            <div class="panel panel-success" id="guida" style="display: none">
+                <div class="panel-heading">Guida<button class="btn btn-default pull-right" type="button" id="bottone_guida_chiudi">Chiudi Guida</button>
+                </div>
+                <div class="panel-body">
+                    <div class="col-md-12">
+                        <table class="table table-hover stripe">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        Nome campo
+                                    </th>
+                                    <th>
+                                        Spiegazione
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <strong>Titolo</strong>
+                                    </td>
+                                    <td>
+                                        Scegli dal menù a tendina il titolo su cui vuoi effettuare la simulazione.
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong>Data inizio</strong>
+                                    </td>
+                                    <td>
+                                        La data di inizio della simulazione nel formato gg/mm/aaaa.
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong>Data fine</strong>
+                                    </td>
+                                    <td>
+                                        La data di fine della simulazione nel formato gg/mm/aaaa.
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong>Limite inferiore</strong>
+                                    </td>
+                                    <td>
+                                        Il limite inferiore del tappeto. Corrisponde al prezzo di acquisto del primo pacco. Usa il punto "." per separare i decimali.
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong>Limite superiore</strong>
+                                    </td>
+                                    <td>
+                                        Il limite superiore del tappeto. Corrisponde al prezzo di vendita dell'ultimo pacco.
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong>Livello primo acquisto</strong>
+                                    </td>
+                                    <td>
+                                        Al di sotto di questo pacco (incluso), i pacchi saranno in stato Acquisto. Al di sopra saranno in stato vendita.
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong>Numero pacchi in carico</strong>
+                                    </td>
+                                    <td>
+                                        Indica quanti pacchi hai in carico nel tuo portafoglio. Ad esempio per un tappeto su FCA con limiti 5-10, step 0.1 e dimensione pacco 100, ipotizziamo che abbia 1000 azioni in portafoglio. Divido le azioni per la dimensione del pacco: 1000/100 = 10. Vuol dire che ho 10 pacchi in carico.
+                                        Se il livello primo acquisto è &euro; 6, il simulatore segnerà in carico i pacchi da &euro; 6.1 a &euro; 7.0.
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong>Step</strong>
+                                    </td>
+                                    <td>
+                                        Lo step del tappeto. Usa il punto "." per separare i decimali.
+                                    </td>
+                                </tr>
+                                {% if user.is_authenticated and perms.simulatore.take_variabile %}
+                                <tr>
+                                    <td>
+                                        <strong>Take iniziale</strong>
+                                    </td>
+                                    <td>
+                                        Il take da cui vuoi far partire la simulazione a take variabile.
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong>Take finale</strong>
+                                    </td>
+                                    <td>
+                                        Il take a cui vuoi far fermare la simulazione a take variabile.
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong>Incremento del take</strong>
+                                    </td>
+                                    <td>
+                                        La quantità di incremento del take. Ad esempio per simulare tutti i take possibili da &euro; 0.1 a &euro; 0.4, imposto come Take iniziale &euro; 0,1, come Take finale &euro; 0.4 e come incremento &euro; 0.01
+                                        Per ogni simulazione puoi simulare al massimo 50 diversi take.
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td>
+                                        <strong>Take</strong>
+                                    </td>
+                                    <td>
+                                        Il take del tappeto. Usa il punto "." per separare i decimali.
+                                    </td>
+                                </tr>
+                                {% endif %}
+                                <tr>
+                                    <td>
+                                        <strong>Quantità acquisto</strong>
+                                    </td>
+                                    <td>
+                                        La dimensione di acquisto di ogni singolo pacco.
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong>Quantità vendita</strong>
+                                    </td>
+                                    <td>
+                                        La dimensione di vendita di ogni singolo pacco.
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong>Tipo commissioni</strong>
+                                    </td>
+                                    <td>
+                                        Puoi scegliere tra commissioni fisse o percentuali.
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong>Importo commissioni</strong>
+                                    </td>
+                                    <td>
+                                        Tipo commissione fissa --> inserisci il valore in &euro; della commissione fissa.<br/>
+                                        Tipo commissione percentuale --> inserisci il valore percentuale della commissione. Ad esempio se la tua commissione è 0.19%, scrivi 0.19.
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong>Commissione minima</strong>
+                                    </td>
+                                    <td>
+                                        Inserici il valore in &euro; minimo della commissione.
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong>Commissione massima</strong>
+                                    </td>
+                                    <td>
+                                        Inserisci il valore in &euro; massimo della commissione.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
 			{% if bottone == 'crea' %}
-            <table class="table table-condensed table-bordered table-hover stripe" id="tabella_tappeto" style="font-size: 10px; text-align: center">
+            <table class="table table-fabio table-condensed table-bordered table-hover stripe" id="tabella_tappeto" style="font-size: 10px; text-align: center">
 				<thead>
 					<tr>
 						<th>
@@ -410,7 +710,7 @@
                             {{ forloop.counter }}
 						</td>
 						<td>
-							{{ pacco.order_type }}
+							{% if pacco.order_type == 'VENAZ' %}VENDITA{% elif pacco.order_type == 'ACQAZ' %}ACQUISTO{% endif %}
 						</td>
 						<td>
 							{{ pacco.buy_price }}
@@ -538,125 +838,13 @@
             {% endif %}
 		</div>
 	</div>
-	<div class="row">
-		<div class="col-md-12">
-			<div class="progress progress-striped active">
-				<div class="progress-bar progress-success">
-				</div>
-			</div>
-		</div>
-	</div>
-	<div class="row" {{ mostra_risultati }}>
-		<div class="col-md-4">
-			<h3>
-				h3. Lorem ipsum dolor sit amet.
-			</h3>
-			<p>
-				Lorem ipsum dolor sit amet, <strong>consectetur adipiscing elit</strong>. Aliquam eget sapien sapien. Curabitur in metus urna. In hac habitasse platea dictumst. Phasellus eu sem sapien, sed vestibulum velit. Nam purus nibh, lacinia non faucibus et, pharetra in dolor. Sed iaculis posuere diam ut cursus. <em>Morbi commodo sodales nisi id sodales. Proin consectetur, nisi id commodo imperdiet, metus nunc consequat lectus, id bibendum diam velit et dui.</em> Proin massa magna, vulputate nec bibendum nec, posuere nec lacus. <small>Aliquam mi erat, aliquam vel luctus eu, pharetra quis elit. Nulla euismod ultrices massa, et feugiat ipsum consequat eu.</small>
-			</p>
-		</div>
-		<div class="col-md-8">
-			<h3 class="text-center">
-				Risultato simulazioni per {{ isin }}&#13;&#10;Data inizio: {{ data_inizio }} - Data fine: {{ data_fine }}
-			</h3>
-			<table class="table table-condensed table-bordered table-hover stripe" id="tabella_risultato_simulazione">
-				<thead>
-					<tr>
-						<th>
-							Inizio
-						</th>
-						<th>
-							Fine
-						</th>
-						<th>
-							Primo&#13;&#10;acquisto
-						</th>
-						<th>
-							Step
-						</th>
-                        <th>
-							Take
-						</th>
-                        <th>
-							Quantità&#13;&#10;acquisto
-						</th>
-                        <th>
-							Quantità&#13;&#10;vendita
-						</th>
-                        <th>
-							Acquisti
-						</th>
-                        <th>
-							Vendite
-						</th>
-                        <th>
-							Gain
-						</th>
-                        <th>
-							Commissioni
-						</th>
-                        <th>
-							Profitto
-						</th>
-                        <th>
-							Rendimento
-						</th>
-					</tr>
-				</thead>
-				<tbody>
-					{% for Tappeto in tappeto %}
-                    <tr>
-						<td>
-							{{ Tappeto.limite_inferiore }}
-						</td>
-						<td>
-							{{ Tappeto.limite_superiore }}
-						</td>
-						<td>
-							{{ Tappeto.primo_acquisto }}
-						</td>
-						<td>
-							{{ Tappeto.step }}
-						</td>
-                        <td>
-							{{ Tappeto.take }}
-						</td>
-                        <td>
-							{{ Tappeto.quantita_acquisto }}
-						</td>
-                        <td>
-							{{ Tappeto.quantita_vendita }}
-						</td>
-                        <td>
-							{{ Tappeto.nr_acquisti }}
-						</td>
-                        <td>
-							{{ Tappeto.nr_vendite }}
-						</td>
-                        <td>
-							{{ Tappeto.gain }}
-						</td>
-                        <td>
-							{{ Tappeto.commissioni }}
-						</td>
-                        <td>
-							{{ Tappeto.profitto }}
-						</td>
-                        <td>
-							Default
-						</td>
-					</tr>
-                    {% endfor %}
-				</tbody>
-			</table>
-		</div>
-	</div>
 	<div class="row" {% if bottone != 'simula' %} hidden {% endif %}>
-		<div class="col-md-9">
-			<h3 class="text-center">
-				h3. Lorem ipsum dolor sit amet.
-			</h3>
-			<table class="table table-condensed table-hover stripe" style="font-size: 10px; text-align: center">
+		{% for singolo_tappeto in tappeto %}
+        <div class="col-md-6" {% if not singolo_tappeto.take == best_take %}style="display: none"{% endif %} id="dettagli_operazioni_{{ singolo_tappeto.take|cut:"." }}">
+			<h4 class="text-center">
+				Dettaglio operazioni per take &euro; {{ singolo_tappeto.take }}
+			</h4>
+			<table class="table table-condensed table-hover stripe table-fabio" style="font-size: 10px; text-align: center">
 				<thead>
 					<tr>
 						<th>
@@ -689,7 +877,7 @@
 					</tr>
 				</thead>
 				<tbody>
-					{% for item in primo_tappeto.operazioni %}
+					{% for item in singolo_tappeto.operazioni %}
                     <tr>
 						<td>
 							{{ item.data }}
@@ -698,38 +886,33 @@
 							{{ item.ora }}
 						</td>
 						<td>
-							{{ item.prezzo_teorico }}
+							&euro; {{ item.prezzo_teorico }}
 						</td>
 						<td>
-							{{ item.tipo }}
+							{% if item.tipo == 'VENAZ' %}VENDITA{% elif item.tipo == 'ACQAZ' %}ACQUISTO{% endif %}
 						</td>
                         <td>
-							{{ item.prezzo }}
+							&euro; {{ item.prezzo }}
 						</td>
                         <td>
 							{{ item.quantita }}
 						</td>
                         <td>
-							{{ item.gain }}
+							&euro; {{ item.gain }}
 						</td>
                         <td>
-							{{ item.commissioni }}
+							&euro; {{ item.commissioni }}
 						</td>
                         <td>
-							{{ item.profitto }}
+							&euro; {{ item.profitto }}
 						</td>
 					</tr>
                     {% endfor %}
 				</tbody>
 			</table>
-			<button type="button" class="btn btn-default">
-				Default
-			</button>
 		</div>
+        {% endfor %}
 		<div class="col-md-3">
-			<h3 class="text-center">
-				h3. Lorem ipsum dolor sit amet.
-			</h3>
 			{% if take_array_size > 1 %}
             <table class="table table-hover table-condensed">
 				<thead>
@@ -774,11 +957,36 @@
 
         // List of fields and their validation rules
         fields: {
-            crea_data_fine: {
+            crea_data_inizio:{
                 validators: {
+                    notEmpty: {
+                        message: "La data inizio è obbligatoria"
+                    }
+                }
+            },
+            selectedDate_inizio: {
+                // The hidden input will not be ignored
+                excluded: false,
+                validators: {
+                    notEmpty: {
+                        message: 'La data inizio è obbligatoria'
+                    },
                     date: {
-                        format: 'YYYY-MM-DD',
-                        min: 'crea_data_inizio',
+                        format: 'DD/MM/YYYY',
+                        message: 'La data inizio non è in un formato valido gg/mm/aaaa'
+                    }
+                }
+            },
+            selectedDate_fine: {
+                // The hidden input will not be ignored
+                excluded: false,
+                validators: {
+                    notEmpty: {
+                        message: 'La data fine è obbligatoria'
+                    },
+                    date: {
+                        format: 'DD/MM/YYYY',
+                        min: 'selectedDate_inizio',
                         message: 'La data fine deve essere maggiore della data inizio'
                     }
                 }
@@ -823,12 +1031,37 @@
         live: 'submitted',
         // List of fields and their validation rules
         fields: {
-            crea_data_fine: {
+            crea_data_fine:{
                 validators: {
+                    notEmpty: {
+                        message: "La data inizio è obbligatoria"
+                    }
+                }
+            },
+            selectedDate_variabile_inizio: {
+                // The hidden input will not be ignored
+                excluded: false,
+                validators: {
+                    notEmpty: {
+                        message: 'La data inizio è obbligatoria'
+                    },
                     date: {
-                        format: 'YYYY-MM-DD',
-                        min: 'crea_data_inizio',
-                        message: 'La data fine deve essere maggiore della data inizio'
+                        format: 'DD/MM/YYYY',
+                        message: 'La data inizio non è in un formato valido gg/mm/aaaa'
+                    }
+                }
+            },
+            selectedDate_variabile_fine: {
+                // The hidden input will not be ignored
+                excluded: false,
+                validators: {
+                    notEmpty: {
+                        message: 'La data fine è obbligatoria'
+                    },
+                    date: {
+                        format: 'DD/MM/YYYY',
+                        min: 'selectedDate_variabile_inizio',
+                        message: 'La data fine deve essere maggiore della data inzio'
                     }
                 }
             },
@@ -870,7 +1103,7 @@
                                 var take_inizio = validator.getFieldElements('take_inizio').val();
                                 var take_fine = validator.getFieldElements('take_fine').val();
                                 var take_incremento = validator.getFieldElements('take_incremento').val();
-                                var numero_tappeti = (take_fine - take_inizio) / take_incremento
+                                var numero_tappeti = (take_fine - take_inizio) / take_incremento;
 
                                 if (numero_tappeti > 50) {
                                     return false;

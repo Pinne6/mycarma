@@ -1,6 +1,10 @@
 # Create your views here.
 
 """
+1.00.00 - 30/10/2016
+- implementate variabili di sessione
+- implementato massimo valore teorico del tappeto
+- inserito bootstrap datepicker
 0.12.00 - 27/10/2016
 - implementato calcolo corretto gain con short
 0.11.00 - 26/10/2016
@@ -54,8 +58,7 @@ from django.conf import settings
 from django.db import transaction
 from django.template import RequestContext
 import mysql.connector
-
-version = '0.12.00'
+from django.forms.models import model_to_dict
 
 
 def line_profiler(view=None, extra_view=None):
@@ -79,8 +82,15 @@ def line_profiler(view=None, extra_view=None):
     return wrapper
 
 
-#line_profiler
+def dettagli_simulazione(request):
+    print(request)
+    dettagli_tappeto = [x for x in request.POST.get('tappeto') if x.take == request.POST.get('take')]
+    return render(request, 'simulatore/dettagli_simulazione.html', {'dettagli_tappeto': dettagli_tappeto})
+
+
+# line_profiler
 def index(request):
+    version = '1.00.00'
     if settings.SERVER_DEV is False:
         dire = "/home/carma/dati/isin.conf"
     else:
@@ -123,10 +133,10 @@ def index(request):
         commissione = float(request.POST.get('commissioni_importo'))
         min_commissione = float(request.POST.get('commissioni_min'))
         max_commissione = float(request.POST.get('commissioni_max'))
-        data_inizio = request.POST.get('crea_data_inizio').split('-')
-        data_inizio = datetime.date(int(data_inizio[0]), int(data_inizio[1]), int(data_inizio[2]))
-        data_fine = request.POST.get('crea_data_fine').split('-')
-        data_fine = datetime.date(int(data_fine[0]), int(data_fine[1]), int(data_fine[2]))
+        data_inizio = request.POST.get('crea_data_inizio').split('/')
+        data_inizio = datetime.date(int(data_inizio[2]), int(data_inizio[1]), int(data_inizio[0]))
+        data_fine = request.POST.get('crea_data_fine').split('/')
+        data_fine = datetime.date(int(data_fine[2]), int(data_fine[1]), int(data_fine[0]))
         data_inizio_2 = data_inizio
         data_fine_2 = data_fine
         tappeto = []
@@ -138,16 +148,12 @@ def index(request):
         # controlli per verificare che i parametri abbiano senso
         if not check.is_integer():
             # se il primo acquisto non è multiplo dello step, arrotondo alla cifra inferiore
-            crea_primo_acquisto = round(
-                (((crea_primo_acquisto - crea_limite_inferiore) // crea_step) * crea_step) + crea_limite_inferiore,
-                tick)
+            crea_primo_acquisto = round((((crea_primo_acquisto - crea_limite_inferiore) // crea_step) * crea_step) +
+                                        crea_limite_inferiore, tick)
             check = 'Yes'
         if not check2.is_integer():
-            crea_limite_superiore = round(
-                (
-                    ((
-                     crea_limite_superiore - crea_limite_inferiore) // crea_step) * crea_step) + crea_limite_inferiore,
-                tick)
+            crea_limite_superiore = round((((crea_limite_superiore - crea_limite_inferiore) // crea_step) * crea_step) +
+                                          crea_limite_inferiore, tick)
             check2 = 'Yes'
         dt = np.dtype('int,int,int,float,float')
         while_counter = 1
@@ -167,7 +173,6 @@ def index(request):
             while_counter += 1
         # pacchi_numpy.dtype.names('tappeto', 'pacco', 'stato', 'prezzo_acquisto', 'prezzo_vendita')
         if request.POST.get('bottone') == 'simula':
-            take_migliore_data = []
             data_diff = data_fine - data_inizio
             # per ogni tappeto creo lo storico vuoto di ogni data
             for c in range(0, len(tappeto), +1):
@@ -182,7 +187,7 @@ def index(request):
                 else:
                     filename = folder + crea_isin + "\\" + data_inizio.strftime("%Y%m%d") + ".csv"
                 intra = []
-                now1 = datetime.datetime.today()
+                # now1 = datetime.datetime.today()
                 if os.path.exists(filename):
                     with open(filename) as f:
                         for line in f:
@@ -214,12 +219,13 @@ def index(request):
                     lis_b = np.flatnonzero(np.logical_and(pacchi_numpy['f2'] == 1, pacchi_numpy['f4'] <= prezzo))
                     for item in lis_a:
                         pacchi_numpy[item]['f2'] = 1
-                        tappeto[pacchi_numpy[item]['f0'] - 1].pacchi[pacchi_numpy[item]['f1'] - 1].acquisto(prezzo, tappeto[pacchi_numpy[item]['f0'] - 1], data, ora, storico)
+                        tappeto[pacchi_numpy[item]['f0'] - 1].pacchi[pacchi_numpy[item]['f1'] - 1].acquisto(
+                            prezzo, tappeto[pacchi_numpy[item]['f0'] - 1], data, ora, storico)
                     for item in lis_b:
                         pacchi_numpy[item]['f2'] = 0
-                        tappeto[pacchi_numpy[item]['f0'] - 1].pacchi[pacchi_numpy[item]['f1'] - 1].vendita(prezzo, tappeto[pacchi_numpy[item]['f0'] - 1], data, ora, storico)
+                        tappeto[pacchi_numpy[item]['f0'] - 1].pacchi[pacchi_numpy[item]['f1'] - 1].vendita(
+                            prezzo, tappeto[pacchi_numpy[item]['f0'] - 1], data, ora, storico)
                 data_inizio += datetime.timedelta(days=1)
-            take_data = []
             # dividere per 1 milione per avere i secondi
             time = datetime.datetime.today() - start_time
             x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
@@ -227,7 +233,11 @@ def index(request):
                 ip = x_forwarded_for.split(',')[0]
             else:
                 ip = request.META.get('REMOTE_ADDR')  # Real IP address of client Machine
-            n = SimulazioneStatistiche.objects.create(durata=time, user_id=request.user, indirizzo_ip=ip,
+            if not hasattr(request.POST, 'user'):
+                user_id = User.objects.get(username='Anonymous')
+            else:
+                user_id = request.user
+            n = SimulazioneStatistiche.objects.create(durata=time, user_id=user_id, indirizzo_ip=ip,
                                                       isin=crea_isin,
                                                       limite_inferiore=crea_limite_inferiore,
                                                       limite_superiore=crea_limite_superiore, step=crea_step,
@@ -249,7 +259,10 @@ def index(request):
                 item.gain = sum(pack.gain for pack in item.pacchi)
                 item.commissioni = sum(pack.commissioni for pack in item.pacchi)
                 item.profitto = item.gain - item.commissioni
-                item.rendimento = round(((item.gain - item.commissioni) / item.valore_max) * 100, 2)
+                if item.valore_max == 0:
+                    item.rendimento = 0
+                else:
+                    item.rendimento = round(((item.gain - item.commissioni) / item.valore_max) * 100, 2)
                 # print(
                 #     "Take: " + str(item.take) + " Acquisti: " + str(item.nr_acquisti) + " Vendite: " + str(
                 #         item.nr_vendite) + " Gain: " +
@@ -350,7 +363,7 @@ def index(request):
                 i += 1
             xarr.round(4)
             # print(xarr)
-            maxi = np.amax(xarr, axis=0)
+            # maxi = np.amax(xarr, axis=0)
             maxi_index = np.argmax(xarr, axis=0)
             # print(maxi)
             if maxi_index.size > 1:
@@ -361,17 +374,38 @@ def index(request):
                 take_array = maxi_index
                 take_array_size = 0
             # print(take_array)
-            time = datetime.datetime.today() - start_time
+            # time = datetime.datetime.today() - start_time
             # print(time)
         # context è un dizionario che associa variabili del template a oggetti python
+        if request.POST.get('bottone') == 'simula':
+            best_take = simsingolamax.take
+        else:
+            best_take = ''
+        request.session['isin'] = crea_isin
+        request.session['data_inizio'] = datetime.datetime.strftime(data_inizio_2, "%d/%m/%Y")
+        request.session['data_fine'] = datetime.datetime.strftime(data_fine_2, "%d/%m/%Y")
+        request.session['limite_inferiore'] = crea_limite_inferiore
+        request.session['limite_superiore'] = crea_limite_superiore
+        request.session['primo_acquisto'] = crea_primo_acquisto
+        request.session['in_carico'] = crea_in_carico
+        request.session['step'] = crea_step
+        request.session['take_inizio'] = crea_take_inizio_2
+        request.session['take_fine'] = crea_take_fine
+        request.session['take_incremento'] = crea_take_incremento
+        request.session['quantita_acquisto'] = crea_quantita_acquisto
+        request.session['quantita_vendita'] = crea_quantita_vendita
+        request.session['tipo_commissione'] = tipo_commissione
+        request.session['commissione'] = commissione
+        request.session['min_commissione'] = min_commissione
+        request.session['max_commissione'] = max_commissione
         context = {
             'bottone': request.POST.get('bottone'),
             'tipo_take': request.POST.get('tipo_take'),
             'tappeto': tappeto,
             'data_inizio': datetime.datetime.strftime(data_inizio_2, "%d/%m/%Y"),
             'data_fine': datetime.datetime.strftime(data_fine_2, "%d/%m/%Y"),
-            'data_inizio_2': datetime.datetime.strftime(data_inizio_2, "%Y-%m-%d"),
-            'data_fine_2': datetime.datetime.strftime(data_fine_2, "%Y-%m-%d"),
+            'data_inizio_2': datetime.datetime.strftime(data_inizio_2, "%d/%m/%Y"),
+            'data_fine_2': datetime.datetime.strftime(data_fine_2, "%d/%m/%Y"),
             'isin_conf': isin_conf,
             'isin': crea_isin,
             'primo_tappeto': tappeto[0],
@@ -382,11 +416,13 @@ def index(request):
             'tipo_commissione': tipo_commissione,
             'take_array': take_array,
             'take_array_size': take_array_size,
-            'data_oggi': datetime.datetime.strftime(datetime.date.today(), "%Y-%m-%d"),
-            'data_max': datetime.datetime.strftime(datetime.date.today() - datetime.timedelta(days=-14),
-                                                   "%Y-%m-%d"),
+            'data_oggi': datetime.datetime.strftime(datetime.date.today(), "%d/%m/%Y"),
+            'data_max': datetime.datetime.strftime(datetime.date.today() - datetime.timedelta(days=15),
+                                                   "%d/%m/%Y"),
             'check': check,
             'check2': check2,
+            'best_take': best_take,
+            'version': version
         }
     else:
         prova = 'Ciao stronzo'
@@ -398,7 +434,8 @@ def index(request):
             'mostra_risultati': mostra_risultati,
             'server_remoto': settings.DEBUG,
             'dire': dire,
-            'data_oggi': datetime.datetime.strftime(datetime.date.today(), "%Y-%m-%d"),
-            'data_max': datetime.datetime.strftime(datetime.date.today() - datetime.timedelta(days=18), "%Y-%m-%d")
+            'data_oggi': datetime.datetime.strftime(datetime.date.today(), "%d/%m/%Y"),
+            'data_max': datetime.datetime.strftime(datetime.date.today() - datetime.timedelta(days=15), "%d/%m/%Y"),
+            'version': version
         }
     return render(request, 'simulatore/index.html', context)
