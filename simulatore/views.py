@@ -1,6 +1,9 @@
 # Create your views here.
 
 """
+1.00.05 - 01/11/2016
+- risolto problema con pacchi in carico
+- pagina di login su iphone
 1.00.04 - 01/11/2016
 - rounded numbers
 - euro nella tabella dei take
@@ -134,6 +137,7 @@ def index(request):
             crea_take_incremento = float(request.POST.get('take_incremento'))
         crea_in_carico = int(request.POST.get('in_carico'))
         crea_take_inizio_2 = crea_take_inizio
+        crea_in_carico_2 = crea_in_carico
         tick = 4
         tipo_tappeto = ''
         percentuale_incrementale = 0
@@ -396,7 +400,7 @@ def index(request):
         request.session['limite_inferiore'] = crea_limite_inferiore
         request.session['limite_superiore'] = crea_limite_superiore
         request.session['primo_acquisto'] = crea_primo_acquisto
-        request.session['in_carico'] = crea_in_carico
+        request.session['in_carico'] = crea_in_carico_2
         request.session['step'] = crea_step
         request.session['take_inizio'] = crea_take_inizio_2
         request.session['take_fine'] = crea_take_fine
