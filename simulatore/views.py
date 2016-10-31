@@ -1,6 +1,9 @@
 # Create your views here.
 
 """
+1.00.04 - 01/11/2016
+- rounded numbers
+- euro nella tabella dei take
 1.00.03 - 01/11/2016
 - nella navbar evidenziato home per la homepage
 1.00.02 - 01/11/2016
@@ -96,7 +99,7 @@ def dettagli_simulazione(request):
 
 # line_profiler
 def index(request):
-    version = '1.00.03'
+    version = '1.00.04'
     if settings.SERVER_DEV is False:
         dire = "/home/carma/dati/isin.conf"
     else:
@@ -262,9 +265,9 @@ def index(request):
             for count, item in enumerate(tappeto):
                 item.nr_acquisti = sum(pack.nr_acquisti for pack in item.pacchi)
                 item.nr_vendite = sum(pack.nr_vendite for pack in item.pacchi)
-                item.gain = sum(pack.gain for pack in item.pacchi)
-                item.commissioni = sum(pack.commissioni for pack in item.pacchi)
-                item.profitto = item.gain - item.commissioni
+                item.gain = round(sum(pack.gain for pack in item.pacchi), 2)
+                item.commissioni = round(sum(pack.commissioni for pack in item.pacchi), 2)
+                item.profitto = round(item.gain - item.commissioni, 2)
                 if item.valore_max == 0:
                     item.rendimento = 0
                 else:
