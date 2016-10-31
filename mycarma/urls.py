@@ -21,12 +21,12 @@ from home import views
 # from django.conf.urls.static import static
 
 urlpatterns = [
+    url(r'^$', views.index),
     url(r'^simulatore/', include('simulatore.urls')),
     url(r'^admin/', admin.site.urls),
     # url(r'^login/$', auth_views.login, name='login'),
     # url(r'^logout/$', auth_views.logout, name='logout'),
     url(r'^accounts/', include('allauth.urls')),
-    url(r'^$', views.index),
 ]  # + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 if settings.DEBUG:
