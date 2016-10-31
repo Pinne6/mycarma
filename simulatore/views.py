@@ -1,6 +1,8 @@
 # Create your views here.
 
 """
+1.00.02 - 01/11/2016
+- spostato index.html nella directory home
 1.00.01 - 30/10/2016
 - inserito index nella app home
 1.00.00 - 30/10/2016
@@ -92,7 +94,7 @@ def dettagli_simulazione(request):
 
 # line_profiler
 def index(request):
-    version = '1.00.01'
+    version = '1.00.02'
     if settings.SERVER_DEV is False:
         dire = "/home/carma/dati/isin.conf"
     else:
