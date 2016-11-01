@@ -1,0 +1,94 @@
+{% extends "account/base.html" %}
+{% load i18n %}
+{% load account socialaccount %}
+{% block title %}Simulatore{% endblock %}
+{% block nav_class_home %}active{% endblock %}
+{% block nav_class_simulatore %}inactive{% endblock %}
+{% block nav_class_carma %}inactive{% endblock %}
+{% block intestazione %}
+
+<div class="row">
+    <div class="col-md-4 col-md-offset-4">
+        <h3>{% trans "Registrazione" %}</h3>
+        <p>Per registrarti contatta gli sviluppatori CARMA sul forum <a target="_blank" href="http://www.finanzapertutti.com">www.finanzapertutti.com</a></p></p>
+    </div>
+</div>
+{% endblock %}
+
+{% comment %}
+{% extends "account/base.html" %}
+{% load i18n %}
+{% load account socialaccount %}
+
+{% block head_title %}{% trans "Signup" %}{% endblock %}
+
+{% block intestazione %}
+<div class="row">
+    <div class="col-md-4"></div>
+    <div class="col-md-4">
+        <h3>{% trans "Registrazione" %}</h3>
+        <p>{% blocktrans %}Hai già un account? Allora <a href="{{ login_url }}">accedi</a>.{% endblocktrans %}</p>
+        {% if on_success %}
+            <p>You are successfully registered</p>
+        {% endif %}
+        {% if form.errors %}
+            {% for field in form %}
+                {% for error in field.errors %}
+                    <div class="alert alert-error">
+                        <strong>{{ error|escape }}</strong>
+                    </div>
+                {% endfor %}
+            {% endfor %}
+            {% for error in form.non_field_errors %}
+                <div class="alert alert-error">
+                    <strong>{{ error|escape }}</strong>
+                </div>
+            {% endfor %}
+        {% endif %}
+        <form class="form-horizontal"  action="{% url 'account_signup' %}" method="post" id="signup_form">{% csrf_token %}
+		    <div class="form-group">
+    			<label for="email" class="cols-sm-2 control-label">Email</label>
+				<div class="cols-sm-10">
+	    			<div class="input-group">
+		    			<span class="input-group-addon"><i class="fa fa-envelope fa" aria-hidden="true"></i></span>
+						<input type="text" class="form-control" name="email" id="email"  placeholder="Inserisci la tua email" required/>
+					</div>
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="username" class="cols-sm-2 control-label">Nome utente</label>
+				<div class="cols-sm-10">
+					<div class="input-group">
+						<span class="input-group-addon"><i class="fa fa-users fa" aria-hidden="true"></i></span>
+						<input type="text" class="form-control" name="username" id="username"  placeholder="Inserisci il nome utente" required/>
+					</div>
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="password" class="cols-sm-2 control-label">Password</label>
+				<div class="cols-sm-10">
+    				<div class="input-group">
+						<span class="input-group-addon"><i class="fa fa-lock fa-lg" aria-hidden="true"></i></span>
+						<input type="password" class="form-control" name="password1" id="password1"  placeholder="Inserisci la password" required/>
+					</div>
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="confirm" class="cols-sm-2 control-label">Conferma Password</label>
+				<div class="cols-sm-10">
+					<div class="input-group">
+						<span class="input-group-addon"><i class="fa fa-lock fa-lg" aria-hidden="true"></i></span>
+						<input type="password" class="form-control" name="password2" id="password2"  placeholder="Conferma la password" required/>
+					</div>
+				</div>
+			</div>
+			<div class="form-group ">
+				<button type="submit" class="btn btn-primary btn-lg btn-block login-button">Registrati</button>
+			</div>
+		</form>
+
+    </div>
+    <div class="col-md-4"></div>
+</div>
+{% endblock %}
+{% endcomment %}

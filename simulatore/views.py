@@ -1,6 +1,8 @@
 # Create your views here.
 
 """
+1.00.06 - 01/11/2016
+- tutte le pagine di login e registrazione senza il modal per essere compatibili con mobile
 1.00.05 - 01/11/2016
 - risolto problema con pacchi in carico
 - pagina di login su iphone

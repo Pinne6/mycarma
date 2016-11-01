@@ -98,9 +98,9 @@
                                     {% endif %}
                                 </div>
                                 <div class="col-md-3 form-group-sm">
-                                    <label for="in carico">
+                                    <label for="in_carico">
                                         Numero pacchi in carico
-                                    <input type="number" class="form-control" name="in_carico" required {% if request.session.in_carico %}value="{{ request.session.in_carico }}"{% endif %} placeholder="20" step="1">
+                                    <input type="number" class="form-control" name="in_carico" required {% if request.session.in_carico or request.session.in_carico == 0 %}value="{{ request.session.in_carico }}"{% endif %} placeholder="20" step="1">
                                     </label>
                                 </div>
                             </div>
@@ -244,19 +244,19 @@
                                 <div class="col-md-3 form-group-sm">
                                     <label for="crea_limite_superiore">
                                         Limite superiore
-                                    <input type="number" class="form-control" name="crea_limite_superiore" required {% if request.session.limite_superiore %}value="{{ request.session.limite_superiore }}"{% endif %}placeholder="10.01"  step="0.0001">
+                                    <input type="number" class="form-control" name="crea_limite_superiore" required {% if request.session.limite_superiore %}value="{{ request.session.limite_superiore }}" {% endif %}placeholder="10.01"  step="0.0001">
                                     </label>
                                 </div>
                                 <div class="col-md-3 form-group-sm">
                                     <label for="primo_acquisto">
                                         Livello primo acquisto
-                                    <input type="number" class="form-control" name="primo_acquisto" required {% if request.session.primo_acquisto %}value="{{ request.session.primo_acquisto }}"{% endif %}placeholder="6.06"  step="0.0001">
+                                    <input type="number" class="form-control" name="primo_acquisto" required {% if request.session.primo_acquisto %}value="{{ request.session.primo_acquisto }}" {% endif %}placeholder="6.06"  step="0.0001">
                                     </label>
                                 </div>
                                 <div class="col-md-3 form-group-sm">
-                                    <label for="in carico">
+                                    <label for="in_carico">
                                         Numero pacchi in carico
-                                    <input type="number" class="form-control" name="in_carico" required {% if request.session.in_carico %}value="{{ request.session.in_carico }}"{% endif %}placeholder="20" step="1">
+                                    <input type="number" class="form-control" name="in_carico" required {% if request.session.in_carico or request.session.in_carico == 0 %}value="{{ request.session.in_carico }}" {% endif %}placeholder="20" step="1">
                                     </label>
                                 </div>
                             </div>
@@ -264,7 +264,7 @@
                                 <div class="col-md-3 form-group-sm">
                                     <label for="step">
                                         Step
-                                    <input type="number" class="form-control" name="step" required {% if request.session.step %}value="{{ request.session.step }}"{% endif %}placeholder="0.05"  step="0.0001">
+                                    <input type="number" class="form-control" name="step" required {% if request.session.step %}value="{{ request.session.step }}" {% endif %}placeholder="0.05"  step="0.0001">
                                     </label>
                                 </div>
                                 <div class="col-md-3 form-group-sm">
@@ -466,7 +466,7 @@
                                 Profitto
                             </td>
                             <td>
-                                {{ singolo_tappeto.profitto }}
+                                &euro; {{ singolo_tappeto.profitto }}
                             </td>
                         </tr>
                         <tr class="success">

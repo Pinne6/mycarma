@@ -48,21 +48,23 @@
       "order": [[ 12, 'desc' ]],
       "info": false
     });
-    $('#tabella_risultato_simulazione').find('tbody').on('click', 'tr', function () {
-        var riga = table.row(this).data();
-        var take = riga[4].replace(".","");
-        var div1 = "dettagli_simulazione_";
-        var div2 = div1.concat(take);
-        $('#' + window.take_migliore).hide();
-        $('#' + div2).show();
-        window.take_migliore = div2;
-        var div_operazioni_1 = "dettagli_operazioni_";
-        var div_operazioni_2 = div_operazioni_1.concat(take);
-        $('#' + window.take_migliore_operazioni).hide();
-        $('#' + div_operazioni_2).show();
-        window.take_migliore_operazioni = div_operazioni_2;
+    if ('{{ tipo_take }}' == 'take_variabile') {
+        $('#tabella_risultato_simulazione').find('tbody').on('click', 'tr', function () {
+            var riga = table.row(this).data();
+            var take = riga[4].replace(".", "");
+            var div1 = "dettagli_simulazione_";
+            var div2 = div1.concat(take.substring(2));
+            $('#' + window.take_migliore).hide();
+            $('#' + div2).show();
+            window.take_migliore = div2;
+            var div_operazioni_1 = "dettagli_operazioni_";
+            var div_operazioni_2 = div_operazioni_1.concat(take.substring(2));
+            $('#' + window.take_migliore_operazioni).hide();
+            $('#' + div_operazioni_2).show();
+            window.take_migliore_operazioni = div_operazioni_2;
 
-    });
+        });
+    };
     $('#bottone_guida').on('click', function () {
         $('#guida').show();
     });
@@ -225,7 +227,7 @@
 
 					<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
 						 <span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span>
-					</button> <a class="navbar-brand" href="#">MyCarMa</a>
+					</button> <a class="navbar-brand" href="/">MyCarMa</a>
 				</div>
 
 				<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
@@ -234,7 +236,7 @@
 							<a href="/">Home</a>
 						</li>
 						<li class="{% block nav_class_simulatore %}inactive{% endblock %}">
-							<a href="simulatore/">Simulatore</a>
+							<a href="/simulatore">Simulatore</a>
 						</li>
 					    <!--
                         <li class="{% block nav_class_carma %}inactive{% endblock %}">
@@ -245,11 +247,13 @@
 					    <!--<a  href="#" class="btn-blu mrgn-top" data-toggle="modal" data-target="#at-helping">Help</a>-->
                         <ul class="nav navbar-nav navbar-right">
                             {% if not user.is_authenticated and not "/accounts/login" in request.get_full_path %}
-                            <li><a href="#" data-toggle="modal" data-target="#at-login">Login</a></li>
-                            <!--<li ><a href="#" data-toggle="modal" data-target="#at-signup">Registrati</a></li>-->
+                            <li><a href="/accounts/login/?next={{request.path}}">Login</a></li>
+                            <!--<li><a href="#" data-toggle="modal" data-target="#at-login">Login</a></li>
+                            <li ><a href="#" data-toggle="modal" data-target="#at-signup">Registrati</a></li>-->
                             {% else %}
                             <li class="inactive"><a href="#">Ciao {{ user.username }}</a></li>
-                            <li><a href="#" data-toggle="modal" data-target="#at-logout">Logout</a></li>
+                            <li><a href="/accounts/logout/?next={{request.path}}">Logout</a></li>
+                            <!--<li><a href="#" data-toggle="modal" data-target="#at-logout">Logout</a></li>-->
                             {% endif %}
                         </ul>
 					</form>
