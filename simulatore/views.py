@@ -105,7 +105,7 @@ def dettagli_simulazione(request):
 
 # line_profiler
 def index(request):
-    version = '1.00.04'
+    version = '1.00.06'
     if settings.SERVER_DEV is False:
         dire = "/home/carma/dati/isin.conf"
     else:
