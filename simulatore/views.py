@@ -3,6 +3,7 @@
 """
 1.00.06 - 01/11/2016
 - tutte le pagine di login e registrazione senza il modal per essere compatibili con mobile
+- risolto problema di memorizzazione sempre utente anonymous nelle statistiche
 1.00.05 - 01/11/2016
 - risolto problema con pacchi in carico
 - pagina di login su iphone
@@ -248,7 +249,7 @@ def index(request):
                 ip = x_forwarded_for.split(',')[0]
             else:
                 ip = request.META.get('REMOTE_ADDR')  # Real IP address of client Machine
-            if not hasattr(request.POST, 'user'):
+            if not request.user:
                 user_id = User.objects.get(username='Anonymous')
             else:
                 user_id = request.user
