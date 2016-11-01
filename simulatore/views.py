@@ -1,6 +1,8 @@
 # Create your views here.
 
 """
+1.00.07 - 01/11/2016
+- inserito numero negativo per i pacchi in carico per simulare lo short
 1.00.06 - 01/11/2016
 - tutte le pagine di login e registrazione senza il modal per essere compatibili con mobile
 - risolto problema di memorizzazione sempre utente anonymous nelle statistiche
@@ -105,7 +107,7 @@ def dettagli_simulazione(request):
 
 # line_profiler
 def index(request):
-    version = '1.00.06'
+    version = '1.00.07'
     if settings.SERVER_DEV is False:
         dire = "/home/carma/dati/isin.conf"
     else:

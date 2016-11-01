@@ -280,6 +280,10 @@ class Tappeto:
         self.pacchi = []
         self.operazioni = []
         self.storico = []
+        if in_carico < 0:
+            logica_tappeto = 'short'
+        else:
+            logica_tappeto = 'long'
         i = 0
         pacco_acquisto = self.limite_inferiore
         pacco_vendita = round(pacco_acquisto + self.take, 5)
@@ -290,13 +294,24 @@ class Tappeto:
             if pacco_acquisto <= self.primo_acquisto:
                 pacchi_stato.append('ACQAZ')
                 pacchi_carica.append(0)
+            # se in_carico < 0 allora sono in logica short, carico pacchi short mettendo lo stato in ACQAZ
+            # se in_carico > 0 allora sono in logica long, carico pacchi long mettendo lo stato in VENAZ
             if pacco_vendita >= prima_vendita:
-                pacchi_stato.append('VENAZ')
-                if in_carico > 0:
-                    pacchi_carica.append(1)
-                    in_carico -= 1
-                else:
-                    pacchi_carica.append(0)
+                if logica_tappeto == 'long':
+                    pacchi_stato.append('VENAZ')
+                    if in_carico > 0:
+                        pacchi_carica.append(1)
+                        in_carico -= 1
+                    else:
+                        pacchi_carica.append(0)
+                elif logica_tappeto == 'short':
+                    if in_carico < 0:
+                        pacchi_stato.append('ACQAZ')
+                        pacchi_carica.append(1)
+                        in_carico += 1
+                    else:
+                        pacchi_stato.append('VENAZ')
+                        pacchi_carica.append(0)
             pacco_acquisto = round(pacco_acquisto + self.step, self.tick)
             pacco_vendita = round(pacco_acquisto + self.take, self.tick)
             singolo_pacco = Pacco(i + 1, self.isin, pacchi_stato[i], pacchi_acquisto[i], pacchi_vendita[i], self.take,
