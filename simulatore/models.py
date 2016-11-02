@@ -132,8 +132,10 @@ class Pacco:
         self.order_type = "VENAZ"
         if self.carica == 1:
             self.carica = 0
+            self.order_type = "VENAZ_S"
         else:
             self.carica = 1
+            self.order_type = "VENAZ_L"
         return storico
 
     def vendita(self, prezzo, tappeto, data, ora, storico):
@@ -162,8 +164,10 @@ class Pacco:
         self.order_type = "ACQAZ"
         if self.carica == 1:
             self.carica = 0
+            self.order_type = "ACQAZ_L"
         else:
             self.carica = 1
+            self.order_type = "ACQAZ_S"
         return storico
 
     @staticmethod
@@ -176,7 +180,7 @@ class Pacco:
                 p = tappeto.max_commissione
             return p
         else:
-            return tappeto.commissione
+            return round(tappeto.commissione, 4)
 
 
 class Operazione:
@@ -250,7 +254,8 @@ class Tappeto:
         self.commissioni = 0
         self.profitto = 0
         self.valore_attuale = 0
-        self.valore_carico = 0
+        self.valore_carico_long = 0
+        self.valore_carico_short = 0
         self.valore_min = 0
         self.valore_max = 0
         self.quantita_totale = 0
@@ -292,13 +297,26 @@ class Tappeto:
             pacchi_acquisto.append(pacco_acquisto)
             pacchi_vendita.append(pacco_vendita)
             if pacco_acquisto <= self.primo_acquisto:
-                pacchi_stato.append('ACQAZ')
+                pacchi_stato.append('ACQAZ_L')
                 pacchi_carica.append(0)
             # se in_carico < 0 allora sono in logica short, carico pacchi short mettendo lo stato in ACQAZ
             # se in_carico > 0 allora sono in logica long, carico pacchi long mettendo lo stato in VENAZ
             if pacco_vendita >= prima_vendita:
+                if in_carico > 0:
+                    pacchi_stato.append('VENAZ_L')
+                    pacchi_carica.append(1)
+                    in_carico -= 1
+                elif in_carico < 0:
+                    pacchi_stato.append('ACQAZ_S')
+                    pacchi_carica.append(1)
+                    in_carico += 1
+                elif in_carico == 0:
+                    pacchi_stato.append('VENAZ_S')
+                    pacchi_carica.append(0)
+            """
+            if pacco_vendita >= prima_vendita:
                 if logica_tappeto == 'long':
-                    pacchi_stato.append('VENAZ')
+                    pacchi_stato.append('VENAZ_L')
                     if in_carico > 0:
                         pacchi_carica.append(1)
                         in_carico -= 1
@@ -306,42 +324,46 @@ class Tappeto:
                         pacchi_carica.append(0)
                 elif logica_tappeto == 'short':
                     if in_carico < 0:
-                        pacchi_stato.append('ACQAZ')
+                        pacchi_stato.append('ACQAZ_S')
                         pacchi_carica.append(1)
                         in_carico += 1
                     else:
-                        pacchi_stato.append('VENAZ')
+                        pacchi_stato.append('VENAZ_S')
                         pacchi_carica.append(0)
+            """
             pacco_acquisto = round(pacco_acquisto + self.step, self.tick)
             pacco_vendita = round(pacco_acquisto + self.take, self.tick)
             singolo_pacco = Pacco(i + 1, self.isin, pacchi_stato[i], pacchi_acquisto[i], pacchi_vendita[i], self.take,
                                   self.quantita_acquisto, self.quantita_vendita, 0, pacchi_carica[i])
             self.pacchi.append(singolo_pacco)
-            if pacchi_stato[i] == 'ACQAZ' and pacchi_carica[i] == 0:
+            if pacchi_stato[i] == 'ACQAZ_L' and pacchi_carica[i] == 0:
+                # lista_per_panda(numero tappeto, numero_pacco, stato 0=ACQ,1=VEN, prezzo_acquisto, prezzo_vendita)
                 lista_per_panda.append((while_counter, i + 1, 0, pacchi_acquisto[i], pacchi_vendita[i]))
-                self.valore_carico += pacchi_acquisto[i] * self.quantita_vendita
-            elif pacchi_stato[i] == 'ACQAZ' and pacchi_carica[i] == 1:
+                self.valore_carico_long += pacchi_acquisto[i] * self.quantita_vendita
+            elif pacchi_stato[i] == 'ACQAZ_S' and pacchi_carica[i] == 1:
                 lista_per_panda.append((while_counter, i + 1, 0, pacchi_acquisto[i], pacchi_vendita[i]))
-            elif pacchi_stato[i] == 'VENAZ' and pacchi_carica[i] == 0:
+                self.valore_attuale += (pacchi_acquisto[i] * self.quantita_acquisto)
+            elif pacchi_stato[i] == 'VENAZ_S' and pacchi_carica[i] == 0:
                 lista_per_panda.append((while_counter, i + 1, 1, pacchi_acquisto[i], pacchi_vendita[i]))
-                self.valore_carico += pacchi_acquisto[i] * self.quantita_vendita
-            elif pacchi_stato[i] == 'VENAZ' and pacchi_carica[i] == 1:
+                self.valore_carico_short += pacchi_acquisto[i] * self.quantita_vendita
+            elif pacchi_stato[i] == 'VENAZ_L' and pacchi_carica[i] == 1:
                 lista_per_panda.append((while_counter, i + 1, 1, pacchi_acquisto[i], pacchi_vendita[i]))
+                self.valore_attuale += (pacchi_acquisto[i] + self.quantita_acquisto)
             i += 1
         dt = np.dtype('int,int,int,float,float')
         self.numpy = np.array(lista_per_panda, dtype=dt)
 
     def operazione(self, tipo_operazione, data, ora, prezzo, quantita, gain, commissioni, carica):
-        if tipo_operazione == "ACQAZ" and carica == 0:
+        if tipo_operazione == "ACQAZ_L" and carica == 0:
             self.quantita_totale += quantita
             self.valore_attuale += (prezzo * quantita)
-        elif tipo_operazione == "ACQAZ" and carica == 1:
+        elif tipo_operazione == "ACQAZ_S" and carica == 1:
             self.quantita_totale -= quantita
             self.valore_attuale -= (prezzo * quantita)
-        elif tipo_operazione == "VENAZ" and carica == 1:
+        elif tipo_operazione == "VENAZ_L" and carica == 1:
             self.quantita_totale -= quantita
             self.valore_attuale -= (prezzo * quantita)
-        elif tipo_operazione == "VENAZ" and carica == 0:
+        elif tipo_operazione == "VENAZ_S" and carica == 0:
             self.quantita_totale += quantita
             self.valore_attuale += (prezzo * quantita)
         if self.valore_attuale >= self.valore_max:

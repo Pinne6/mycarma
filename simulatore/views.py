@@ -1,6 +1,10 @@
 # Create your views here.
 
 """
+1.01.00 - 02/11/2016
+- risolto problema con user.session su firefox
+- aggiunto nomenclatura pacchi long e short
+- aggiunto calcolo max esposizione long e short
 1.00.07 - 01/11/2016
 - inserito numero negativo per i pacchi in carico per simulare lo short
 1.00.06 - 01/11/2016
@@ -107,7 +111,7 @@ def dettagli_simulazione(request):
 
 # line_profiler
 def index(request):
-    version = '1.00.07'
+    version = '1.01.00'
     if settings.SERVER_DEV is False:
         dire = "/home/carma/dati/isin.conf"
     else:
@@ -236,13 +240,13 @@ def index(request):
                     lis_a = np.flatnonzero(np.logical_and(pacchi_numpy['f2'] == 0, pacchi_numpy['f3'] >= prezzo))
                     lis_b = np.flatnonzero(np.logical_and(pacchi_numpy['f2'] == 1, pacchi_numpy['f4'] <= prezzo))
                     for item in lis_a:
-                        pacchi_numpy[item]['f2'] = 1
                         tappeto[pacchi_numpy[item]['f0'] - 1].pacchi[pacchi_numpy[item]['f1'] - 1].acquisto(
                             prezzo, tappeto[pacchi_numpy[item]['f0'] - 1], data, ora, storico)
+                        pacchi_numpy[item]['f2'] = 1
                     for item in lis_b:
-                        pacchi_numpy[item]['f2'] = 0
                         tappeto[pacchi_numpy[item]['f0'] - 1].pacchi[pacchi_numpy[item]['f1'] - 1].vendita(
                             prezzo, tappeto[pacchi_numpy[item]['f0'] - 1], data, ora, storico)
+                        pacchi_numpy[item]['f2'] = 0
                 data_inizio += datetime.timedelta(days=1)
             # dividere per 1 milione per avere i secondi
             time = datetime.datetime.today() - start_time
@@ -252,6 +256,8 @@ def index(request):
             else:
                 ip = request.META.get('REMOTE_ADDR')  # Real IP address of client Machine
             if not request.user:
+                user_id = User.objects.get(username='Anonymous')
+            elif request.user.is_anonymous:
                 user_id = User.objects.get(username='Anonymous')
             else:
                 user_id = request.user
@@ -319,7 +325,7 @@ def index(request):
                                                commissioni=tappeto[classifica_rendimenti[1]].commissioni,
                                                profitto=tappeto[classifica_rendimenti[1]].profitto,
                                                valore_attuale=tappeto[classifica_rendimenti[1]].valore_attuale,
-                                               valore_carico=tappeto[classifica_rendimenti[1]].valore_carico,
+                                               valore_carico=tappeto[classifica_rendimenti[1]].valore_carico_long,
                                                valore_min=tappeto[classifica_rendimenti[1]].valore_min,
                                                valore_max=tappeto[classifica_rendimenti[1]].valore_max,
                                                quantita_totale=tappeto[classifica_rendimenti[1]].quantita_totale,
@@ -346,7 +352,7 @@ def index(request):
                                                commissioni=tappeto[classifica_rendimenti[0]].commissioni,
                                                profitto=tappeto[classifica_rendimenti[0]].profitto,
                                                valore_attuale=tappeto[classifica_rendimenti[0]].valore_attuale,
-                                               valore_carico=tappeto[classifica_rendimenti[0]].valore_carico,
+                                               valore_carico=tappeto[classifica_rendimenti[0]].valore_carico_long,
                                                valore_min=tappeto[classifica_rendimenti[0]].valore_min,
                                                valore_max=tappeto[classifica_rendimenti[0]].valore_max,
                                                quantita_totale=tappeto[classifica_rendimenti[0]].quantita_totale,

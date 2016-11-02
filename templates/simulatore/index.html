@@ -407,10 +407,18 @@
                         </tr>
                         <tr>
                             <td>
-                                Valore max teorico tappeto
+                                Esposizione max tappeto long
                             </td>
                             <td>
-                                &euro; {{ singolo_tappeto.valore_carico }}
+                                &euro; {{ singolo_tappeto.valore_carico_long }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Esposizione max tappeto short
+                            </td>
+                            <td>
+                                &euro; {{ singolo_tappeto.valore_carico_short }}
                             </td>
                         </tr>
                         <tr>
@@ -711,7 +719,7 @@
                             {{ forloop.counter }}
 						</td>
 						<td>
-							{% if pacco.order_type == 'VENAZ' %}VENDITA{% elif pacco.order_type == 'ACQAZ' %}ACQUISTO{% endif %}
+							{% if pacco.order_type == 'VENAZ_L' %}VENDITA LONG{% elif pacco.order_type == 'ACQAZ_L' %}ACQUISTO LONG{% elif pacco.order_type == 'VENAZ_S' %}VENDITA SHORT{% elif pacco.order_type == 'ACQAZ_S' %}ACQUISTO SHORT{% endif %}
 						</td>
 						<td>
 							{{ pacco.buy_price }}
@@ -890,7 +898,7 @@
 							&euro; {{ item.prezzo_teorico }}
 						</td>
 						<td>
-							{% if item.tipo == 'VENAZ' %}VENDITA{% elif item.tipo == 'ACQAZ' %}ACQUISTO{% endif %}
+							{% if item.tipo == 'VENAZ_L' %}VENDITA LONG{% elif item.tipo == 'ACQAZ_L' %}ACQUISTO LONG{% elif item.tipo == 'VENAZ_S' %}VENDITA SHORT{% elif item.tipo == 'ACQAZ_S' %}ACQUISTO SHORT{% endif %}
 						</td>
                         <td>
 							&euro; {{ item.prezzo }}
