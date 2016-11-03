@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+{% block title %}Simulatore{% endblock %}
+{% block nav_class_home %}inactive{% endblock %}
+{% block nav_class_simulatore %}active{% endblock %}
+<!--{% block nav_class_carma %}inactive{% endblock %}-->
+{% block intestazione %}
+{% endblock %}
+{% block corpo_centrale %}
+<div class="row">
+		<div class="col-md-5">
+			<div class="tabbable" id="tabs-474851">
+				<ul class="nav nav-tabs">
+					<li {% if tipo_take != 'take_variabile' %}class="active"{% endif %}>
+						<a href="#panel-464241" data-toggle="tab">Take fisso</a>
+					</li>
+					<li {% if tipo_take == 'take_variabile' %}class="active"{% endif %}>
+						<a href="#panel-68911" data-toggle="tab">Take variabile</a>
+					</li>
+				</ul>
+				<div class="tab-content">
+                    <div class="tab-pane {% if tipo_take != 'take_variabile' %}active{% endif %}" id="panel-464241">
+                        <form role="form" method="post" class="form-horizontal" id="take_singolo">{% csrf_token %}
+                        <input type="hidden" value="take_singolo" name="tipo_take">
+                        <input type="hidden" id="selectedDate_inizio" name="selectedDate_inizio" {% if request.session.data_inizio %}value="{{ request.session.data_inizio }}"{% else %}value="{{ data_max }}"{% endif %} />
+                        <input type="hidden" id="selectedDate_fine" name="selectedDate_fine" {% if request.session.data_fine %}value="{{ request.session.data_fine }}"{% else %}value="{{ data_oggi }}"{% endif %}/>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    {% if not user.is_authenticated %}
+                                        <p>La versione gratuita ti permette di simulare a parametri fissi solo per gli ultimi 15 giorni.</p>
+                                        <p>Per effettuare simulazioni su date più ampie e a parametri variabili richiedi l'accesso agli sviluppatori.</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3 form-group-sm">
+                                    <label>
+                                        {{ form.isin.label }}
+                                        {{ form.isin }}
+                                    </label>
+                                </div>
+                                <div class="col-md-3 form-group-sm">
+                                    <label>
+                                        {{ form.crea_data_inizio.label }}
+                                        {{ form.crea_data_inizio }}
+                                    </label>
+                                </div>
+                                <div class="col-md-3 form-group-sm">
+                                    <label>
+                                        {{ form.crea_data_fine.label }}
+                                        {{ form.crea_data_fine }}
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3 form-group-sm">
+                                    <label>
+                                        {{ form.crea_limite_inferiore.label }}
+                                        {{ form.crea_limite_inferiore }}
+                                    </label>
+                                </div>
+                                <div class="col-md-3 form-group-sm">
+                                    <label>
+                                        {{ form.crea_limite_superiore.label }}
+                                        {{ form.crea_limite_superiore }}
+                                    </label>
+                                    {% if check2 == 'Yes' %}
+                                    <small class="help-block" data-fv-for="crea_limite_superiore" data-fv-result="INVALID" style="display: block;">Il limite superiore è stato modificato per essere multiplo di limite inferiore e step</small>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-3 form-group-sm">
+                                    <label>
+                                        {{ form.primo_acquisto.label }}
+                                        {{ form.primo_acquisto }}
+                                    </label>
+                                    {% if check == 'Yes' %}
+                                    <small class="help-block" data-fv-for="primo acquisto" data-fv-result="INVALID" style="display: block;">Il primo acquisto è stato modificato per essere multiplo di limite inferiore e step</small>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-3 form-group-sm">
+                                    <label>
+                                        {{ form.in_carico.label }}
+                                        {{ form.in_carico }}
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3 form-group-sm">
+                                    <label>
+                                        {{ form.step.label }}
+                                        {{ form.step }}
+                                    </label>
+                                </div>
+                                <div class="col-md-3 form-group-sm">
+                                    <label>
+                                        {{ form.take.label }}
+                                        {{ form.take }}
+                                    </label>
+                                </div>
+                                <div class="col-md-3 form-group-sm">
+                                    <label>
+                                        {{ form.quantita_acquisto.label }}
+                                        {{ form.quantita_acquisto }}
+                                    </label>
+                                </div>
+                                <div class="col-md-3 form-group-sm">
+                                    <label>
+                                        {{ form.quantita_vendita.label }}
+                                        {{ form.quantita_vendita }}
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3 form-group-sm">
+                                    <label>
+                                        {{ form.commissioni_tipo.label }}
+                                        {{ form.commissioni_tipo }}
+                                    </label>
+                                </div>
+                                <div class="col-md-3 form-group-sm">
+                                    <label>
+                                        {{ form.commissioni_importo.label }}
+                                        {{ form.commissioni_importo }}
+                                    </label>
+                                </div>
+                                <div class="col-md-3 form-group-sm">
+                                    <label>
+                                        {{ form.commissioni_min.label }}
+                                        {{ form.commissioni_min }}
+                                    </label>
+                                </div>
+                                <div class="col-md-3 form-group-sm">
+                                    <label>
+                                        {{ form.commissioni_max.label }}
+                                        {{ form.commissioni_max }}
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <button type="button" class="btn btn-info" name="bottone" value="guida" id="bottone_guida">
+                                    Guida
+                                    </button>
+                                </div>
+                                <div class="col-md-3">
+                                    <button type="submit" class="btn btn-primary" name="bottone" value="crea">
+                                    Crea tappeto
+                                    </button>
+                                </div>
+                                {% if bottone == 'crea' and tipo_take == 'take_singolo' %}
+                                <div class="col-md-3">
+                                    <button type="submit" class="btn btn-success" name="bottone" value="simula">
+                                    Simula
+                                    </button>
+                                </div>
+                                {% endif %}
+                                <div class="col-md-3">
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+</div>
+
+
+{% endblock %}

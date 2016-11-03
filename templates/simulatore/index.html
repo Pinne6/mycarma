@@ -31,141 +31,105 @@
                             </div>
                             <div class="row">
                                 <div class="col-md-3 form-group-sm">
-                                    <label for="isin">
-                                        Titolo
-                                    <select class="form-control" name="isin" required>
-                                        {% if request.session.isin %}
-                                            {% for i,k in isin_conf %}
-                                                {% if i == request.session.isin %}
-                                                    <option value="{{ i }}" selected>{{ k }}</option>
-                                                {% else %}
-                                                    <option value="{{ i }}">{{ k }}</option>
-                                                {% endif %}
-                                            {% endfor %}
-                                        {% else %}
-                                            <option value="" selected disabled>Scegli il titolo</option>
-                                            {% for i,k in isin_conf %}
-                                                <option value="{{ i }}">{{ k }}</option>
-                                            {% endfor %}
-                                        {% endif %}
-                                    </select>
+                                    <label>
+                                        {{ form_singolo.isin.label }}
+                                        {{ form_singolo.isin }}
                                     </label>
                                 </div>
                                 <div class="col-md-3 form-group-sm">
-                                    <label for="crea_data_inizio">
-                                        Data inizio
-                                    {% if user.is_authenticated and perms.simulatore.take_fisso %}
-                                    <input type="text" class="form-control" name="crea_data_inizio" id="crea_singolo_data_inizio_libero" {% if request.session.data_inizio %}value="{{ request.session.data_inizio }}" {% else %}value="{{ data_oggi }}"{% endif %}>
-                                    {% else %}
-                                    <input type="text" class="form-control" name="crea_data_inizio" id="crea_singolo_data_inizio_limitato" {% if request.session.data_inizio %}value="{{ request.session.data_inizio }}" {% else %}value="{{ data_max }}"{% endif %}>
-                                    {% endif %}
+                                    <label>
+                                        {{ form_singolo.crea_data_inizio.label }}
+                                        {{ form_singolo.crea_data_inizio }}
                                     </label>
                                 </div>
                                 <div class="col-md-3 form-group-sm">
-                                    <label for="crea_data_fine">
-                                    Data fine
-                                    {% if user.is_authenticated and perms.simulatore.take_fisso %}
-                                    <input type="text" class="form-control" name="crea_data_fine" id="crea_singolo_data_fine_libero" {% if request.session.data_fine %}value="{{ request.session.data_fine }}" {% else %}value="{{ data_oggi }}" {% endif %}>
-                                    {% else %}
-                                    <input type="text" class="form-control" name="crea_data_fine" id="crea_singolo_data_fine_limitato" {% if request.session.data_fine %}value="{{ request.session.data_fine }}" {% else %}value="{{ data_oggi }}"{% endif %}>
-                                    {% endif %}
+                                    <label>
+                                        {{ form_singolo.crea_data_fine.label }}
+                                        {{ form_singolo.crea_data_fine }}
                                     </label>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-md-3 form-group-sm">
-                                    <label for="crea_limite_inferiore">
-                                        Limite inferiore
-                                    <input type="number" class="form-control" name="crea_limite_inferiore" required {% if request.session.limite_inferiore %}value="{{ request.session.limite_inferiore }}"{% endif %} placeholder="5.01" step="0.0001">
+                                    <label>
+                                        {{ form_singolo.crea_limite_inferiore.label }}
+                                        {{ form_singolo.crea_limite_inferiore }}
                                     </label>
                                 </div>
                                 <div class="col-md-3 form-group-sm">
-                                    <label for="crea_limite_superiore">
-                                        Limite superiore
-                                    <input type="number" class="form-control" name="crea_limite_superiore" required {% if request.session.limite_superiore %}value="{{ request.session.limite_superiore }}"{% endif %} placeholder="10.01" step="0.0001">
+                                    <label>
+                                        {{ form_singolo.crea_limite_superiore.label }}
+                                        {{ form_singolo.crea_limite_superiore }}
                                     </label>
                                     {% if check2 == 'Yes' %}
                                     <small class="help-block" data-fv-for="crea_limite_superiore" data-fv-result="INVALID" style="display: block;">Il limite superiore è stato modificato per essere multiplo di limite inferiore e step</small>
                                     {% endif %}
                                 </div>
                                 <div class="col-md-3 form-group-sm">
-                                    <label for="primo_acquisto">
-                                        Livello primo acquisto
-                                    <input type="number" class="form-control" name="primo_acquisto" required {% if request.session.primo_acquisto %}value="{{ request.session.primo_acquisto }}"{% endif %} placeholder="6.01" step="0.0001">
+                                    <label>
+                                        {{ form_singolo.primo_acquisto.label }}
+                                        {{ form_singolo.primo_acquisto }}
                                     </label>
                                     {% if check == 'Yes' %}
                                     <small class="help-block" data-fv-for="primo acquisto" data-fv-result="INVALID" style="display: block;">Il primo acquisto è stato modificato per essere multiplo di limite inferiore e step</small>
                                     {% endif %}
                                 </div>
                                 <div class="col-md-3 form-group-sm">
-                                    <label for="in_carico">
-                                        Numero pacchi in carico
-                                    <input type="number" class="form-control" name="in_carico" required {% if request.session.in_carico or request.session.in_carico == 0 %}value="{{ request.session.in_carico }}"{% endif %} placeholder="20" step="1">
+                                    <label>
+                                        {{ form_singolo.in_carico.label }}
+                                        {{ form_singolo.in_carico }}
                                     </label>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-md-3 form-group-sm">
-                                    <label for="step">
-                                        Step
-                                    <input type="number" class="form-control" name="step" required {% if request.session.step %}value="{{ request.session.step }}"{% endif %} placeholder="0.1" step="0.0001">
+                                    <label>
+                                        {{ form_singolo.step.label }}
+                                        {{ form_singolo.step }}
                                     </label>
                                 </div>
                                 <div class="col-md-3 form-group-sm">
-                                    <label for="take">
-                                        Take
-                                    <input type="number" class="form-control" name="take" required {% if request.session.take_inizio %}value="{{ request.session.take_inizio }}"{% endif %} placeholder="0.13" step="0.0001">
+                                    <label>
+                                        {{ form_singolo.take.label }}
+                                        {{ form_singolo.take }}
                                     </label>
                                 </div>
                                 <div class="col-md-3 form-group-sm">
-                                    <label for="quantita_acquisto">
-                                        Quantità acquisto
-                                    <input type="number" class="form-control" name="quantita_acquisto" required {% if request.session.quantita_acquisto %}value="{{ request.session.quantita_acquisto }}"{% endif %} placeholder="100" step="1">
+                                    <label>
+                                        {{ form_singolo.quantita_acquisto.label }}
+                                        {{ form_singolo.quantita_acquisto }}
                                     </label>
                                 </div>
                                 <div class="col-md-3 form-group-sm">
-                                    <label for="quantita_vendita">
-                                        Quantità vendita
-                                    <input type="number" class="form-control" name="quantita_vendita" required {% if request.session.quantita_vendita %}value="{{ request.session.quantita_vendita }}"{% endif %} placeholder="100" step="1">
+                                    <label>
+                                        {{ form_singolo.quantita_vendita.label }}
+                                        {{ form_singolo.quantita_vendita }}
                                     </label>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-md-3 form-group-sm">
-                                    <label for="commissioni_tipo">
-                                        Tipo commissioni
-                                    <select class="form-control" name="commissioni_tipo" required>
-                                        {% if request.session.tipo_commissione %}
-                                            {% if request.session.tipo_commissione == 'P' %}
-                                        <option value="P" selected>Percentuale</option>
-                                        <option value="F">Fissa</option>
-                                            {% elif request.session.tipo_commissione == 'F' %}
-                                        <option value="P">Percentuale</option>
-                                        <option value="F" selected>Fissa</option>
-                                            {% endif %}
-                                        {% else %}
-                                        <option value="P">Percentuale</option>
-                                        <option value="F">Fissa</option>
-                                        {% endif %}
-                                    </select>
+                                    <label>
+                                        {{ form_singolo.commissioni_tipo.label }}
+                                        {{ form_singolo.commissioni_tipo }}
                                     </label>
                                 </div>
                                 <div class="col-md-3 form-group-sm">
-                                    <label for="commissioni_importo">
-                                        Importo commissioni
-                                    <input type="number" class="form-control" name="commissioni_importo" required {% if request.session.commissione %}value="{{ request.session.commissione }}" {% else %}value="0.19"{% endif %}  step="0.0001">
+                                    <label>
+                                        {{ form_singolo.commissioni_importo.label }}
+                                        {{ form_singolo.commissioni_importo }}
                                     </label>
                                 </div>
                                 <div class="col-md-3 form-group-sm">
-                                    <label for="commissioni_min">
-                                        Commissioni min
-                                    <input type="number" class="form-control" name="commissioni_min" required {% if request.session.min_commissione %}value="{{ request.session.min_commissione }}" {% else %}value="1"{% endif %}  step="0.0001">
+                                    <label>
+                                        {{ form_singolo.commissioni_min.label }}
+                                        {{ form_singolo.commissioni_min }}
                                     </label>
                                 </div>
                                 <div class="col-md-3 form-group-sm">
-                                    <label for="commissioni_max">
-                                        Commissioni max
-                                    <input type="number" class="form-control" name="commissioni_max" required {% if request.session.max_commissione %}value="{{ request.session.max_commissione }}" {% else %}value="18"{% endif %}  step="0.0001">
+                                    <label>
+                                        {{ form_singolo.commissioni_max.label }}
+                                        {{ form_singolo.commissioni_max }}
                                     </label>
                                 </div>
                             </div>
@@ -201,141 +165,119 @@
                         <input type="hidden" id="selectedDate_variabile_fine" name="selectedDate_variabile_fine" {% if request.session.data_fine %}value="{{ request.session.data_fine }}"{% else %}value="{{ data_oggi }}"{% endif %}/>
                             <div class="row">
                                 <div class="col-md-3 form-group-sm">
-                                    <label for="isin">
-                                        Titolo
-                                    <select class="form-control" name="isin" required>
-                                        {% if request.session.isin %}
-                                            {% for i,k in isin_conf %}
-                                                {% if i == request.session.isin %}
-                                                    <option value="{{ i }}" selected>{{ k }}</option>
-                                                {% else %}
-                                                    <option value="{{ i }}">{{ k }}</option>
-                                                {% endif %}
-                                            {% endfor %}
-                                        {% else %}
-                                            <option value="" disabled>Scegli il titolo</option>
-                                            {% for i,k in isin_conf %}
-                                                <option value="{{ i }}">{{ k }}</option>
-                                            {% endfor %}
-                                        {% endif %}
-                                    </select>
+                                    <label>
+                                        {{ form_variabile.isin.label }}
+                                        {{ form_variabile.isin }}
                                     </label>
                                 </div>
                                 <div class="col-md-3 form-group-sm">
-                                    <label for="crea_data_inizio">
-                                        Data inizio
-                                    <input type="text" class="form-control" name="crea_data_inizio" id="crea_variabile_data_inizio_libero" required {% if request.session.data_inizio %}value="{{ request.session.data_inizio }}" {% else %}value="{{ data_oggi }}"{% endif %}>
+                                    <label>
+                                        {{ form_variabile.crea_data_inizio.label }}
+                                        {{ form_variabile.crea_data_inizio }}
                                     </label>
                                 </div>
                                 <div class="col-md-3 form-group-sm">
-                                    <label for="crea_data_fine">
-                                    Data fine
-                                    <input type="text" class="form-control" name="crea_data_fine" id="crea_variabile_data_fine_libero" required {% if request.session.data_fine %}value="{{ request.session.data_fine }}" {% else %}value="{{ data_oggi }}"{% endif %}>
+                                    <label>
+                                        {{ form_variabile.crea_data_fine.label }}
+                                        {{ form_variabile.crea_data_fine }}
                                     </label>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-md-3 form-group-sm">
-                                    <label for="crea_limite_inferiore">
-                                        Limite inferiore
-                                    <input type="number" class="form-control" name="crea_limite_inferiore" required {% if request.session.limite_inferiore %}value="{{ request.session.limite_inferiore }}"{% endif %} placeholder="5.01" step="0.0001">
+                                    <label>
+                                        {{ form_variabile.crea_limite_inferiore.label }}
+                                        {{ form_variabile.crea_limite_inferiore }}
                                     </label>
                                 </div>
                                 <div class="col-md-3 form-group-sm">
-                                    <label for="crea_limite_superiore">
-                                        Limite superiore
-                                    <input type="number" class="form-control" name="crea_limite_superiore" required {% if request.session.limite_superiore %}value="{{ request.session.limite_superiore }}" {% endif %}placeholder="10.01"  step="0.0001">
+                                    <label>
+                                        {{ form_variabile.crea_limite_superiore.label }}
+                                        {{ form_variabile.crea_limite_superiore }}
                                     </label>
+                                    {% if check2 == 'Yes' %}
+                                    <small class="help-block" data-fv-for="crea_limite_superiore" data-fv-result="INVALID" style="display: block;">Il limite superiore è stato modificato per essere multiplo di limite inferiore e step</small>
+                                    {% endif %}
                                 </div>
                                 <div class="col-md-3 form-group-sm">
-                                    <label for="primo_acquisto">
-                                        Livello primo acquisto
-                                    <input type="number" class="form-control" name="primo_acquisto" required {% if request.session.primo_acquisto %}value="{{ request.session.primo_acquisto }}" {% endif %}placeholder="6.06"  step="0.0001">
+                                    <label>
+                                        {{ form_variabile.primo_acquisto.label }}
+                                        {{ form_variabile.primo_acquisto }}
                                     </label>
+                                    {% if check == 'Yes' %}
+                                    <small class="help-block" data-fv-for="primo acquisto" data-fv-result="INVALID" style="display: block;">Il primo acquisto è stato modificato per essere multiplo di limite inferiore e step</small>
+                                    {% endif %}
                                 </div>
                                 <div class="col-md-3 form-group-sm">
-                                    <label for="in_carico">
-                                        Numero pacchi in carico
-                                    <input type="number" class="form-control" name="in_carico" required {% if request.session.in_carico or request.session.in_carico == 0 %}value="{{ request.session.in_carico }}" {% endif %}placeholder="20" step="1">
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-3 form-group-sm">
-                                    <label for="step">
-                                        Step
-                                    <input type="number" class="form-control" name="step" required {% if request.session.step %}value="{{ request.session.step }}" {% endif %}placeholder="0.05"  step="0.0001">
-                                    </label>
-                                </div>
-                                <div class="col-md-3 form-group-sm">
-                                    <label for="take_inizio">
-                                        Take iniziale
-                                    <input type="number" class="form-control" name="take_inizio" required {% if request.session.take_inizio %}value="{{ request.session.take_inizio }}"{% endif %} placeholder="0.1" step="0.0001">
-                                    </label>
-                                </div>
-                                <div class="col-md-3 form-group-sm">
-                                    <label for="take_fine">
-                                        Take finale
-                                    <input type="number" class="form-control" name="take_fine" required {% if request.session.take_fine %}value="{{ request.session.take_fine }}"{% endif %} placeholder="0.2" step="0.0001">
-                                    </label>
-                                </div>
-                                <div class="col-md-3 form-group-sm">
-                                    <label for="take">
-                                        Incremento del take
-                                    <input type="number" class="form-control" name="take_incremento" required {% if request.session.take_incremento %}value="{{ request.session.take_incremento }}"{% endif %} placeholder="0.01" step="0.0001">
+                                    <label>
+                                        {{ form_variabile.in_carico.label }}
+                                        {{ form_variabile.in_carico }}
                                     </label>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-md-3 form-group-sm">
-                                    <label for="quantita_acquisto">
-                                        Quantità acquisto
-                                    <input type="number" class="form-control" name="quantita_acquisto" required {% if request.session.quantita_acquisto %}value="{{ request.session.quantita_acquisto }}"{% endif %}placeholder="100"  step="1">
+                                    <label>
+                                        {{ form_variabile.step.label }}
+                                        {{ form_variabile.step }}
                                     </label>
                                 </div>
                                 <div class="col-md-3 form-group-sm">
-                                    <label for="quantita_vendita">
-                                        Quantità vendita
-                                    <input type="number" class="form-control" name="quantita_vendita" required {% if request.session.quantita_vendita %}value="{{ request.session.quantita_vendita }}"{% endif %}placeholder="100" step="1">
+                                    <label>
+                                        {{ form_variabile.take_inizio.label }}
+                                        {{ form_variabile.take_inizio }}
+                                    </label>
+                                </div>
+                                <div class="col-md-3 form-group-sm">
+                                    <label>
+                                        {{ form_variabile.take_fine.label }}
+                                        {{ form_variabile.take_fine }}
+                                    </label>
+                                </div>
+                                <div class="col-md-3 form-group-sm">
+                                    <label>
+                                        {{ form_variabile.take_incremento.label }}
+                                        {{ form_variabile.take_incremento }}
                                     </label>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-md-3 form-group-sm">
-                                    <label for="commissioni_tipo">
-                                        Tipo commissioni
-                                    <select class="form-control" name="commissioni_tipo" required>
-                                        {% if request.session.tipo_commissione %}
-                                            {% if request.session.tipo_commissione == 'P' %}
-                                        <option value="P" selected>Percentuale</option>
-                                        <option value="F">Fissa</option>
-                                            {% elif request.session.tipo_commissione == 'F' %}
-                                        <option value="P">Percentuale</option>
-                                        <option value="F" selected>Fissa</option>
-                                            {% endif %}
-                                        {% else %}
-                                        <option value="P">Percentuale</option>
-                                        <option value="F">Fissa</option>
-                                        {% endif %}
-                                    </select>
+                                    <label>
+                                        {{ form_variabile.quantita_acquisto.label }}
+                                        {{ form_variabile.quantita_acquisto }}
                                     </label>
                                 </div>
                                 <div class="col-md-3 form-group-sm">
-                                    <label for="commissioni_importo">
-                                        Importo commissioni
-                                    <input type="number" class="form-control" name="commissioni_importo" required {% if request.session.commissione %}value="{{ request.session.commissione }}" {% else %}value="0.19"{% endif %} step="0.0001">
+                                    <label>
+                                        {{ form_variabile.quantita_vendita.label }}
+                                        {{ form_variabile.quantita_vendita }}
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3 form-group-sm">
+                                    <label>
+                                        {{ form_variabile.commissioni_tipo.label }}
+                                        {{ form_variabile.commissioni_tipo }}
                                     </label>
                                 </div>
                                 <div class="col-md-3 form-group-sm">
-                                    <label for="commissioni_min">
-                                        Commissioni min
-                                    <input type="number" class="form-control" name="commissioni_min" required {% if request.session.min_commissione %}value="{{ request.session.min_commissione }}" {% else %}value="1"{% endif %} step="0.0001">
+                                    <label>
+                                        {{ form_variabile.commissioni_importo.label }}
+                                        {{ form_variabile.commissioni_importo }}
                                     </label>
                                 </div>
                                 <div class="col-md-3 form-group-sm">
-                                    <label for="commissioni_max">
-                                        Commissioni max
-                                    <input type="number" class="form-control" name="commissioni_max" required {% if request.session.max_commissione %}value="{{ request.session.max_commissione }}" {% else %}value="18"{% endif %} step="0.0001">
+                                    <label>
+                                        {{ form_variabile.commissioni_min.label }}
+                                        {{ form_variabile.commissioni_min }}
+                                    </label>
+                                </div>
+                                <div class="col-md-3 form-group-sm">
+                                    <label>
+                                        {{ form_variabile.commissioni_max.label }}
+                                        {{ form_variabile.commissioni_max }}
                                     </label>
                                 </div>
                             </div>
