@@ -12,7 +12,7 @@ class FormTakeSingolo(forms.Form):
         if self.request.user.is_authenticated and self.request.user.has_perm('simulatore.take_fisso'):
             self.id_data_inizio = 'crea_singolo_data_inizio_libero'
             self.id_data_fine = 'crea_singolo_data_fine_libero'
-            if self.request.session['data_inizio'] and self.request.session['data_fine']:
+            if self.request.session.get('data_inizio') and self.request.session.get('data_fine'):
                 self.default_data_inizio = self.request.session['data_inizio']
                 self.default_data_fine = self.request.session['data_fine']
             else:
@@ -93,7 +93,7 @@ class FormTakeVariabile(forms.Form):
         if self.request.user.is_authenticated and self.request.user.has_perm('simulatore.take_variabile'):
             self.id_data_inizio = 'crea_variabile_data_inizio_libero'
             self.id_data_fine = 'crea_variabile_data_fine_libero'
-            if self.request.session['data_inizio'] and self.request.session['data_fine']:
+            if self.request.session.get('data_inizio') and self.request.session.get('data_fine'):
                 self.default_data_inizio = self.request.session['data_inizio']
                 self.default_data_fine = self.request.session['data_fine']
             else:
