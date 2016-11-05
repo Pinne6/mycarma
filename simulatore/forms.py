@@ -111,55 +111,55 @@ class FormTakeVariabile(forms.Form):
             self.in_carico = None
         if self.request.user.is_authenticated and self.request.user.has_perm('simulatore.take_variabile'):
             super(FormTakeVariabile, self).__init__(*args, **kwargs)
-        self.fields['isin'] = forms.ChoiceField(widget=forms.Select(attrs={'id': 'isin', 'class': 'form-control'}),
-                                                choices=self.isin_conf, label='Titolo',
-                                                initial=self.request.session.get('isin'))
-        self.fields['crea_data_inizio'] = forms.CharField(
-            widget=forms.TextInput(attrs={'id': self.id_data_inizio, 'class': 'form-control'}),
-            initial=self.default_data_inizio, label='Data inizio', required=False)
-        self.fields['crea_data_fine'] = forms.CharField(
-            widget=forms.TextInput(attrs={'id': self.id_data_fine, 'class': 'form-control'}),
-            initial=self.default_data_fine, label='Data fine', required=False)
-        self.fields['crea_limite_inferiore'] = forms.DecimalField(
-            widget=forms.NumberInput(attrs={'class': 'form-control', 'step': 0.0001, 'placeholder': 5.0}),
-            initial=self.request.session.get('limite_inferiore'), decimal_places=4)
-        self.fields['crea_limite_superiore'] = forms.DecimalField(
-            widget=forms.NumberInput(attrs={'class': 'form-control', 'step': 0.0001, 'placeholder': 10.0}),
-            initial=self.request.session.get('limite_superiore'), decimal_places=4)
-        self.fields['primo_acquisto'] = forms.DecimalField(
-            widget=forms.NumberInput(attrs={'class': 'form-control', 'step': 0.0001, 'placeholder': 6.0}),
-            initial=self.request.session.get('primo_acquisto'), decimal_places=4)
-        self.fields['in_carico'] = forms.IntegerField(
-            widget=forms.NumberInput(attrs={'class': 'form-control', 'step': 1, 'placeholder': 10}),
-            initial=self.in_carico)
-        self.fields['step'] = forms.DecimalField(
-            widget=forms.NumberInput(attrs={'class': 'form-control', 'step': 0.0001, 'placeholder': 0.1}),
-            initial=self.request.session.get('step'), decimal_places=4)
-        self.fields['take_inizio'] = forms.DecimalField(
-            widget=forms.NumberInput(attrs={'class': 'form-control', 'step': 0.0001, 'placeholder': 6.0}),
-            initial=self.request.session.get('take_inizio'), decimal_places=4)
-        self.fields['take_fine'] = forms.DecimalField(
-            widget=forms.NumberInput(attrs={'class': 'form-control', 'step': 0.0001, 'placeholder': 6.0}),
-            initial=self.request.session.get('take_fine'), decimal_places=4)
-        self.fields['take_incremento'] = forms.DecimalField(
-            widget=forms.NumberInput(attrs={'class': 'form-control', 'step': 0.0001, 'placeholder': 6.0}),
-            initial=self.request.session.get('take_incremento'), decimal_places=4)
-        self.fields['quantita_acquisto'] = forms.IntegerField(
-            widget=forms.NumberInput(attrs={'class': 'form-control', 'step': 1, 'placeholder': 100}),
-            initial=self.request.session.get('quantita_acquisto'))
-        self.fields['quantita_vendita'] = forms.IntegerField(
-            widget=forms.NumberInput(attrs={'class': 'form-control', 'step': 1, 'placeholder': 100}),
-            initial=self.request.session.get('quantita_vendita'))
-        self.fields['commissioni_tipo'] = forms.ChoiceField(
-            widget=forms.Select(attrs={'id': 'commissioni_tipo', 'class': 'form-control'}),
-            choices=[('P', 'Percentuale'), ('F', 'Fissa')], label='Tipo commissioni',
-            initial=self.request.session.get('tipo_commissione'))
-        self.fields['commissioni_importo'] = forms.DecimalField(
-            widget=forms.NumberInput(attrs={'class': 'form-control', 'step': 0.0001, 'placeholder': 0.19}),
-            initial=self.request.session.get('commissione'), decimal_places=4)
-        self.fields['commissioni_min'] = forms.DecimalField(
-            widget=forms.NumberInput(attrs={'class': 'form-control', 'step': 0.0001, 'placeholder': 1}),
-            initial=self.request.session.get('min_commissione'), decimal_places=4)
-        self.fields['commissioni_max'] = forms.DecimalField(
-            widget=forms.NumberInput(attrs={'class': 'form-control', 'step': 0.0001, 'placeholder': 18}),
-            initial=self.request.session.get('max_commissione'), decimal_places=4)
+            self.fields['isin'] = forms.ChoiceField(widget=forms.Select(attrs={'id': 'isin', 'class': 'form-control'}),
+                                                    choices=self.isin_conf, label='Titolo',
+                                                    initial=self.request.session.get('isin'))
+            self.fields['crea_data_inizio'] = forms.CharField(
+                widget=forms.TextInput(attrs={'id': self.id_data_inizio, 'class': 'form-control'}),
+                initial=self.default_data_inizio, label='Data inizio', required=False)
+            self.fields['crea_data_fine'] = forms.CharField(
+                widget=forms.TextInput(attrs={'id': self.id_data_fine, 'class': 'form-control'}),
+                initial=self.default_data_fine, label='Data fine', required=False)
+            self.fields['crea_limite_inferiore'] = forms.DecimalField(
+                widget=forms.NumberInput(attrs={'class': 'form-control', 'step': 0.0001, 'placeholder': 5.0}),
+                initial=self.request.session.get('limite_inferiore'), decimal_places=4)
+            self.fields['crea_limite_superiore'] = forms.DecimalField(
+                widget=forms.NumberInput(attrs={'class': 'form-control', 'step': 0.0001, 'placeholder': 10.0}),
+                initial=self.request.session.get('limite_superiore'), decimal_places=4)
+            self.fields['primo_acquisto'] = forms.DecimalField(
+                widget=forms.NumberInput(attrs={'class': 'form-control', 'step': 0.0001, 'placeholder': 6.0}),
+                initial=self.request.session.get('primo_acquisto'), decimal_places=4)
+            self.fields['in_carico'] = forms.IntegerField(
+                widget=forms.NumberInput(attrs={'class': 'form-control', 'step': 1, 'placeholder': 10}),
+                initial=self.in_carico)
+            self.fields['step'] = forms.DecimalField(
+                widget=forms.NumberInput(attrs={'class': 'form-control', 'step': 0.0001, 'placeholder': 0.1}),
+                initial=self.request.session.get('step'), decimal_places=4)
+            self.fields['take_inizio'] = forms.DecimalField(
+                widget=forms.NumberInput(attrs={'class': 'form-control', 'step': 0.0001, 'placeholder': 6.0}),
+                initial=self.request.session.get('take_inizio'), decimal_places=4)
+            self.fields['take_fine'] = forms.DecimalField(
+                widget=forms.NumberInput(attrs={'class': 'form-control', 'step': 0.0001, 'placeholder': 6.0}),
+                initial=self.request.session.get('take_fine'), decimal_places=4)
+            self.fields['take_incremento'] = forms.DecimalField(
+                widget=forms.NumberInput(attrs={'class': 'form-control', 'step': 0.0001, 'placeholder': 6.0}),
+                initial=self.request.session.get('take_incremento'), decimal_places=4)
+            self.fields['quantita_acquisto'] = forms.IntegerField(
+                widget=forms.NumberInput(attrs={'class': 'form-control', 'step': 1, 'placeholder': 100}),
+                initial=self.request.session.get('quantita_acquisto'))
+            self.fields['quantita_vendita'] = forms.IntegerField(
+                widget=forms.NumberInput(attrs={'class': 'form-control', 'step': 1, 'placeholder': 100}),
+                initial=self.request.session.get('quantita_vendita'))
+            self.fields['commissioni_tipo'] = forms.ChoiceField(
+                widget=forms.Select(attrs={'id': 'commissioni_tipo', 'class': 'form-control'}),
+                choices=[('P', 'Percentuale'), ('F', 'Fissa')], label='Tipo commissioni',
+                initial=self.request.session.get('tipo_commissione'))
+            self.fields['commissioni_importo'] = forms.DecimalField(
+                widget=forms.NumberInput(attrs={'class': 'form-control', 'step': 0.0001, 'placeholder': 0.19}),
+                initial=self.request.session.get('commissione'), decimal_places=4)
+            self.fields['commissioni_min'] = forms.DecimalField(
+                widget=forms.NumberInput(attrs={'class': 'form-control', 'step': 0.0001, 'placeholder': 1}),
+                initial=self.request.session.get('min_commissione'), decimal_places=4)
+            self.fields['commissioni_max'] = forms.DecimalField(
+                widget=forms.NumberInput(attrs={'class': 'form-control', 'step': 0.0001, 'placeholder': 18}),
+                initial=self.request.session.get('max_commissione'), decimal_places=4)
