@@ -1,6 +1,8 @@
 # Create your views here.
 
 """
+1.03.01 - 05/11/2016
+- creazione form take variabile sotto login
 1.03.00 - 05/11/2016
 - creata API per eseguire simulazione
 1.02.00 - 03/11/2016
@@ -145,7 +147,7 @@ def dettagli_simulazione(request):
 
 # line_profiler
 def index(request):
-    version = '1.03.00'
+    version = '1.03.01'
     if settings.SERVER_DEV is False:
         dire = "/home/carma/dati/isin.conf"
         folder = "/home/carma/dati/intra/"

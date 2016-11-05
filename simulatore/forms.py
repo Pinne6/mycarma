@@ -109,7 +109,8 @@ class FormTakeVariabile(forms.Form):
             self.in_carico = self.request.session.get('in_carico')
         else:
             self.in_carico = None
-        super(FormTakeVariabile, self).__init__(*args, **kwargs)
+        if self.request.user.is_authenticated and self.request.user.has_perm('simulatore.take_variabile'):
+            super(FormTakeVariabile, self).__init__(*args, **kwargs)
         self.fields['isin'] = forms.ChoiceField(widget=forms.Select(attrs={'id': 'isin', 'class': 'form-control'}),
                                                 choices=self.isin_conf, label='Titolo',
                                                 initial=self.request.session.get('isin'))
