@@ -21,6 +21,8 @@ from home import views
 from simulatore.api import EntryResource
 # from django.conf.urls.static import static
 
+entry_resource = EntryResource()
+
 urlpatterns = [
     url(r'^$', views.index),
     url(r'^simulatore/', include('simulatore.urls')),
@@ -28,7 +30,7 @@ urlpatterns = [
     # url(r'^login/$', auth_views.login, name='login'),
     # url(r'^logout/$', auth_views.logout, name='logout'),
     url(r'^accounts/', include('allauth.urls')),
-    # url(r'^api/', include(entry_resource.urls)),
+    url(r'^api/', include(entry_resource.urls)),
 ]  # + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 if settings.DEBUG:
