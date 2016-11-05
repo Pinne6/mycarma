@@ -3,6 +3,7 @@
 """
 1.03.01 - 05/11/2016
 - creazione form take variabile sotto login
+- tutto il form sotto login
 1.03.00 - 05/11/2016
 - creata API per eseguire simulazione
 1.02.00 - 03/11/2016
