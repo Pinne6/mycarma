@@ -1,6 +1,8 @@
 # Create your views here.
 
 """
+1.03.04 - 06/11/2016
+- fix controllo su take singolo in jquery
 1.03.03 - 06/11/2016
 - rimosso controllo form da forms.py
 1.03.02 - 06/11/2016
@@ -153,7 +155,7 @@ def dettagli_simulazione(request):
 
 # line_profiler
 def index(request):
-    version = '1.03.03'
+    version = '1.03.04'
     if settings.SERVER_DEV is False:
         dire = "/home/carma/dati/isin.conf"
         folder = "/home/carma/dati/intra/"
