@@ -894,12 +894,23 @@
 	</div>
     <script type="text/javascript">
    $(document).ready(function() {
-       var curr = new Date();
-       curr.setDate(curr.getDate() - 15);
-       //convert month to 2 digits
-       var twoDigitMonth = curr.getMonth()+1+"";if(twoDigitMonth.length==1)	twoDigitMonth="0" +twoDigitMonth;
-       var twoDigitDate = curr.getDate()+"";if(twoDigitDate.length==1)	twoDigitDate="0" +twoDigitDate;
-       window.currentDate = twoDigitDate + "/" + twoDigitMonth + "/" + curr.getFullYear();
+       if (typeof $("#crea_singolo_data_inizio_limitato").val() !== 'undefined') {
+           var curr = new Date();
+           curr.setDate(curr.getDate() - 15);
+           //convert month to 2 digits
+           var twoDigitMonth = curr.getMonth()+1+"";if(twoDigitMonth.length==1)	twoDigitMonth="0" +twoDigitMonth;
+           var twoDigitDate = curr.getDate()+"";if(twoDigitDate.length==1)	twoDigitDate="0" +twoDigitDate;
+           window.currentDate = twoDigitDate + "/" + twoDigitMonth + "/" + curr.getFullYear();
+       }
+       else {
+           var curr = new Date();
+           curr.setDate(curr.getDate() - 10000);
+           //convert month to 2 digits
+           var twoDigitMonth = curr.getMonth()+1+"";if(twoDigitMonth.length==1)	twoDigitMonth="0" +twoDigitMonth;
+           var twoDigitDate = curr.getDate()+"";if(twoDigitDate.length==1)	twoDigitDate="0" +twoDigitDate;
+           window.currentDate = twoDigitDate + "/" + twoDigitMonth + "/" + curr.getFullYear();
+       }
+
    $('#take_singolo').formValidation({
         // I am validating Bootstrap form
         framework: 'bootstrap',

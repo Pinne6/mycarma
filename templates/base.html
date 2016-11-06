@@ -149,7 +149,9 @@
     });
     $("#take_singolo").submit(function () {
         if (typeof $("#crea_singolo_data_inizio_limitato").val() !== 'undefined') {
+            alert('not und')
             if ($("#crea_singolo_data_inizio_limitato").val() != $("#selectedDate_inizio").val()) {
+                alert('diverso')
                 $("#selectedDate_inizio").val($("#crea_singolo_data_inizio_limitato").val());
                 $('#take_singolo').formValidation('revalidateField', 'selectedDate_inizio');
             }

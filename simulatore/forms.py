@@ -26,8 +26,8 @@ class FormTakeSingolo(forms.Form):
                 self.default_data_inizio = self.request.session['data_inizio']
                 self.default_data_fine = self.request.session['data_fine']
             else:
-                self.default_data_inizio = datetime.datetime.strftime(datetime.date.today(), "%d/%m/%Y")
-                self.default_data_fine = datetime.datetime.strftime(datetime.date.today() - datetime.timedelta(days=15),
+                self.default_data_fine = datetime.datetime.strftime(datetime.date.today(), "%d/%m/%Y")
+                self.default_data_inizio = datetime.datetime.strftime(datetime.date.today() - datetime.timedelta(days=15),
                                                                     "%d/%m/%Y")
         if self.request.session.get('in_carico') == 0:
             self.in_carico = 0

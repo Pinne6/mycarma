@@ -1,6 +1,10 @@
 # Create your views here.
 
 """
+1.03.05 - 06/11/2016
+- fix su data inizio controlli
+1.03.04 - 06/11/2016
+- fix controllo su take singolo in jquery
 1.03.04 - 06/11/2016
 - fix controllo su take singolo in jquery
 1.03.03 - 06/11/2016
@@ -155,7 +159,7 @@ def dettagli_simulazione(request):
 
 # line_profiler
 def index(request):
-    version = '1.03.04'
+    version = '1.03.05'
     if settings.SERVER_DEV is False:
         dire = "/home/carma/dati/isin.conf"
         folder = "/home/carma/dati/intra/"
