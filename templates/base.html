@@ -147,6 +147,14 @@
         // Revalidate it
         $('#take_singolo').formValidation('revalidateField', 'selectedDate_inizio');
     });
+    $("#take_singolo").submit(function () {
+        if (typeof $("#crea_singolo_data_inizio_limitato").val() !== 'undefined') {
+            if ($("#crea_singolo_data_inizio_limitato").val() != $("#selectedDate_inizio").val()) {
+                $("#selectedDate_inizio").val($("#crea_singolo_data_inizio_limitato").val());
+                $('#take_singolo').formValidation('revalidateField', 'selectedDate_inizio');
+            }
+        }
+    });
     var date_input_variabile_fine_libero=$('input[id="crea_variabile_data_fine_libero"]'); //our date input has the name "date"
     var options_variabile_fine_libero={
         format: 'dd/mm/yyyy',
@@ -182,41 +190,7 @@
 
         // Revalidate it
         $('#take_variabile').formValidation('revalidateField', 'selectedDate_variabile_inizio');
-    });  
-      /*
-  $('#tabella_risultato_simulazione').find('tbody').on('click', 'tr', function () {
-        var riga = table.row( this ).data();
-        var com_body = riga[4];
-        var row = $(this).index()+1;
-        var tappeto = "{{ tappeto_json|safe }}";
-        alert(row);
-        var csrftoken = $.cookie('csrftoken');
-
-        function csrfSafeMethod(method) {
-            // these HTTP methods do not require CSRF protection
-            return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-        }
-
-        $.ajaxSetup({
-            beforeSend: function(xhr, settings) {
-                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
-                }
-            }
-        });
-        $.ajax({
-            url: '{% url 'dettagli_simulazione' %}',
-            data: {
-                take: com_body,
-                tappeto: tappeto
-            },
-            type: 'POST',
-            success: function(data) {
-                $('#dettagli_simulazione').html(data);
-            }
-        });
-        alert( 'You clicked on '+data[0]+'\'s row' );
-    }); */
+    });
   });
   </script>
   <div class="container-fluid">

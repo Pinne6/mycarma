@@ -19,8 +19,8 @@
                     <div class="tab-pane {% if tipo_take != 'take_variabile' %}active{% endif %}" id="panel-464241">
                         <form role="form" method="post" class="form-horizontal" id="take_singolo">{% csrf_token %}
                         <input type="hidden" value="take_singolo" name="tipo_take">
-                        <input type="hidden" id="selectedDate_inizio" name="selectedDate_inizio" {% if request.session.data_inizio %}value="{{ request.session.data_inizio }}"{% else %}value="{{ data_max }}"{% endif %} />
-                        <input type="hidden" id="selectedDate_fine" name="selectedDate_fine" {% if request.session.data_fine %}value="{{ request.session.data_fine }}"{% else %}value="{{ data_oggi }}"{% endif %}/>
+                        <input type="hidden" id="selectedDate_inizio" name="selectedDate_inizio" {% if request.session.data_inizio %}value="{{ request.session.data_inizio }}" {% else %}value="{{ data_max }}"{% endif %} />
+                        <input type="hidden" id="selectedDate_fine" name="selectedDate_fine" {% if request.session.data_fine %}value="{{ request.session.data_fine }}" {% else %}value="{{ data_oggi }}"{% endif %}/>
                             <div class="row">
                                 <div class="col-md-12">
                                     {% if not user.is_authenticated %}
@@ -31,141 +31,105 @@
                             </div>
                             <div class="row">
                                 <div class="col-md-3 form-group-sm">
-                                    <label for="isin">
-                                        Titolo
-                                    <select class="form-control" name="isin" required>
-                                        {% if request.session.isin %}
-                                            {% for i,k in isin_conf %}
-                                                {% if i == request.session.isin %}
-                                                    <option value="{{ i }}" selected>{{ k }}</option>
-                                                {% else %}
-                                                    <option value="{{ i }}">{{ k }}</option>
-                                                {% endif %}
-                                            {% endfor %}
-                                        {% else %}
-                                            <option value="" selected disabled>Scegli il titolo</option>
-                                            {% for i,k in isin_conf %}
-                                                <option value="{{ i }}">{{ k }}</option>
-                                            {% endfor %}
-                                        {% endif %}
-                                    </select>
+                                    <label>
+                                        {{ form_singolo.isin.label }}
+                                        {{ form_singolo.isin }}
                                     </label>
                                 </div>
                                 <div class="col-md-3 form-group-sm">
-                                    <label for="crea_data_inizio">
-                                        Data inizio
-                                    {% if user.is_authenticated and perms.simulatore.take_fisso %}
-                                    <input type="text" class="form-control" name="crea_data_inizio" id="crea_singolo_data_inizio_libero" {% if request.session.data_inizio %}value="{{ request.session.data_inizio }}" {% else %}value="{{ data_oggi }}"{% endif %}>
-                                    {% else %}
-                                    <input type="text" class="form-control" name="crea_data_inizio" id="crea_singolo_data_inizio_limitato" {% if request.session.data_inizio %}value="{{ request.session.data_inizio }}" {% else %}value="{{ data_max }}"{% endif %}>
-                                    {% endif %}
+                                    <label>
+                                        {{ form_singolo.crea_data_inizio.label }}
+                                        {{ form_singolo.crea_data_inizio }}
                                     </label>
                                 </div>
                                 <div class="col-md-3 form-group-sm">
-                                    <label for="crea_data_fine">
-                                    Data fine
-                                    {% if user.is_authenticated and perms.simulatore.take_fisso %}
-                                    <input type="text" class="form-control" name="crea_data_fine" id="crea_singolo_data_fine_libero" {% if request.session.data_fine %}value="{{ request.session.data_fine }}" {% else %}value="{{ data_oggi }}" {% endif %}>
-                                    {% else %}
-                                    <input type="text" class="form-control" name="crea_data_fine" id="crea_singolo_data_fine_limitato" {% if request.session.data_fine %}value="{{ request.session.data_fine }}" {% else %}value="{{ data_oggi }}"{% endif %}>
-                                    {% endif %}
+                                    <label>
+                                        {{ form_singolo.crea_data_fine.label }}
+                                        {{ form_singolo.crea_data_fine }}
                                     </label>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-md-3 form-group-sm">
-                                    <label for="crea_limite_inferiore">
-                                        Limite inferiore
-                                    <input type="number" class="form-control" name="crea_limite_inferiore" required {% if request.session.limite_inferiore %}value="{{ request.session.limite_inferiore }}"{% endif %} placeholder="5.01" step="0.0001">
+                                    <label>
+                                        {{ form_singolo.crea_limite_inferiore.label }}
+                                        {{ form_singolo.crea_limite_inferiore }}
                                     </label>
                                 </div>
                                 <div class="col-md-3 form-group-sm">
-                                    <label for="crea_limite_superiore">
-                                        Limite superiore
-                                    <input type="number" class="form-control" name="crea_limite_superiore" required {% if request.session.limite_superiore %}value="{{ request.session.limite_superiore }}"{% endif %} placeholder="10.01" step="0.0001">
+                                    <label>
+                                        {{ form_singolo.crea_limite_superiore.label }}
+                                        {{ form_singolo.crea_limite_superiore }}
                                     </label>
                                     {% if check2 == 'Yes' %}
                                     <small class="help-block" data-fv-for="crea_limite_superiore" data-fv-result="INVALID" style="display: block;">Il limite superiore è stato modificato per essere multiplo di limite inferiore e step</small>
                                     {% endif %}
                                 </div>
                                 <div class="col-md-3 form-group-sm">
-                                    <label for="primo_acquisto">
-                                        Livello primo acquisto
-                                    <input type="number" class="form-control" name="primo_acquisto" required {% if request.session.primo_acquisto %}value="{{ request.session.primo_acquisto }}"{% endif %} placeholder="6.01" step="0.0001">
+                                    <label>
+                                        {{ form_singolo.primo_acquisto.label }}
+                                        {{ form_singolo.primo_acquisto }}
                                     </label>
                                     {% if check == 'Yes' %}
                                     <small class="help-block" data-fv-for="primo acquisto" data-fv-result="INVALID" style="display: block;">Il primo acquisto è stato modificato per essere multiplo di limite inferiore e step</small>
                                     {% endif %}
                                 </div>
                                 <div class="col-md-3 form-group-sm">
-                                    <label for="in_carico">
-                                        Numero pacchi in carico
-                                    <input type="number" class="form-control" name="in_carico" required {% if request.session.in_carico or request.session.in_carico == 0 %}value="{{ request.session.in_carico }}"{% endif %} placeholder="20" step="1">
+                                    <label>
+                                        {{ form_singolo.in_carico.label }}
+                                        {{ form_singolo.in_carico }}
                                     </label>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-md-3 form-group-sm">
-                                    <label for="step">
-                                        Step
-                                    <input type="number" class="form-control" name="step" required {% if request.session.step %}value="{{ request.session.step }}"{% endif %} placeholder="0.1" step="0.0001">
+                                    <label>
+                                        {{ form_singolo.step.label }}
+                                        {{ form_singolo.step }}
                                     </label>
                                 </div>
                                 <div class="col-md-3 form-group-sm">
-                                    <label for="take">
-                                        Take
-                                    <input type="number" class="form-control" name="take" required {% if request.session.take_inizio %}value="{{ request.session.take_inizio }}"{% endif %} placeholder="0.13" step="0.0001">
+                                    <label>
+                                        {{ form_singolo.take.label }}
+                                        {{ form_singolo.take }}
                                     </label>
                                 </div>
                                 <div class="col-md-3 form-group-sm">
-                                    <label for="quantita_acquisto">
-                                        Quantità acquisto
-                                    <input type="number" class="form-control" name="quantita_acquisto" required {% if request.session.quantita_acquisto %}value="{{ request.session.quantita_acquisto }}"{% endif %} placeholder="100" step="1">
+                                    <label>
+                                        {{ form_singolo.quantita_acquisto.label }}
+                                        {{ form_singolo.quantita_acquisto }}
                                     </label>
                                 </div>
                                 <div class="col-md-3 form-group-sm">
-                                    <label for="quantita_vendita">
-                                        Quantità vendita
-                                    <input type="number" class="form-control" name="quantita_vendita" required {% if request.session.quantita_vendita %}value="{{ request.session.quantita_vendita }}"{% endif %} placeholder="100" step="1">
+                                    <label>
+                                        {{ form_singolo.quantita_vendita.label }}
+                                        {{ form_singolo.quantita_vendita }}
                                     </label>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-md-3 form-group-sm">
-                                    <label for="commissioni_tipo">
-                                        Tipo commissioni
-                                    <select class="form-control" name="commissioni_tipo" required>
-                                        {% if request.session.tipo_commissione %}
-                                            {% if request.session.tipo_commissione == 'P' %}
-                                        <option value="P" selected>Percentuale</option>
-                                        <option value="F">Fissa</option>
-                                            {% elif request.session.tipo_commissione == 'F' %}
-                                        <option value="P">Percentuale</option>
-                                        <option value="F" selected>Fissa</option>
-                                            {% endif %}
-                                        {% else %}
-                                        <option value="P">Percentuale</option>
-                                        <option value="F">Fissa</option>
-                                        {% endif %}
-                                    </select>
+                                    <label>
+                                        {{ form_singolo.commissioni_tipo.label }}
+                                        {{ form_singolo.commissioni_tipo }}
                                     </label>
                                 </div>
                                 <div class="col-md-3 form-group-sm">
-                                    <label for="commissioni_importo">
-                                        Importo commissioni
-                                    <input type="number" class="form-control" name="commissioni_importo" required {% if request.session.commissione %}value="{{ request.session.commissione }}" {% else %}value="0.19"{% endif %}  step="0.0001">
+                                    <label>
+                                        {{ form_singolo.commissioni_importo.label }}
+                                        {{ form_singolo.commissioni_importo }}
                                     </label>
                                 </div>
                                 <div class="col-md-3 form-group-sm">
-                                    <label for="commissioni_min">
-                                        Commissioni min
-                                    <input type="number" class="form-control" name="commissioni_min" required {% if request.session.min_commissione %}value="{{ request.session.min_commissione }}" {% else %}value="1"{% endif %}  step="0.0001">
+                                    <label>
+                                        {{ form_singolo.commissioni_min.label }}
+                                        {{ form_singolo.commissioni_min }}
                                     </label>
                                 </div>
                                 <div class="col-md-3 form-group-sm">
-                                    <label for="commissioni_max">
-                                        Commissioni max
-                                    <input type="number" class="form-control" name="commissioni_max" required {% if request.session.max_commissione %}value="{{ request.session.max_commissione }}" {% else %}value="18"{% endif %}  step="0.0001">
+                                    <label>
+                                        {{ form_singolo.commissioni_max.label }}
+                                        {{ form_singolo.commissioni_max }}
                                     </label>
                                 </div>
                             </div>
@@ -196,146 +160,124 @@
 						{% if user.is_authenticated %}
                         {% if perms.simulatore.take_variabile %}
                         <form role="form" method="post" class="form-horizontal" id="take_variabile">{% csrf_token %}
-                        <input type="hidden" value="take_variabile" name="tipo_take">
-                        <input type="hidden" id="selectedDate_variabile_inizio" name="selectedDate_variabile_inizio" {% if request.session.data_inizio %}value="{{ request.session.data_inizio }}"{% else %}value="{{ data_max }}"{% endif %} />
-                        <input type="hidden" id="selectedDate_variabile_fine" name="selectedDate_variabile_fine" {% if request.session.data_fine %}value="{{ request.session.data_fine }}"{% else %}value="{{ data_oggi }}"{% endif %}/>
+                            <input type="hidden" value="take_variabile" name="tipo_take">
+                            <input type="hidden" id="selectedDate_variabile_inizio" name="selectedDate_variabile_inizio" {% if request.session.data_inizio %}value="{{ request.session.data_inizio }}" {% else %}value="{{ data_max }}"{% endif %} />
+                            <input type="hidden" id="selectedDate_variabile_fine" name="selectedDate_variabile_fine" {% if request.session.data_fine %}value="{{ request.session.data_fine }}" {% else %}value="{{ data_oggi }}"{% endif %}/>
                             <div class="row">
                                 <div class="col-md-3 form-group-sm">
-                                    <label for="isin">
-                                        Titolo
-                                    <select class="form-control" name="isin" required>
-                                        {% if request.session.isin %}
-                                            {% for i,k in isin_conf %}
-                                                {% if i == request.session.isin %}
-                                                    <option value="{{ i }}" selected>{{ k }}</option>
-                                                {% else %}
-                                                    <option value="{{ i }}">{{ k }}</option>
-                                                {% endif %}
-                                            {% endfor %}
-                                        {% else %}
-                                            <option value="" disabled>Scegli il titolo</option>
-                                            {% for i,k in isin_conf %}
-                                                <option value="{{ i }}">{{ k }}</option>
-                                            {% endfor %}
-                                        {% endif %}
-                                    </select>
+                                    <label>
+                                        {{ form_variabile.isin.label }}
+                                        {{ form_variabile.isin }}
                                     </label>
                                 </div>
                                 <div class="col-md-3 form-group-sm">
-                                    <label for="crea_data_inizio">
-                                        Data inizio
-                                    <input type="text" class="form-control" name="crea_data_inizio" id="crea_variabile_data_inizio_libero" required {% if request.session.data_inizio %}value="{{ request.session.data_inizio }}" {% else %}value="{{ data_oggi }}"{% endif %}>
+                                    <label>
+                                        {{ form_variabile.crea_data_inizio.label }}
+                                        {{ form_variabile.crea_data_inizio }}
                                     </label>
                                 </div>
                                 <div class="col-md-3 form-group-sm">
-                                    <label for="crea_data_fine">
-                                    Data fine
-                                    <input type="text" class="form-control" name="crea_data_fine" id="crea_variabile_data_fine_libero" required {% if request.session.data_fine %}value="{{ request.session.data_fine }}" {% else %}value="{{ data_oggi }}"{% endif %}>
+                                    <label>
+                                        {{ form_variabile.crea_data_fine.label }}
+                                        {{ form_variabile.crea_data_fine }}
                                     </label>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-md-3 form-group-sm">
-                                    <label for="crea_limite_inferiore">
-                                        Limite inferiore
-                                    <input type="number" class="form-control" name="crea_limite_inferiore" required {% if request.session.limite_inferiore %}value="{{ request.session.limite_inferiore }}"{% endif %} placeholder="5.01" step="0.0001">
+                                    <label>
+                                        {{ form_variabile.crea_limite_inferiore.label }}
+                                        {{ form_variabile.crea_limite_inferiore }}
                                     </label>
                                 </div>
                                 <div class="col-md-3 form-group-sm">
-                                    <label for="crea_limite_superiore">
-                                        Limite superiore
-                                    <input type="number" class="form-control" name="crea_limite_superiore" required {% if request.session.limite_superiore %}value="{{ request.session.limite_superiore }}" {% endif %}placeholder="10.01"  step="0.0001">
+                                    <label>
+                                        {{ form_variabile.crea_limite_superiore.label }}
+                                        {{ form_variabile.crea_limite_superiore }}
                                     </label>
+                                    {% if check2 == 'Yes' %}
+                                    <small class="help-block" data-fv-for="crea_limite_superiore" data-fv-result="INVALID" style="display: block;">Il limite superiore è stato modificato per essere multiplo di limite inferiore e step</small>
+                                    {% endif %}
                                 </div>
                                 <div class="col-md-3 form-group-sm">
-                                    <label for="primo_acquisto">
-                                        Livello primo acquisto
-                                    <input type="number" class="form-control" name="primo_acquisto" required {% if request.session.primo_acquisto %}value="{{ request.session.primo_acquisto }}" {% endif %}placeholder="6.06"  step="0.0001">
+                                    <label>
+                                        {{ form_variabile.primo_acquisto.label }}
+                                        {{ form_variabile.primo_acquisto }}
                                     </label>
+                                    {% if check == 'Yes' %}
+                                    <small class="help-block" data-fv-for="primo acquisto" data-fv-result="INVALID" style="display: block;">Il primo acquisto è stato modificato per essere multiplo di limite inferiore e step</small>
+                                    {% endif %}
                                 </div>
                                 <div class="col-md-3 form-group-sm">
-                                    <label for="in_carico">
-                                        Numero pacchi in carico
-                                    <input type="number" class="form-control" name="in_carico" required {% if request.session.in_carico or request.session.in_carico == 0 %}value="{{ request.session.in_carico }}" {% endif %}placeholder="20" step="1">
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-3 form-group-sm">
-                                    <label for="step">
-                                        Step
-                                    <input type="number" class="form-control" name="step" required {% if request.session.step %}value="{{ request.session.step }}" {% endif %}placeholder="0.05"  step="0.0001">
-                                    </label>
-                                </div>
-                                <div class="col-md-3 form-group-sm">
-                                    <label for="take_inizio">
-                                        Take iniziale
-                                    <input type="number" class="form-control" name="take_inizio" required {% if request.session.take_inizio %}value="{{ request.session.take_inizio }}"{% endif %} placeholder="0.1" step="0.0001">
-                                    </label>
-                                </div>
-                                <div class="col-md-3 form-group-sm">
-                                    <label for="take_fine">
-                                        Take finale
-                                    <input type="number" class="form-control" name="take_fine" required {% if request.session.take_fine %}value="{{ request.session.take_fine }}"{% endif %} placeholder="0.2" step="0.0001">
-                                    </label>
-                                </div>
-                                <div class="col-md-3 form-group-sm">
-                                    <label for="take">
-                                        Incremento del take
-                                    <input type="number" class="form-control" name="take_incremento" required {% if request.session.take_incremento %}value="{{ request.session.take_incremento }}"{% endif %} placeholder="0.01" step="0.0001">
+                                    <label>
+                                        {{ form_variabile.in_carico.label }}
+                                        {{ form_variabile.in_carico }}
                                     </label>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-md-3 form-group-sm">
-                                    <label for="quantita_acquisto">
-                                        Quantità acquisto
-                                    <input type="number" class="form-control" name="quantita_acquisto" required {% if request.session.quantita_acquisto %}value="{{ request.session.quantita_acquisto }}"{% endif %}placeholder="100"  step="1">
+                                    <label>
+                                        {{ form_variabile.step.label }}
+                                        {{ form_variabile.step }}
                                     </label>
                                 </div>
                                 <div class="col-md-3 form-group-sm">
-                                    <label for="quantita_vendita">
-                                        Quantità vendita
-                                    <input type="number" class="form-control" name="quantita_vendita" required {% if request.session.quantita_vendita %}value="{{ request.session.quantita_vendita }}"{% endif %}placeholder="100" step="1">
+                                    <label>
+                                        {{ form_variabile.take_inizio.label }}
+                                        {{ form_variabile.take_inizio }}
+                                    </label>
+                                </div>
+                                <div class="col-md-3 form-group-sm">
+                                    <label>
+                                        {{ form_variabile.take_fine.label }}
+                                        {{ form_variabile.take_fine }}
+                                    </label>
+                                </div>
+                                <div class="col-md-3 form-group-sm">
+                                    <label>
+                                        {{ form_variabile.take_incremento.label }}
+                                        {{ form_variabile.take_incremento }}
                                     </label>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-md-3 form-group-sm">
-                                    <label for="commissioni_tipo">
-                                        Tipo commissioni
-                                    <select class="form-control" name="commissioni_tipo" required>
-                                        {% if request.session.tipo_commissione %}
-                                            {% if request.session.tipo_commissione == 'P' %}
-                                        <option value="P" selected>Percentuale</option>
-                                        <option value="F">Fissa</option>
-                                            {% elif request.session.tipo_commissione == 'F' %}
-                                        <option value="P">Percentuale</option>
-                                        <option value="F" selected>Fissa</option>
-                                            {% endif %}
-                                        {% else %}
-                                        <option value="P">Percentuale</option>
-                                        <option value="F">Fissa</option>
-                                        {% endif %}
-                                    </select>
+                                    <label>
+                                        {{ form_variabile.quantita_acquisto.label }}
+                                        {{ form_variabile.quantita_acquisto }}
                                     </label>
                                 </div>
                                 <div class="col-md-3 form-group-sm">
-                                    <label for="commissioni_importo">
-                                        Importo commissioni
-                                    <input type="number" class="form-control" name="commissioni_importo" required {% if request.session.commissione %}value="{{ request.session.commissione }}" {% else %}value="0.19"{% endif %} step="0.0001">
+                                    <label>
+                                        {{ form_variabile.quantita_vendita.label }}
+                                        {{ form_variabile.quantita_vendita }}
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3 form-group-sm">
+                                    <label>
+                                        {{ form_variabile.commissioni_tipo.label }}
+                                        {{ form_variabile.commissioni_tipo }}
                                     </label>
                                 </div>
                                 <div class="col-md-3 form-group-sm">
-                                    <label for="commissioni_min">
-                                        Commissioni min
-                                    <input type="number" class="form-control" name="commissioni_min" required {% if request.session.min_commissione %}value="{{ request.session.min_commissione }}" {% else %}value="1"{% endif %} step="0.0001">
+                                    <label>
+                                        {{ form_variabile.commissioni_importo.label }}
+                                        {{ form_variabile.commissioni_importo }}
                                     </label>
                                 </div>
                                 <div class="col-md-3 form-group-sm">
-                                    <label for="commissioni_max">
-                                        Commissioni max
-                                    <input type="number" class="form-control" name="commissioni_max" required {% if request.session.max_commissione %}value="{{ request.session.max_commissione }}" {% else %}value="18"{% endif %} step="0.0001">
+                                    <label>
+                                        {{ form_variabile.commissioni_min.label }}
+                                        {{ form_variabile.commissioni_min }}
+                                    </label>
+                                </div>
+                                <div class="col-md-3 form-group-sm">
+                                    <label>
+                                        {{ form_variabile.commissioni_max.label }}
+                                        {{ form_variabile.commissioni_max }}
                                     </label>
                                 </div>
                             </div>
@@ -383,111 +325,111 @@
             <div class="col-md-6" {{ mostra_risultati }}>
                 <br />
 			    {% for singolo_tappeto in tappeto %}
-                    <div class="panel panel-success" {% if not singolo_tappeto.take == best_take %}style="display: none"{% endif %} id="dettagli_simulazione_{{ singolo_tappeto.take|cut:"." }}">
-                <div class="panel-heading">
-                    <h3 class="panel-title"><strong>Risultato simulazione {{ isin }}</strong></h3>
+                <div class="panel panel-success" {% if not singolo_tappeto.take == best_take %}style="display: none"{% endif %} id="dettagli_simulazione_{{ singolo_tappeto.take|cut:"." }}">
+                    <div class="panel-heading">
+                        <h3 class="panel-title"><strong>Risultato simulazione {{ isin }}</strong></h3>
+                    </div>
+                    <table class="table table-condensed table-hover stripe table-sommario-tappeto">
+                        <tbody>
+                            <tr>
+                                <td>
+                                    Storico
+                                </td>
+                                <td>
+                                    {{ data_inizio }} - {{ data_fine }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Take
+                                </td>
+                                <td>
+                                    &euro; {{ singolo_tappeto.take }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Esposizione max tappeto long
+                                </td>
+                                <td>
+                                    &euro; {{ singolo_tappeto.valore_carico_long }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Esposizione max tappeto short
+                                </td>
+                                <td>
+                                    &euro; {{ singolo_tappeto.valore_carico_short }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Valore max reale tappeto
+                                </td>
+                                <td>
+                                    &euro; {{ singolo_tappeto.valore_max }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Valore finale tappeto
+                                </td>
+                                <td>
+                                    &euro; {{ singolo_tappeto.valore_attuale }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Acquisti
+                                </td>
+                                <td>
+                                    {{ singolo_tappeto.nr_acquisti }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Vendite
+                                </td>
+                                <td>
+                                    {{ singolo_tappeto.nr_vendite }}
+                                </td>
+                            </tr>-
+                            <tr>
+                                <td>
+                                    Gain
+                                </td>
+                                <td>
+                                    &euro; {{ singolo_tappeto.gain }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Commissioni
+                                </td>
+                                <td>
+                                    &euro; {{ singolo_tappeto.commissioni }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Profitto
+                                </td>
+                                <td>
+                                    &euro; {{ singolo_tappeto.profitto }}
+                                </td>
+                            </tr>
+                            <tr class="success">
+                                <td>
+                                    <strong>Rendimento reale</strong>
+                                </td>
+                                <td>
+                                    <strong>{{ singolo_tappeto.rendimento }}%</strong>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
-                <table class="table table-condensed table-hover stripe table-sommario-tappeto">
-                    <tbody>
-                        <tr>
-                            <td>
-                                Storico
-                            </td>
-                            <td>
-                                {{ data_inizio }} - {{ data_fine }}
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                Take
-                            </td>
-                            <td>
-                                &euro; {{ singolo_tappeto.take }}
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                Esposizione max tappeto long
-                            </td>
-                            <td>
-                                &euro; {{ singolo_tappeto.valore_carico_long }}
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                Esposizione max tappeto short
-                            </td>
-                            <td>
-                                &euro; {{ singolo_tappeto.valore_carico_short }}
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                Valore max reale tappeto
-                            </td>
-                            <td>
-                                &euro; {{ singolo_tappeto.valore_max }}
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                Valore finale tappeto
-                            </td>
-                            <td>
-                                &euro; {{ singolo_tappeto.valore_attuale }}
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                Acquisti
-                            </td>
-                            <td>
-                                {{ singolo_tappeto.nr_acquisti }}
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                Vendite
-                            </td>
-                            <td>
-                                {{ singolo_tappeto.nr_vendite }}
-                            </td>
-                        </tr>-
-                        <tr>
-                            <td>
-                                Gain
-                            </td>
-                            <td>
-                                &euro; {{ singolo_tappeto.gain }}
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                Commissioni
-                            </td>
-                            <td>
-                                &euro; {{ singolo_tappeto.commissioni }}
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                Profitto
-                            </td>
-                            <td>
-                                &euro; {{ singolo_tappeto.profitto }}
-                            </td>
-                        </tr>
-                        <tr class="success">
-                            <td>
-                                <strong>Rendimento reale</strong>
-                            </td>
-                            <td>
-                                <strong>{{ singolo_tappeto.rendimento }}%</strong>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
                 {% endfor %}
             </div>
             <div class="col-md-6" {{ mostra_risultati }}>
@@ -951,8 +893,24 @@
 		</div>
 	</div>
     <script type="text/javascript">
-
    $(document).ready(function() {
+       if (typeof $("#crea_singolo_data_inizio_limitato").val() !== 'undefined') {
+           var curr = new Date();
+           curr.setDate(curr.getDate() - 15);
+           //convert month to 2 digits
+           var twoDigitMonth = curr.getMonth()+1+"";if(twoDigitMonth.length==1)	twoDigitMonth="0" +twoDigitMonth;
+           var twoDigitDate = curr.getDate()+"";if(twoDigitDate.length==1)	twoDigitDate="0" +twoDigitDate;
+           window.currentDate = twoDigitDate + "/" + twoDigitMonth + "/" + curr.getFullYear();
+       }
+       else {
+           var curr = new Date();
+           curr.setDate(curr.getDate() - 10000);
+           //convert month to 2 digits
+           var twoDigitMonth = curr.getMonth()+1+"";if(twoDigitMonth.length==1)	twoDigitMonth="0" +twoDigitMonth;
+           var twoDigitDate = curr.getDate()+"";if(twoDigitDate.length==1)	twoDigitDate="0" +twoDigitDate;
+           window.currentDate = twoDigitDate + "/" + twoDigitMonth + "/" + curr.getFullYear();
+       }
+
    $('#take_singolo').formValidation({
         // I am validating Bootstrap form
         framework: 'bootstrap',
@@ -982,6 +940,7 @@
                     },
                     date: {
                         format: 'DD/MM/YYYY',
+                        min: window.currentDate,
                         message: 'La data inizio non è in un formato valido gg/mm/aaaa'
                     }
                 }
