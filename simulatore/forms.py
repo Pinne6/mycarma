@@ -3,7 +3,6 @@ import datetime
 
 
 class FormTakeSingolo(forms.Form):
-
     def __init__(self, *args, **kwargs):
         self.data_oggi = datetime.datetime.strftime(datetime.date.today(), "%d/%m/%Y")
         self.data_max = datetime.datetime.strftime(datetime.date.today() - datetime.timedelta(days=15),
@@ -27,8 +26,8 @@ class FormTakeSingolo(forms.Form):
                 self.default_data_fine = self.request.session['data_fine']
             else:
                 self.default_data_fine = datetime.datetime.strftime(datetime.date.today(), "%d/%m/%Y")
-                self.default_data_inizio = datetime.datetime.strftime(datetime.date.today() - datetime.timedelta(days=15),
-                                                                    "%d/%m/%Y")
+                self.default_data_inizio = datetime.datetime.strftime(
+                    datetime.date.today() - datetime.timedelta(days=15), "%d/%m/%Y")
         if self.request.session.get('in_carico') == 0:
             self.in_carico = 0
         elif self.request.session.get('in_carico'):
@@ -61,7 +60,7 @@ class FormTakeSingolo(forms.Form):
             widget=forms.NumberInput(attrs={'class': 'form-control', 'step': 0.0001, 'placeholder': 0.1}),
             initial=self.request.session.get('step'), decimal_places=4)
         self.fields['take'] = forms.DecimalField(
-            widget=forms.NumberInput(attrs={'class': 'form-control', 'step': 0.0001, 'placeholder': 6.0}),
+            widget=forms.NumberInput(attrs={'class': 'form-control', 'step': 0.0001, 'placeholder': 0.1}),
             initial=self.request.session.get('take_inizio'), decimal_places=4)
         self.fields['quantita_acquisto'] = forms.IntegerField(
             widget=forms.NumberInput(attrs={'class': 'form-control', 'step': 1, 'placeholder': 100}),
@@ -85,8 +84,8 @@ class FormTakeSingolo(forms.Form):
 
     def clean_crea_data_inizio(self):
 
-        if not self.request.user.is_authenticated and not self.request.user.has_perm('simulatore.take_fisso')and \
-                        self.cleaned_data.get('crea_data_inizio', '') < (datetime.datetime.today() - 
+        if not self.request.user.is_authenticated and not self.request.user.has_perm('simulatore.take_fisso') and \
+                        self.cleaned_data.get('crea_data_inizio', '') < (datetime.datetime.today() -
                                                                              datetime.timedelta(days=15)):
             raise ValidationError("La data inizio non è permessa.")
 
