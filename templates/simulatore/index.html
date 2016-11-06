@@ -19,8 +19,8 @@
                     <div class="tab-pane {% if tipo_take != 'take_variabile' %}active{% endif %}" id="panel-464241">
                         <form role="form" method="post" class="form-horizontal" id="take_singolo">{% csrf_token %}
                         <input type="hidden" value="take_singolo" name="tipo_take">
-                        <input type="hidden" id="selectedDate_inizio" name="selectedDate_inizio" {% if request.session.data_inizio %}value="{{ request.session.data_inizio }}"{% else %}value="{{ data_max }}"{% endif %} />
-                        <input type="hidden" id="selectedDate_fine" name="selectedDate_fine" {% if request.session.data_fine %}value="{{ request.session.data_fine }}"{% else %}value="{{ data_oggi }}"{% endif %}/>
+                        <input type="hidden" id="selectedDate_inizio" name="selectedDate_inizio" {% if request.session.data_inizio %}value="{{ request.session.data_inizio }}" {% else %}value="{{ data_max }}"{% endif %} />
+                        <input type="hidden" id="selectedDate_fine" name="selectedDate_fine" {% if request.session.data_fine %}value="{{ request.session.data_fine }}" {% else %}value="{{ data_oggi }}"{% endif %}/>
                             <div class="row">
                                 <div class="col-md-12">
                                     {% if not user.is_authenticated %}
@@ -160,9 +160,9 @@
 						{% if user.is_authenticated %}
                         {% if perms.simulatore.take_variabile %}
                         <form role="form" method="post" class="form-horizontal" id="take_variabile">{% csrf_token %}
-                        <input type="hidden" value="take_variabile" name="tipo_take">
-                        <input type="hidden" id="selectedDate_variabile_inizio" name="selectedDate_variabile_inizio" {% if request.session.data_inizio %}value="{{ request.session.data_inizio }}"{% else %}value="{{ data_max }}"{% endif %} />
-                        <input type="hidden" id="selectedDate_variabile_fine" name="selectedDate_variabile_fine" {% if request.session.data_fine %}value="{{ request.session.data_fine }}"{% else %}value="{{ data_oggi }}"{% endif %}/>
+                            <input type="hidden" value="take_variabile" name="tipo_take">
+                            <input type="hidden" id="selectedDate_variabile_inizio" name="selectedDate_variabile_inizio" {% if request.session.data_inizio %}value="{{ request.session.data_inizio }}" {% else %}value="{{ data_max }}"{% endif %} />
+                            <input type="hidden" id="selectedDate_variabile_fine" name="selectedDate_variabile_fine" {% if request.session.data_fine %}value="{{ request.session.data_fine }}" {% else %}value="{{ data_oggi }}"{% endif %}/>
                             <div class="row">
                                 <div class="col-md-3 form-group-sm">
                                     <label>
@@ -325,111 +325,111 @@
             <div class="col-md-6" {{ mostra_risultati }}>
                 <br />
 			    {% for singolo_tappeto in tappeto %}
-                    <div class="panel panel-success" {% if not singolo_tappeto.take == best_take %}style="display: none"{% endif %} id="dettagli_simulazione_{{ singolo_tappeto.take|cut:"." }}">
-                <div class="panel-heading">
-                    <h3 class="panel-title"><strong>Risultato simulazione {{ isin }}</strong></h3>
+                <div class="panel panel-success" {% if not singolo_tappeto.take == best_take %}style="display: none"{% endif %} id="dettagli_simulazione_{{ singolo_tappeto.take|cut:"." }}">
+                    <div class="panel-heading">
+                        <h3 class="panel-title"><strong>Risultato simulazione {{ isin }}</strong></h3>
+                    </div>
+                    <table class="table table-condensed table-hover stripe table-sommario-tappeto">
+                        <tbody>
+                            <tr>
+                                <td>
+                                    Storico
+                                </td>
+                                <td>
+                                    {{ data_inizio }} - {{ data_fine }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Take
+                                </td>
+                                <td>
+                                    &euro; {{ singolo_tappeto.take }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Esposizione max tappeto long
+                                </td>
+                                <td>
+                                    &euro; {{ singolo_tappeto.valore_carico_long }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Esposizione max tappeto short
+                                </td>
+                                <td>
+                                    &euro; {{ singolo_tappeto.valore_carico_short }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Valore max reale tappeto
+                                </td>
+                                <td>
+                                    &euro; {{ singolo_tappeto.valore_max }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Valore finale tappeto
+                                </td>
+                                <td>
+                                    &euro; {{ singolo_tappeto.valore_attuale }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Acquisti
+                                </td>
+                                <td>
+                                    {{ singolo_tappeto.nr_acquisti }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Vendite
+                                </td>
+                                <td>
+                                    {{ singolo_tappeto.nr_vendite }}
+                                </td>
+                            </tr>-
+                            <tr>
+                                <td>
+                                    Gain
+                                </td>
+                                <td>
+                                    &euro; {{ singolo_tappeto.gain }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Commissioni
+                                </td>
+                                <td>
+                                    &euro; {{ singolo_tappeto.commissioni }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Profitto
+                                </td>
+                                <td>
+                                    &euro; {{ singolo_tappeto.profitto }}
+                                </td>
+                            </tr>
+                            <tr class="success">
+                                <td>
+                                    <strong>Rendimento reale</strong>
+                                </td>
+                                <td>
+                                    <strong>{{ singolo_tappeto.rendimento }}%</strong>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
-                <table class="table table-condensed table-hover stripe table-sommario-tappeto">
-                    <tbody>
-                        <tr>
-                            <td>
-                                Storico
-                            </td>
-                            <td>
-                                {{ data_inizio }} - {{ data_fine }}
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                Take
-                            </td>
-                            <td>
-                                &euro; {{ singolo_tappeto.take }}
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                Esposizione max tappeto long
-                            </td>
-                            <td>
-                                &euro; {{ singolo_tappeto.valore_carico_long }}
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                Esposizione max tappeto short
-                            </td>
-                            <td>
-                                &euro; {{ singolo_tappeto.valore_carico_short }}
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                Valore max reale tappeto
-                            </td>
-                            <td>
-                                &euro; {{ singolo_tappeto.valore_max }}
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                Valore finale tappeto
-                            </td>
-                            <td>
-                                &euro; {{ singolo_tappeto.valore_attuale }}
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                Acquisti
-                            </td>
-                            <td>
-                                {{ singolo_tappeto.nr_acquisti }}
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                Vendite
-                            </td>
-                            <td>
-                                {{ singolo_tappeto.nr_vendite }}
-                            </td>
-                        </tr>-
-                        <tr>
-                            <td>
-                                Gain
-                            </td>
-                            <td>
-                                &euro; {{ singolo_tappeto.gain }}
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                Commissioni
-                            </td>
-                            <td>
-                                &euro; {{ singolo_tappeto.commissioni }}
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                Profitto
-                            </td>
-                            <td>
-                                &euro; {{ singolo_tappeto.profitto }}
-                            </td>
-                        </tr>
-                        <tr class="success">
-                            <td>
-                                <strong>Rendimento reale</strong>
-                            </td>
-                            <td>
-                                <strong>{{ singolo_tappeto.rendimento }}%</strong>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
                 {% endfor %}
             </div>
             <div class="col-md-6" {{ mostra_risultati }}>
@@ -893,8 +893,13 @@
 		</div>
 	</div>
     <script type="text/javascript">
-
    $(document).ready(function() {
+       var curr = new Date();
+       curr.setDate(curr.getDate() - 15);
+       //convert month to 2 digits
+       var twoDigitMonth = curr.getMonth()+1+"";if(twoDigitMonth.length==1)	twoDigitMonth="0" +twoDigitMonth;
+       var twoDigitDate = curr.getDate()+"";if(twoDigitDate.length==1)	twoDigitDate="0" +twoDigitDate;
+       window.currentDate = twoDigitDate + "/" + twoDigitMonth + "/" + curr.getFullYear();
    $('#take_singolo').formValidation({
         // I am validating Bootstrap form
         framework: 'bootstrap',
@@ -924,6 +929,7 @@
                     },
                     date: {
                         format: 'DD/MM/YYYY',
+                        min: window.currentDate,
                         message: 'La data inizio non è in un formato valido gg/mm/aaaa'
                     }
                 }

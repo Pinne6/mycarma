@@ -1,6 +1,8 @@
 # Create your views here.
 
 """
+1.03.02 - 06/11/2016
+- implementato controllo aggiuntivo su data inizio per evitare aggiramento del limite giorni
 1.03.01 - 05/11/2016
 - creazione form take variabile sotto login
 - tutto il form sotto login
@@ -89,6 +91,7 @@ from django.template import RequestContext
 import mysql.connector
 from django.forms.models import model_to_dict
 from .forms import FormTakeSingolo, FormTakeVariabile
+from django import forms
 
 
 def line_profiler(view=None, extra_view=None):
@@ -148,7 +151,7 @@ def dettagli_simulazione(request):
 
 # line_profiler
 def index(request):
-    version = '1.03.01'
+    version = '1.03.02'
     if settings.SERVER_DEV is False:
         dire = "/home/carma/dati/isin.conf"
         folder = "/home/carma/dati/intra/"

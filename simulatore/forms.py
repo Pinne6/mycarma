@@ -3,6 +3,14 @@ import datetime
 
 
 class FormTakeSingolo(forms.Form):
+    crea_data_inizio = forms.CharField()
+    crea_data_fine = forms.CharField()
+
+    def clean(self):
+        if self.cleaned_data.get('crea_data_inizio') < self.data_max:
+            raise ValidationError("Email addresses do not match.")
+        return self.cleaned_data
+
     def __init__(self, *args, **kwargs):
         self.data_oggi = datetime.datetime.strftime(datetime.date.today(), "%d/%m/%Y")
         self.data_max = datetime.datetime.strftime(datetime.date.today() - datetime.timedelta(days=15),
@@ -81,6 +89,15 @@ class FormTakeSingolo(forms.Form):
         self.fields['commissioni_max'] = forms.DecimalField(
             widget=forms.NumberInput(attrs={'class': 'form-control', 'step': 0.0001, 'placeholder': 18}),
             initial=self.request.session.get('max_commissione'), decimal_places=4)
+
+    def clean_crea_data_inizio(self):
+
+        if not self.request.user.is_authenticated and not self.request.user.has_perm('simulatore.take_fisso')and \
+                        self.cleaned_data.get('crea_data_inizio', '') < (datetime.datetime.today() - 
+                                                                             datetime.timedelta(days=15)):
+            raise ValidationError("La data inizio non è permessa.")
+
+        return self.cleaned_data.get('crea_data_inizio', '')
 
 
 class FormTakeVariabile(forms.Form):
