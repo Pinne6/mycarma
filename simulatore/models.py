@@ -355,9 +355,12 @@ class Tappeto:
 
 
 class GeneraSimulazione:
-    def __init__(self, request):
+    def __init__(self, request, isin, ticker):
         self.start_time = datetime.datetime.today()
-        self.crea_isin = request.POST.get('isin')
+        if ticker:
+            self.crea_isin = isin
+        else:
+            self.crea_isin = request.POST.get('isin')
         self.crea_limite_inferiore = float(request.POST.get('crea_limite_inferiore'))
         self.crea_limite_superiore = float(request.POST.get('crea_limite_superiore'))
         self.crea_step = float(request.POST.get('step'))

@@ -7,6 +7,7 @@ from django.conf.urls import url, include
 import datetime
 from django.conf import settings
 from tastypie.authentication import BasicAuthentication
+import os
 
 
 class EntryResource(Resource):
@@ -33,13 +34,29 @@ class EntryResource(Resource):
 
         if settings.SERVER_DEV is False:
             dire = "/home/carma/dati/isin.conf"
+            ticker = "/home/carma/dati/isin_ticker.conf"
             folder = "/home/carma/dati/intra/"
         else:
             dire = "C:\\Users\\fesposti\\Box Sync\\Simulatore\\intra\\isin.conf"
+            ticker = "C:\\Users\\fesposti\\Box Sync\\Simulatore\\intra\\isin_ticker.conf"
             folder = "C:\\intra\\"
 
+        isin_isin = []
+        isin_ticker = []
+        if os.path.exists(ticker):
+            with open(ticker) as f:
+                for line in f:
+                    line = line.split("|")
+                    isin_isin.append(line[0])
+                    isin_ticker.append(line[1][:-1])
+        if request.POST.get('isin') in isin_ticker:
+            isin = isin_isin[isin_ticker.index(request.POST.get('isin'))]
+            ticker = True
+        else:
+            isin = request.POST.get('isin')
+            ticker = False
         # creo l'oggetto simulazione prendendo i dati in POST.
-        simulazione = GeneraSimulazione(request=request)
+        simulazione = GeneraSimulazione(request=request, isin=isin, ticker=ticker)
 
         # creo l'array numpy
         tappeto, pacchi_numpy = simulazione.creazione_array()
