@@ -3,13 +3,6 @@ import datetime
 
 
 class FormTakeSingolo(forms.Form):
-    crea_data_inizio = forms.CharField()
-    crea_data_fine = forms.CharField()
-
-    def clean(self):
-        if self.cleaned_data.get('crea_data_inizio') < self.data_max:
-            raise ValidationError("Email addresses do not match.")
-        return self.cleaned_data
 
     def __init__(self, *args, **kwargs):
         self.data_oggi = datetime.datetime.strftime(datetime.date.today(), "%d/%m/%Y")
