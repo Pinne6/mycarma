@@ -1,6 +1,8 @@
 # Create your views here.
 
 """
+1.03.07 - 08/11/2016
+- aggiunto script per recuperare dal cloud i dati di scraping
 1.03.06 - 06/11/2016
 - API con supporto per ticker
 1.03.05 - 06/11/2016
@@ -161,7 +163,7 @@ def dettagli_simulazione(request):
 
 # line_profiler
 def index(request):
-    version = '1.03.06'
+    version = '1.03.07'
     if settings.SERVER_DEV is False:
         dire = "/home/carma/dati/isin.conf"
         folder = "/home/carma/dati/intra/"
