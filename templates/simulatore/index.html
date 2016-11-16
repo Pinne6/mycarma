@@ -134,6 +134,40 @@
                                 </div>
                             </div>
                             <div class="row">
+                                <div class="col-md-3 form-group-sm">
+                                    <label>
+                                        {{ form_singolo.aggiustamento.label }}
+                                        {{ form_singolo.aggiustamento }}
+                                    </label>
+                                </div>
+                                <div class="col-md-3 form-group-sm">
+                                    <label>
+                                        {{ form_singolo.aggiustamento_step.label }}
+                                        {{ form_singolo.aggiustamento_step }}
+                                    </label>
+                                </div>
+                                <div class="col-md-3 form-group-sm">
+                                    <label>
+                                        {{ form_singolo.aggiustamento_limite_inferiore.label }}
+                                        {{ form_singolo.aggiustamento_limite_inferiore }}
+                                    </label>
+                                </div>
+                                <div class="col-md-3 form-group-sm">
+                                    <label>
+                                        {{ form_singolo.aggiustamento_limite_superiore.label }}
+                                        {{ form_singolo.aggiustamento_limite_superiore }}
+                                    </label>
+                                </div>
+                            </div>
+                             <div class="row">
+                                <div class="col-md-3 form-group-sm">
+                                    <label>
+                                        {{ form_singolo.capitale.label }}
+                                        {{ form_singolo.capitale }}
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="row">
                                 <div class="col-md-3">
                                     <button type="button" class="btn btn-info" name="bottone" value="guida" id="bottone_guida">
                                     Guida
@@ -652,11 +686,14 @@
                         <th>
 							In carico
 						</th>
+                        <th>
+                            Autoaggiustamento
+                        </th>
 					</tr>
 				</thead>
 				<tbody>
 					{% for pacco in primo_tappeto.pacchi %}
-                    <tr>
+                    <tr {% if pacco.autoadj == 3 or pacco.autoadj == -3 %}style="background-color: limegreen" {% elif pacco.autoadj == -2 or pacco.autoadj == 2 %}style="background-color: yellow" {% elif pacco.autoadj == -1 or pacco.autoadj == 1 %}style="background-color: lightslategrey"{% endif %}>
 						<td>
                             {{ forloop.counter }}
 						</td>
@@ -682,6 +719,9 @@
                                 NO
 							{% endif %}
 						</td>
+                        <td>
+                            {{ pacco.autoadj }}
+                        </td>
 					</tr>
                     {% endfor %}
 				</tbody>
@@ -825,6 +865,12 @@
                         <th>
 							Profitto
 						</th>
+                        <th>
+							Costo
+						</th>
+                        <th>
+                            Capitale
+                        </th>
 					</tr>
 				</thead>
 				<tbody>
@@ -856,6 +902,12 @@
 						</td>
                         <td>
 							&euro; {{ item.profitto }}
+						</td>
+                        <td>
+							&euro; {{ item.costo_operazione }}
+						</td>
+                        <td>
+							&euro; {{ item.capitale }}
 						</td>
 					</tr>
                     {% endfor %}

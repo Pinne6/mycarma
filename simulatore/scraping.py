@@ -4,6 +4,8 @@ import datetime
 import smtplib
 import os
 import scraping_settings
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 
 # server 'local' o 'remoto'
 server = scraping_settings.server
@@ -28,7 +30,7 @@ lista = []
 storico_jobs = []
 
 
-def send_email(self, mail_from, mail_to, mail_username, mail_password, mail_server, mail_port, mail_subject,
+def send_email(mail_from, mail_to, mail_username, mail_password, mail_server, mail_port, mail_subject,
                mail_body):
     """
     Invia una mail con tutti i parametri
@@ -57,7 +59,7 @@ def send_email(self, mail_from, mail_to, mail_username, mail_password, mail_serv
         print(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S ') + 'Email inviata con successo')
         server.quit()
     except smtplib.SMTPException:
-        print(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S ') + 'Errore:Porblema di invio mail')
+        print(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S ') + 'Errore: Problema di invio mail')
 
 
 if os.path.exists(storico_jobs_csv):
@@ -71,7 +73,7 @@ else:
     exit()
 
 hc = HubstorageClient(auth=API)
-# lista dei job, il primo della lista è l'ultimo eseguito
+# lista dei job, il primo della lista e' l'ultimo eseguito
 jobs = hc.get_project('119655').jobq.list()
 for job in jobs:
     if job['state'] != 'finished':
@@ -94,11 +96,15 @@ for job in jobs:
     break
 for item in items:
     lista.append((item['isin'], item['isin_titolo'], item['scadenza'], item['strike'], item['tipo_opzione'],
-                  item['volatilita_implicita']))
+                  item['volume_contratti'], item['volatilita_implicita']))
 if server == 'remoto':
+    directory = dir + lista[0][1] + "/opzioni/"
     csv_filename = dir + lista[0][1] + "/opzioni/" + datetime.datetime.today().strftime("%Y%m%d") + '.csv'
 elif server == 'local':
+    directory = dir + lista[0][1] + "\\opzioni\\"
     csv_filename = dir + lista[0][1] + "\\opzioni\\" + datetime.datetime.today().strftime("%Y%m%d") + '.csv'
+if not os.path.exists(directory):
+    os.makedirs(directory)
 with open(csv_filename, 'w', newline="") as f:
     w = csv.writer(f)
     for item in lista:

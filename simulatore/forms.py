@@ -81,12 +81,30 @@ class FormTakeSingolo(forms.Form):
         self.fields['commissioni_max'] = forms.DecimalField(
             widget=forms.NumberInput(attrs={'class': 'form-control', 'step': 0.0001, 'placeholder': 18}),
             initial=self.request.session.get('max_commissione'), decimal_places=4)
+        # self.fields['aggiustamento'] = forms.BooleanField(
+        #     widget=forms.CheckboxInput)
+        self.fields['aggiustamento'] = forms.ChoiceField(
+            widget=forms.Select(attrs={'id': 'aggiustamento', 'class': 'form-control'}),
+            choices=[(True, 'Sì'), (False, 'No')], label='Aggiustamento',
+            initial=self.request.session.get('aggiustamento'))
+        self.fields['aggiustamento_step'] = forms.IntegerField(
+            widget=forms.NumberInput(attrs={'class': 'form-control', 'step': 1, 'placeholder': 2}),
+            initial=self.request.session.get('aggiustamento_step'))
+        self.fields['aggiustamento_limite_inferiore'] = forms.DecimalField(
+            widget=forms.NumberInput(attrs={'class': 'form-control', 'step': 0.0001, 'placeholder': 4}),
+            initial=self.request.session.get('aggiustamento_limite_inferiore'), label='Agg. limite inferiore')
+        self.fields['aggiustamento_limite_superiore'] = forms.DecimalField(
+            widget=forms.NumberInput(attrs={'class': 'form-control', 'step': 0.0001, 'placeholder': 2}),
+            initial=self.request.session.get('aggiustamento_limite_superiore'), label='Agg. limite superiore')
+        self.fields['capitale'] = forms.DecimalField(
+            widget=forms.NumberInput(attrs={'class': 'form-control', 'step': 0.0001, 'placeholder': 20000}),
+            initial=self.request.session.get('capitale'), label='Capitale iniziale')
 
     def clean_crea_data_inizio(self):
 
         if not self.request.user.is_authenticated and not self.request.user.has_perm('simulatore.take_fisso') and \
                         self.cleaned_data.get('crea_data_inizio', '') < (datetime.datetime.today() -
-                                                                             datetime.timedelta(days=15)):
+                                                                         datetime.timedelta(days=15)):
             raise ValidationError("La data inizio non è permessa.")
 
         return self.cleaned_data.get('crea_data_inizio', '')
@@ -172,3 +190,12 @@ class FormTakeVariabile(forms.Form):
             self.fields['commissioni_max'] = forms.DecimalField(
                 widget=forms.NumberInput(attrs={'class': 'form-control', 'step': 0.0001, 'placeholder': 18}),
                 initial=self.request.session.get('max_commissione'), decimal_places=4)
+            self.fields['autoaggiustamento_step'] = forms.IntegerField(
+                widget=forms.NumberInput(attrs={'class': 'form-control', 'step': 1, 'placeholder': 2}),
+                initial=self.request.session.get('autoaggiustamento_step'))
+            self.fields['autoaggiustamento_limite_inferiore'] = forms.DecimalField(
+                widget=forms.NumberInput(attrs={'class': 'form-control', 'step': 0.0001, 'placeholder': 4.0}),
+                initial=self.request.session.get('autoaggiustamento_limite_inferiore'), decimal_places=4)
+            self.fields['autoaggiustamento_limite_superiore'] = forms.DecimalField(
+                widget=forms.NumberInput(attrs={'class': 'form-control', 'step': 0.0001, 'placeholder': 11.0}),
+                initial=self.request.session.get('autoaggiustamento_limite_superiore'), decimal_places=4)

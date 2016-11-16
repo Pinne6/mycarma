@@ -1,6 +1,8 @@
 # Create your views here.
 
 """
+1.04.00 - 16/11/2016
+- prima versione con aggiustamento
 1.03.07 - 08/11/2016
 - aggiunto script per recuperare dal cloud i dati di scraping
 1.03.06 - 06/11/2016
@@ -163,7 +165,7 @@ def dettagli_simulazione(request):
 
 # line_profiler
 def index(request):
-    version = '1.03.07'
+    version = '1.04.00'
     if settings.SERVER_DEV is False:
         dire = "/home/carma/dati/isin.conf"
         folder = "/home/carma/dati/intra/"
@@ -219,6 +221,11 @@ def index(request):
         request.session['commissione'] = simulazione.commissione
         request.session['min_commissione'] = simulazione.min_commissione
         request.session['max_commissione'] = simulazione.max_commissione
+        request.session['aggiustamento'] = simulazione.aggiustamento
+        request.session['aggiustamento_step'] = simulazione.aggiustamento_step
+        request.session['aggiustamento_limite_inferiore'] = simulazione.aggiustamento_limite_inferiore
+        request.session['aggiustamento_limite_superiore'] = simulazione.aggiustamento_limite_superiore
+        request.session['capitale'] = simulazione.capitale
         form_s = FormTakeSingolo(request=request, isin_conf=isin_conf)
         form_v = FormTakeVariabile(request=request, isin_conf=isin_conf)
         context = {
