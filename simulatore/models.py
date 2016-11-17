@@ -119,8 +119,12 @@ class Pacco:
             gain = 0
         commissione = self.calcola_commissioni(self.quantity_buy, prezzo, tappeto)
         self.commissioni += commissione
-        tappeto.capitale -= round((self.buy_price_real * self.quantity_buy) + self.commissioni, 2)
-        costo_operazione = ((self.buy_price_real * self.quantity_buy) + self.commissioni) * -1
+        if self.order_type == "ACQAZ_S":
+            tappeto.capitale += round((self.buy_price_real * self.quantity_buy) + self.commissioni, 2)
+            costo_operazione = ((self.buy_price_real * self.quantity_buy) + self.commissioni)
+        else:
+            tappeto.capitale -= round((self.buy_price_real * self.quantity_buy) + self.commissioni, 2)
+            costo_operazione = ((self.buy_price_real * self.quantity_buy) + self.commissioni) * -1
         op = Operazione(self.order_type, data, ora, prezzo, self.quantity_buy, gain, commissione,
                                              self.buy_price, round(tappeto.capitale, 2), round(costo_operazione, 2),
                                              copy.deepcopy(tappeto.pacchi))
@@ -163,8 +167,12 @@ class Pacco:
             gain = 0
         commissione = self.calcola_commissioni(self.quantity_sell, prezzo, tappeto)
         self.commissioni += commissione
-        tappeto.capitale += round((self.quantity_sell * self.sell_price_real) - self.commissioni, 2)
-        costo_operazione = (self.quantity_sell * self.sell_price_real) - self.commissioni
+        if self.order_type == "VENAZ_S":
+            tappeto.capitale -= round((self.quantity_sell * self.sell_price_real) - self.commissioni, 2)
+            costo_operazione = ((self.quantity_sell * self.sell_price_real) - self.commissioni) * -1
+        else:
+            tappeto.capitale += round((self.quantity_sell * self.sell_price_real) - self.commissioni, 2)
+            costo_operazione = (self.quantity_sell * self.sell_price_real) - self.commissioni
         op = Operazione(self.order_type, data, ora, prezzo, self.quantity_buy, gain, commissione,
                         self.buy_price, round(tappeto.capitale, 2), round(costo_operazione, 2),
                         copy.deepcopy(tappeto.pacchi))
