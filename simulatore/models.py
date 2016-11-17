@@ -121,9 +121,12 @@ class Pacco:
         self.commissioni += commissione
         tappeto.capitale -= round((self.buy_price_real * self.quantity_buy) + self.commissioni, 2)
         costo_operazione = ((self.buy_price_real * self.quantity_buy) + self.commissioni) * -1
-        tappeto.operazioni.append(Operazione(self.order_type, data, ora, prezzo, self.quantity_buy, gain, commissione,
+        op = Operazione(self.order_type, data, ora, prezzo, self.quantity_buy, gain, commissione,
                                              self.buy_price, round(tappeto.capitale, 2), round(costo_operazione, 2),
-                                             copy.deepcopy(tappeto.pacchi)))
+                                             copy.deepcopy(tappeto.pacchi))
+        # tappeto.operazioni.append(Operazione(self.order_type, data, ora, prezzo, self.quantity_buy, gain, commissione,
+        #                                      self.buy_price, round(tappeto.capitale, 2), round(costo_operazione, 2),
+        #                                      copy.deepcopy(tappeto.pacchi)))
         tappeto.operazione(self.order_type, data, ora, prezzo, self.quantity_buy, gain, commissione, self.carica)
         # if data in storico:
         #    i = storico.index(data)
@@ -146,6 +149,8 @@ class Pacco:
         else:
             self.carica = 1
             self.order_type = "VENAZ_L"
+        op.paccus = copy.deepcopy(tappeto.pacchi)
+        tappeto.operazioni.append(op)
         return storico
 
     def vendita(self, prezzo, tappeto, data, ora, storico):
@@ -161,9 +166,12 @@ class Pacco:
         self.commissioni += commissione
         tappeto.capitale += round((self.quantity_sell * self.sell_price_real) - self.commissioni, 2)
         costo_operazione = (self.quantity_sell * self.sell_price_real) - self.commissioni
-        tappeto.operazioni.append(Operazione(self.order_type, data, ora, prezzo, self.quantity_sell, gain, commissione,
-                                             self.sell_price, round(tappeto.capitale, 2), round(costo_operazione, 2),
-                                             copy.deepcopy(tappeto.pacchi)))
+        op = Operazione(self.order_type, data, ora, prezzo, self.quantity_buy, gain, commissione,
+                        self.buy_price, round(tappeto.capitale, 2), round(costo_operazione, 2),
+                        copy.deepcopy(tappeto.pacchi))
+        # tappeto.operazioni.append(Operazione(self.order_type, data, ora, prezzo, self.quantity_sell, gain, commissione,
+        #                                      self.sell_price, round(tappeto.capitale, 2), round(costo_operazione, 2),
+        #                                      copy.deepcopy(tappeto.pacchi)))
         tappeto.operazione(self.order_type, data, ora, prezzo, self.quantity_sell, gain, commissione, self.carica)
         for item in tappeto.storico:
             if item.data == data:
@@ -180,6 +188,8 @@ class Pacco:
         else:
             self.carica = 1
             self.order_type = "ACQAZ_S"
+        op.paccus = copy.deepcopy(tappeto.pacchi)
+        tappeto.operazioni.append(op)
         return storico
 
     @staticmethod
