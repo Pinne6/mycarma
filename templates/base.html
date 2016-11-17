@@ -241,13 +241,22 @@
 					    <!--<a  href="#" class="btn-blu mrgn-top" data-toggle="modal" data-target="#at-helping">Help</a>-->
                         <ul class="nav navbar-nav navbar-right">
                             {% if not user.is_authenticated and not "/accounts/login" in request.get_full_path %}
-                            <li><a href="/accounts/login/?next={{request.path}}">Login</a></li>
+                            {% if test %}
+                                <li><a href="/test/accounts/login/?next={{request.path}}">Login</a></li>
+                            {% else %}
+                                <li><a href="/accounts/login/?next={{request.path}}">Login</a></li>
+                            {% endif %}
                             <!--<li><a href="#" data-toggle="modal" data-target="#at-login">Login</a></li>
                             <li ><a href="#" data-toggle="modal" data-target="#at-signup">Registrati</a></li>-->
+                            {% else %}
+                            {% if test %}
+                                <li class="inactive"><a href="#">Ciao {{ user.username }}</a></li>
+                                <li><a href="/test/accounts/logout/?next={{request.path}}">Logout</a></li>
                             {% else %}
                             <li class="inactive"><a href="#">Ciao {{ user.username }}</a></li>
                             <li><a href="/accounts/logout/?next={{request.path}}">Logout</a></li>
                             <!--<li><a href="#" data-toggle="modal" data-target="#at-logout">Logout</a></li>-->
+                            {% endif %}
                             {% endif %}
                         </ul>
 					</form>

@@ -230,6 +230,10 @@ def index(request):
         request.session['capitale'] = simulazione.capitale
         form_s = FormTakeSingolo(request=request, isin_conf=isin_conf)
         form_v = FormTakeVariabile(request=request, isin_conf=isin_conf)
+        if settings.DEBUG:
+            test = True
+        else:
+            test = False
         context = {
             'bottone': request.POST.get('bottone'),
             'tipo_take': request.POST.get('tipo_take'),
@@ -256,9 +260,14 @@ def index(request):
             'best_take': best_take,
             'version': version,
             'form_singolo': form_s,
-            'form_variabile': form_v
+            'form_variabile': form_v,
+            'test': test
         }
     else:
+        if settings.DEBUG:
+            test = True
+        else:
+            test = False
         prova = 'Ciao stronzo'
         mostra_risultati = 'hidden'
         form_s = FormTakeSingolo(request=request, isin_conf=isin_conf)
@@ -274,6 +283,7 @@ def index(request):
             'data_max': datetime.datetime.strftime(datetime.date.today() - datetime.timedelta(days=15), "%d/%m/%Y"),
             'version': version,
             'form_singolo': form_s,
-            'form_variabile': form_v
+            'form_variabile': form_v,
+            'test': test
         }
     return render(request, 'simulatore/index.html', context)
