@@ -41,12 +41,32 @@
   <script>
   window.take_migliore = "dettagli_simulazione_".concat('{{ best_take }}'.replace(".",""));
   window.take_migliore_operazioni = "dettagli_operazioni_".concat('{{ best_take }}'.replace(".",""));
+  window.dettagli_tappeto = "";
   $(document).ready(function() {
     var table = $('#tabella_risultato_simulazione').DataTable({
       "paging": false,
       "searching": false,
       "order": [[ 12, 'desc' ]],
       "info": false
+    });
+    var table2 = $('#tabella_' + window.take_migliore_operazioni).DataTable({
+      "paging": false,
+      "searching": false,
+      "info": false
+    });
+      $('#tabella_' + window.take_migliore_operazioni).find('tbody').on('click', 'tr', function () {
+        var riga = table2.row(this).data();
+        var ora = riga[1].replace(/\./g,"");
+        var prezzo = riga[2].substring(2).replace(".","");
+        var div1 = "dettagli_tappeto_";
+        var div2 = div1.concat(ora);
+        div2 = div2.concat("_");
+        div2 = div2.concat(prezzo);
+        if (window.dettagli_tappeto != "") {
+            $('#' + window.dettagli_tappeto).hide();
+        }
+        $('#' + div2).show();
+        window.dettagli_tappeto = div2;
     });
     if ('{{ tipo_take }}' == 'take_variabile') {
         $('#tabella_risultato_simulazione').find('tbody').on('click', 'tr', function () {

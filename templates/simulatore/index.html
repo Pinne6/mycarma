@@ -835,7 +835,7 @@
 			<h4 class="text-center">
 				Dettaglio operazioni per take &euro; {{ singolo_tappeto.take }}
 			</h4>
-			<table class="table table-condensed table-hover stripe table-fabio" style="font-size: 10px; text-align: center">
+			<table class="table table-condensed table-hover stripe table-fabio" style="font-size: 10px; text-align: center" id="tabella_dettagli_operazioni_{{ singolo_tappeto.take|cut:"." }}">
 				<thead>
 					<tr>
 						<th>
@@ -906,7 +906,7 @@
                         <td>
 							&euro; {{ item.costo_operazione }}
 						</td>
-                        <td>
+                        <td {% if item.capitale < 0 %}bgcolor="red" {% endif %}>
 							&euro; {{ item.capitale }}
 						</td>
 					</tr>
@@ -915,34 +915,76 @@
 			</table>
 		</div>
         {% endfor %}
-		<div class="col-md-3">
-			{% if take_array_size > 1 %}
-            <table class="table table-hover table-condensed">
+		{% for it in tappeto %}
+        {% for is in it.operazioni %}
+        <div class="col-md-6" id="dettagli_tappeto_{{ is.ora|cut:"." }}_{{ is.prezzo_teorico|cut:"." }}" style="display: none">
+            <table class="table table-fabio table-condensed table-bordered table-hover stripe" id="tabella_tappeto" style="font-size: 10px; text-align: center">
 				<thead>
 					<tr>
 						<th>
-							Data
+							#
 						</th>
 						<th>
-							Miglior take
+							Stato
 						</th>
+						<th>
+							Prezzo&#13;&#10;acquisto
+						</th>
+						<th>
+							Prezzo&#13;&#10;vendita
+						</th>
+                        <th>
+							Quantità&#13;&#10;acquisto
+						</th>
+                        <th>
+							Quantità&#13;&#10;vendita
+						</th>
+                        <th>
+							In carico
+						</th>
+                        <th>
+                            Autoaggiustamento
+                        </th>
 					</tr>
 				</thead>
-				<tbody>
-					{% for item in take_array %}
-                    <tr>
+                <tbody>
+					{% for pacco in is.paccus %}
+                    <tr {% if pacco.autoadj == 3 or pacco.autoadj == -3 %}style="background-color: limegreen" {% elif pacco.autoadj == -2 or pacco.autoadj == 2 %}style="background-color: yellow" {% elif pacco.autoadj == -1 or pacco.autoadj == 1 %}style="background-color: lightslategrey"{% endif %}>
 						<td>
-							1
+                            {{ forloop.counter }}
 						</td>
 						<td>
-							{{ item }}
+							{% if pacco.order_type == 'VENAZ_L' %}VENDITA LONG{% elif pacco.order_type == 'ACQAZ_L' %}ACQUISTO LONG{% elif pacco.order_type == 'VENAZ_S' %}VENDITA SHORT{% elif pacco.order_type == 'ACQAZ_S' %}ACQUISTO SHORT{% endif %}
 						</td>
+						<td>
+							{{ pacco.buy_price }}
+						</td>
+						<td>
+							{{ pacco.sell_price }}
+						</td>
+                        <td>
+							{{ pacco.quantity_buy }}
+						</td>
+                        <td>
+							{{ pacco.quantity_sell }}
+						</td>
+                        <td>
+							{% if pacco.carica == 1 %}
+							    SI
+                            {% else %}
+                                NO
+							{% endif %}
+						</td>
+                        <td>
+                            {{ pacco.autoadj }}
+                        </td>
 					</tr>
                     {% endfor %}
 				</tbody>
-			</table>
-            {% endif %}
+            </table>
 		</div>
+        {% endfor %}
+        {% endfor %}
 	</div>
     <script type="text/javascript">
    $(document).ready(function() {
