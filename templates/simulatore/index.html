@@ -943,7 +943,10 @@
 							In carico
 						</th>
                         <th>
-                            Autoaggiustamento
+                            Aggiustamento
+                        </th>
+                        <th>
+                            Attivo
                         </th>
 					</tr>
 				</thead>
@@ -978,6 +981,13 @@
                         <td>
                             {{ pacco.autoadj }}
                         </td>
+                        <td>
+							{% if pacco.disable == 1 %}
+							    NO
+                            {% else %}
+                                SI
+							{% endif %}
+						</td>
 					</tr>
                     {% endfor %}
 				</tbody>

@@ -1,6 +1,9 @@
 # Create your views here.
 
 """
+1.04.03 - 17/11/2016
+- stato pacchi al punto giusto
+- aggiunto colonna pacco attivo
 1.04.02 - 17/11/2016
 - memorizzazione stato pacchi dopo completamento operazione
 1.04.01 - 17/11/2016
@@ -169,7 +172,7 @@ def dettagli_simulazione(request):
 
 # line_profiler
 def index(request):
-    version = '1.04.02'
+    version = '1.04.03'
     if settings.SERVER_DEV is False:
         dire = "/home/carma/dati/isin.conf"
         folder = "/home/carma/dati/intra/"

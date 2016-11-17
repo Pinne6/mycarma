@@ -149,7 +149,6 @@ class Pacco:
         else:
             self.carica = 1
             self.order_type = "VENAZ_L"
-        op.paccus = copy.deepcopy(tappeto.pacchi)
         tappeto.operazioni.append(op)
         return storico
 
@@ -188,7 +187,6 @@ class Pacco:
         else:
             self.carica = 1
             self.order_type = "ACQAZ_S"
-        op.paccus = copy.deepcopy(tappeto.pacchi)
         tappeto.operazioni.append(op)
         return storico
 
@@ -869,7 +867,8 @@ class GeneraSimulazione:
                         pacchi_numpy[item]['f5'] = 0
                         # anche nella struttura
                         tappeto[pacchi_numpy[item]['f0'] - 1].pacchi[pacchi_numpy[item]['f1'] - 1].autoadj = 0
-
+                lu = len(tappeto[pacchi_numpy[item]['f0'] - 1].operazioni)
+                tappeto[pacchi_numpy[item]['f0'] - 1].operazioni[lu - 1].paccus = copy.deepcopy(tappeto[pacchi_numpy[item]['f0'] - 1].pacchi)
                 for item in lis_b:
                     #
                     # se stato aggiustamento == -3, sono in fondo alla sequenza, devo attivare aggiustamento
@@ -1109,6 +1108,9 @@ class GeneraSimulazione:
                         pacchi_numpy[item]['f5'] = 0
                         # anche nella struttura
                         tappeto[pacchi_numpy[item]['f0'] - 1].pacchi[pacchi_numpy[item]['f1'] - 1].autoadj = 0
+                lu = len(tappeto[pacchi_numpy[item]['f0'] - 1].operazioni)
+                tappeto[pacchi_numpy[item]['f0'] - 1].operazioni[lu - 1].paccus = copy.deepcopy(
+                    tappeto[pacchi_numpy[item]['f0'] - 1].pacchi)
 
             self.data_inizio += datetime.timedelta(days=1)
         return tappeto, pacchi_numpy
