@@ -424,10 +424,10 @@ class Tappeto:
             self.valore_attuale += (prezzo * quantita)
         elif tipo_operazione == "ACQAZ_S" and carica == 1:
             self.quantita_totale -= quantita
-            self.valore_attuale -= (prezzo * quantita) + gain
+            self.valore_attuale -= (prezzo * quantita) - gain
         elif tipo_operazione == "VENAZ_L" and carica == 1:
             self.quantita_totale -= quantita
-            self.valore_attuale -= (prezzo * quantita) + gain
+            self.valore_attuale -= (prezzo * quantita) - gain
         elif tipo_operazione == "VENAZ_S" and carica == 0:
             self.quantita_totale += quantita
             self.valore_attuale += (prezzo * quantita)
