@@ -78,19 +78,18 @@ jobs = hc.get_project('119655').jobq.list()
 for job in jobs:
     if job['state'] != 'finished':
         mail_subject = "Problema, stato job non finito"
-        mail_body = job
+        mail_body = "Problema, stato job non finito"
         send_email(mail_from, mail_to, mail_username, mail_password, mail_server, mail_port, mail_subject, mail_body)
         exit()
     if job['items'] == 0:
         mail_subject = "Problema, job non contiene elementi"
-        mail_body = job
+        mail_body = "Problema, job non contiene elementi"
         send_email(mail_from, mail_to, mail_username, mail_password, mail_server, mail_port, mail_subject, mail_body)
         exit()
     if job['key'] in str(storico_jobs):
         mail_subject = "Problema, job nuovo non presente"
-        mail_body = job
+        mail_body = "Problema, job nuovo non presente"
         send_email(mail_from, mail_to, mail_username, mail_password, mail_server, mail_port, mail_subject, mail_body)
-        exit()
     items = hc.get_job(job['key']).items.list()
     job_key = [job['key']]
     for item in items:
