@@ -93,23 +93,22 @@ for job in jobs:
         exit()
     items = hc.get_job(job['key']).items.list()
     job_key = [job['key']]
-    break
-for item in items:
-    lista.append((item['isin'], item['isin_titolo'], item['scadenza'], item['strike'], item['tipo_opzione'],
-                  item['volume_contratti'], item['volatilita_implicita']))
-if server == 'remoto':
-    directory = dir + lista[0][1] + "/opzioni/"
-    csv_filename = dir + lista[0][1] + "/opzioni/" + datetime.datetime.today().strftime("%Y%m%d") + '.csv'
-elif server == 'local':
-    directory = dir + lista[0][1] + "\\opzioni\\"
-    csv_filename = dir + lista[0][1] + "\\opzioni\\" + datetime.datetime.today().strftime("%Y%m%d") + '.csv'
-if not os.path.exists(directory):
-    os.makedirs(directory)
-with open(csv_filename, 'w', newline="") as f:
-    w = csv.writer(f)
-    for item in lista:
-        w.writerow(item)
-with open(storico_jobs_csv, 'a', newline="") as f:
-    writer = csv.writer(f)
-    writer.writerow(job_key)
+    for item in items:
+        lista.append((item['isin'], item['isin_titolo'], item['scadenza'], item['strike'], item['tipo_opzione'],
+                      item['volume_contratti'], item['volatilita_implicita']))
+    if server == 'remoto':
+        directory = dir + lista[0][1] + "/opzioni/"
+        csv_filename = dir + lista[0][1] + "/opzioni/" + datetime.datetime.today().strftime("%Y%m%d") + '.csv'
+    elif server == 'local':
+        directory = dir + lista[0][1] + "\\opzioni\\"
+        csv_filename = dir + lista[0][1] + "\\opzioni\\" + datetime.datetime.today().strftime("%Y%m%d") + '.csv'
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+    with open(csv_filename, 'w', newline="") as f:
+        w = csv.writer(f)
+        for item in lista:
+            w.writerow(item)
+    with open(storico_jobs_csv, 'a', newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(job_key)
 exit()

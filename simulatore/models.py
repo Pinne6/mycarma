@@ -17,6 +17,7 @@ class UserPerm(models.Model):
         permissions = (
             ("take_fisso", "Può simulare senza limiti a take fisso"),
             ("take_variabile", "Può simulare senza limiti a take variabile"),
+            ("aggiustamento", "Può simulare con aggiustamento")
         )
 
 
@@ -302,7 +303,10 @@ class Tappeto:
         self.quantita_totale = 0
         self.rendimento = 0
         self.rendimento_teorico = 0
-        self.aggiustamento = aggiustamento
+        if aggiustamento == 'True':
+            self.aggiustamento = True
+        else:
+            self.aggiustamento = False
         self.aggiustamento_limite_inferiore = aggiustamento_limite_inferiore
         self.aggiustamento_limite_superiore = aggiustamento_limite_superiore
         self.aggiustamento_step = aggiustamento_step
@@ -335,10 +339,15 @@ class Tappeto:
         self.operazioni = []
         self.storico = []
         i = 0
-        pacco_acquisto = self.aggiustamento_limite_inferiore
+        if self.aggiustamento:
+            pacco_acquisto = self.aggiustamento_limite_inferiore
+            limite_sup = self.aggiustamento_limite_superiore
+        else:
+            pacco_acquisto = self.limite_inferiore
+            limite_sup = self.limite_superiore
         pacco_vendita = round(pacco_acquisto + self.take, 5)
         lista_per_panda = []
-        while pacco_vendita <= self.aggiustamento_limite_superiore:
+        while pacco_vendita <= limite_sup:
             pacchi_acquisto.append(pacco_acquisto)
             pacchi_vendita.append(pacco_vendita)
             if pacco_acquisto <= self.primo_acquisto:
