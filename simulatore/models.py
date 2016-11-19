@@ -121,6 +121,7 @@ class Pacco:
             gain = 0
         commissione = self.calcola_commissioni(self.quantity_buy, prezzo, tappeto)
         self.commissioni += commissione
+        paccus = []
         if self.order_type == "ACQAZ_S":
             tappeto.capitale += round((self.buy_price_real * self.quantity_buy) - commissione, 2)
             costo_operazione = ((self.buy_price_real * self.quantity_buy) - commissione)
@@ -128,7 +129,8 @@ class Pacco:
             tappeto.capitale -= round((self.buy_price_real * self.quantity_buy) + commissione, 2)
             costo_operazione = ((self.buy_price_real * self.quantity_buy) + commissione) * -1
         op = Operazione(self.order_type, data, ora, prezzo, self.quantity_buy, gain, commissione,
-                        self.buy_price, round(tappeto.capitale, 2), round(costo_operazione, 2), 0, 0, 0, self.autoadj)
+                        self.buy_price, round(tappeto.capitale, 2), round(costo_operazione, 2), 0, 0, 0, self.autoadj, paccus)
+        # op.paccus = copy.deepcopy(tappeto.pacchi)
         # tappeto.operazioni.append(Operazione(self.order_type, data, ora, prezzo, self.quantity_buy, gain, commissione,
         #                                      self.buy_price, round(tappeto.capitale, 2), round(costo_operazione, 2),
         #                                      copy.deepcopy(tappeto.pacchi)))
@@ -171,6 +173,7 @@ class Pacco:
             gain = 0
         commissione = self.calcola_commissioni(self.quantity_sell, prezzo, tappeto)
         self.commissioni += commissione
+        paccus = []
         if self.order_type == "VENAZ_S":
             tappeto.capitale -= round((self.quantity_sell * self.sell_price_real) + commissione, 2)
             costo_operazione = ((self.quantity_sell * self.sell_price_real) + commissione) * -1
@@ -178,7 +181,8 @@ class Pacco:
             tappeto.capitale += round((self.quantity_sell * self.sell_price_real) - commissione, 2)
             costo_operazione = (self.quantity_sell * self.sell_price_real) - commissione
         op = Operazione(self.order_type, data, ora, prezzo, self.quantity_buy, gain, commissione,
-                        self.buy_price, round(tappeto.capitale, 2), round(costo_operazione, 2), 0, 0, 0, self.autoadj)
+                        self.buy_price, round(tappeto.capitale, 2), round(costo_operazione, 2), 0, 0, 0, self.autoadj, paccus)
+        # op.paccus = copy.deepcopy(tappeto.pacchi)
         # tappeto.operazioni.append(Operazione(self.order_type, data, ora, prezzo, self.quantity_sell, gain, commissione,
         #                                      self.sell_price, round(tappeto.capitale, 2), round(costo_operazione, 2),
         #                                      copy.deepcopy(tappeto.pacchi)))
@@ -219,7 +223,7 @@ class Pacco:
 
 class Operazione:
     def __init__(self, tipo, data, ora, prezzo, quantita, gain, commissioni, prezzo_teorico, capitale, costo_operazione,
-                 valore_attuale, valore_max, quantita_totale, autoadj):
+                 valore_attuale, valore_max, quantita_totale, autoadj, paccus):
         self.data = data
         self.ora = ora
         self.tipo = tipo
@@ -235,6 +239,7 @@ class Operazione:
         self.valore_max = valore_max
         self.quantita_totale = quantita_totale
         self.autoadj = autoadj
+        self.paccus = paccus
 
 
 class Storico:
@@ -554,6 +559,7 @@ class GeneraSimulazione:
             # per ogni file giornaliero ciclo tra tutti i prezzi
             if os.path.exists(filename):
                 with open(filename, newline='') as csvfile:
+                    print(filename)
                     self.storico.append(Storico(self.data_inizio))
                     ultimo_prezzo = 0
                     data = self.data_inizio
@@ -711,19 +717,29 @@ class GeneraSimulazione:
                                         agg_step = tappeto[pacchi_numpy[item2]['f0'] - 1].aggiustamento_step
                                         # imposto autoadj a -3
                                         pacchi_numpy[item2 - agg_step]['f5'] = -3
+                                        # imposto stato a VENAZ
+                                        pacchi_numpy[item2 - agg_step]['f2'] = 1
                                         # ora devo modificare anche nella struttura del tappeto, non solo nell'array numpy
                                         # imposto autoadj a -3
                                         tappeto[pacchi_numpy[item2]['f0'] - 1].pacchi[
                                             pacchi_numpy[item2]['f1'] - 1 - agg_step].autoadj = -3
+                                        # imposto stato a VENAZ_S
+                                        tappeto[pacchi_numpy[item2]['f0'] - 1].pacchi[
+                                            pacchi_numpy[item2]['f1'] - 1 - agg_step].order_type = "VENAZ_S"
                                         # modifico il vecchio pacco -3 e lo metto a stato 2 e disabilitato
                                         # imposto autoadj a -2
                                         pacchi_numpy[item2]['f5'] = -2
+                                        # imposto stato a VENAZ
+                                        pacchi_numpy[item2]['f2'] = 0
                                         # imposto disabled a 1
                                         pacchi_numpy[item2]['f6'] = 1
                                         # ora devo modificare anche nella struttura del tappeto, non solo nell'array numpy
                                         # imposto autoadj a -2
                                         tappeto[pacchi_numpy[item2]['f0'] - 1].pacchi[
                                             pacchi_numpy[item2]['f1'] - 1].autoadj = -2
+                                        # imposto stato a VENAZ_S
+                                        tappeto[pacchi_numpy[item2]['f0'] - 1].pacchi[
+                                            pacchi_numpy[item2]['f1'] - 1].order_type = "VENAZ_S"
                                         # imposto disabled a 1
                                         tappeto[pacchi_numpy[item2]['f0'] - 1].pacchi[
                                             pacchi_numpy[item2]['f1'] - 1].disable = 1
@@ -738,12 +754,17 @@ class GeneraSimulazione:
                                         while i < agg_step:
                                             # imposto autoadj a -1
                                             pacchi_numpy[item2 - i]['f5'] = -1
+                                            # imposto stato a VENAZ
+                                            pacchi_numpy[item2 - i]['f2'] = 0
                                             # imposto disabled a 1
                                             pacchi_numpy[item2 - i]['f6'] = 1
                                             # ora devo modificare anche nella struttura del tappeto, non solo nell'array numpy
                                             # imposto autoadj a -1
                                             tappeto[pacchi_numpy[item2]['f0'] - 1].pacchi[
                                                 pacchi_numpy[item2]['f1'] - 1 - i].autoadj = -1
+                                            # imposto stato a VENAZ_S
+                                            tappeto[pacchi_numpy[item2]['f0'] - 1].pacchi[
+                                                pacchi_numpy[item2]['f1'] - 1 - i].order_type = "VENAZ_S"
                                             # imposto disabled a 1
                                             tappeto[pacchi_numpy[item2]['f0'] - 1].pacchi[
                                                 pacchi_numpy[item2]['f1'] - 1 - i].disable = 1
@@ -768,12 +789,17 @@ class GeneraSimulazione:
                                         id = pacco_meno_1[0]
                                         # 1- quello appena sopra il primo -1 disattivo diventa -2 e disattivo
                                         pacchi_numpy[id - 1]['f5'] = -2
+                                        # imposto stato a VENAZ
+                                        pacchi_numpy[id - 1]['f2'] = 1
                                         # disabled a 1
                                         pacchi_numpy[id - 1]['f6'] = 1
                                         # ora devo modificare anche nella struttura del tappeto, non solo nell'array numpy
                                         # imposto autoadj a -2
                                         tappeto[pacchi_numpy[id - 1]['f0'] - 1].pacchi[
                                             pacchi_numpy[id - 1]['f1'] - 1].autoadj = -2
+                                        # imposto stato a VENAZ_S
+                                        tappeto[pacchi_numpy[id - 1]['f0'] - 1].pacchi[
+                                            pacchi_numpy[id - 1]['f1'] - 1].order_type = "VENAZ_S"
                                         # imposto disabled a 1
                                         tappeto[pacchi_numpy[id - 1]['f0'] - 1].pacchi[
                                             pacchi_numpy[id - 1]['f1'] - 1].disable = 1
@@ -789,12 +815,17 @@ class GeneraSimulazione:
                                         while i < agg_step:
                                             # imposto autoadj a -1
                                             pacchi_numpy[id - 1 - i]['f5'] = -1
+                                            # imposto stato a VENAZ
+                                            pacchi_numpy[id - 1 - i]['f2'] = 1
                                             # imposto disabled a 1
                                             pacchi_numpy[id - 1 - i]['f5'] = 1
                                             # ora devo modificare anche nella struttura del tappeto, non solo nell'array numpy
                                             # imposto autoadj a -1
                                             tappeto[pacchi_numpy[id - 1]['f0'] - 1].pacchi[
                                                 pacchi_numpy[id - 1]['f1'] - 1 - i].autoadj = -1
+                                            # imposto stato a VENAZ_S
+                                            tappeto[pacchi_numpy[id - 1]['f0'] - 1].pacchi[
+                                                pacchi_numpy[id - 1]['f1'] - 1 - i].order_type = "VENAZ_S"
                                             # imposto disabled a 1
                                             tappeto[pacchi_numpy[id - 1]['f0'] - 1].pacchi[
                                                 pacchi_numpy[id - 1]['f1'] - 1 - i].disable = 1
@@ -807,12 +838,17 @@ class GeneraSimulazione:
                                             i += 1
                                         # 3- metto stato -3 al pacco sopra questi -1 (agg_step)
                                         pacchi_numpy[id - 1 - agg_step]['f5'] = -3
+                                        # imposto stato a VENAZ
+                                        pacchi_numpy[id - 1 - agg_step]['f2'] = 1
                                         # disabled a 0
                                         pacchi_numpy[id - 1 - agg_step]['f6'] = 0
                                         # ora devo modificare anche nella struttura del tappeto, non solo nell'array numpy
                                         # imposto autoadj a -3
                                         tappeto[pacchi_numpy[id - 1]['f0'] - 1].pacchi[
                                             pacchi_numpy[id - 1 - agg_step]['f1'] - 1].autoadj = -3
+                                        # imposto stato a VENAZ_S
+                                        tappeto[pacchi_numpy[id - 1]['f0'] - 1].pacchi[
+                                            pacchi_numpy[id - 1 - agg_step]['f1'] - 1].order_type = "VENAZ_S"
                                         # imposto disabled a 0
                                         tappeto[pacchi_numpy[id - 1]['f0'] - 1].pacchi[
                                             pacchi_numpy[id - 1 - agg_step]['f1'] - 1].disable = 0
@@ -1032,10 +1068,15 @@ class GeneraSimulazione:
                                     agg_step = tappeto[pacchi_numpy[item2]['f0'] - 1].aggiustamento_step
                                     # imposto autoadj a 3
                                     pacchi_numpy[item2 + agg_step]['f5'] = 3
+                                    # imposto stato a ACQAZ
+                                    pacchi_numpy[item2 + agg_step]['f2'] = 0
                                     # ora devo modificare anche nella struttura del tappeto, non solo nell'array numpy
                                     # imposto autoadj a 3
                                     tappeto[pacchi_numpy[item2]['f0'] - 1].pacchi[
                                         pacchi_numpy[item2]['f1'] - 1 + agg_step].autoadj = 3
+                                    # imposto stato a ACQAZ_L
+                                    tappeto[pacchi_numpy[item2]['f0'] - 1].pacchi[
+                                        pacchi_numpy[item2]['f1'] - 1 + agg_step].order_type = "ACQAZ_L"
                                     # modifico il vecchio pacco 3 e lo metto a stato 2 e disabilitato
                                     # imposto autoadj a 2
                                     pacchi_numpy[item2]['f5'] = 2
@@ -1059,12 +1100,17 @@ class GeneraSimulazione:
                                     while i < agg_step:
                                         # imposto autoadj a 1
                                         pacchi_numpy[item2 + i]['f5'] = 1
+                                        # imposto stato a ACQAZ
+                                        pacchi_numpy[item2 + i]['f2'] = 0
                                         # imposto disabled a 1
                                         pacchi_numpy[item2 + i]['f5'] = 1
                                         # ora devo modificare anche nella struttura del tappeto, non solo nell'array numpy
                                         # imposto autoadj a 1
                                         tappeto[pacchi_numpy[item2]['f0'] - 1].pacchi[
                                             pacchi_numpy[item2]['f1'] - 1 + i].autoadj = 1
+                                        # imposto stato a ACQAZ_L
+                                        tappeto[pacchi_numpy[item2]['f0'] - 1].pacchi[
+                                            pacchi_numpy[item2]['f1'] - 1 + i].order_type = "ACQAZ_L"
                                         # imposto disabled a 1
                                         tappeto[pacchi_numpy[item2]['f0'] - 1].pacchi[
                                             pacchi_numpy[item2]['f1'] - 1 + i].disable = 1

@@ -1,6 +1,8 @@
 # Create your views here.
 
 """
+1.04.05 - 19/11/2016
+- corretto cambio di order_type quando scalo aggiustamento
 1.04.04 - 19/11/2016
 - rimosso stato pacchi perchè rallentava tutto, anhce con scrittura csv
 1.04.03 - 17/11/2016
@@ -174,7 +176,7 @@ def dettagli_simulazione(request):
 
 # line_profiler
 def index(request):
-    version = '1.04.04'
+    version = '1.04.05'
     if settings.SERVER_DEV is False:
         dire = "/home/carma/dati/isin.conf"
         folder = "/home/carma/dati/intra/"

@@ -831,7 +831,7 @@
 	</div>
 	<div class="row" {% if bottone != 'simula' %} hidden {% endif %}>
 		{% for singolo_tappeto in tappeto %}
-        <div class="col-md-10" {% if not singolo_tappeto.take == best_take %}style="display: none"{% endif %} id="dettagli_operazioni_{{ singolo_tappeto.take|cut:"." }}">
+        <div class="col-md-8" {% if not singolo_tappeto.take == best_take %}style="display: none"{% endif %} id="dettagli_operazioni_{{ singolo_tappeto.take|cut:"." }}">
 			<h4 class="text-center">
 				Dettaglio operazioni per take &euro; {{ singolo_tappeto.take }}
 			</h4>
@@ -839,6 +839,9 @@
 				<thead>
 					<tr>
 						<th>
+                            #
+                        </th>
+                        <th>
 							Data
 						</th>
 						<th>
@@ -886,6 +889,9 @@
 					{% for item in singolo_tappeto.operazioni %}
                     <tr>
 						<td>
+                            {{ forloop.counter }}
+                        </td>
+                        <td>
 							{{ item.data }}
 						</td>
 						<td>
@@ -933,7 +939,7 @@
 			</table>
 		</div>
         {% endfor %}
-		{% comment %}
+        {% comment %}
         {% for it in tappeto %}
         {% for is in it.operazioni %}
         <div class="col-md-6" id="dettagli_tappeto_{{ is.ora|cut:"." }}_{{ is.prezzo_teorico|cut:"." }}" style="display: none">
