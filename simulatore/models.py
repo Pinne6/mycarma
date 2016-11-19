@@ -153,8 +153,8 @@ class Pacco:
         else:
             self.carica = 1
             self.order_type = "VENAZ_L"
-        op.valore_attuale = round(self.valore_attuale, 2)
-        op.valore_max = round(self.valore_max, 2)
+        op.valore_attuale = round(tappeto.valore_attuale, 2)
+        op.valore_max = round(tappeto.valore_max, 2)
         tappeto.operazioni.append(op)
         return storico
 
@@ -196,8 +196,8 @@ class Pacco:
         else:
             self.carica = 1
             self.order_type = "ACQAZ_S"
-        op.valore_attuale = round(self.valore_attuale, 2)
-        op.valore_max = round(self.valore_max, 2)
+        op.valore_attuale = round(tappeto.valore_attuale, 2)
+        op.valore_max = round(tappeto.valore_max, 2)
         tappeto.operazioni.append(op)
         return storico
 
