@@ -894,7 +894,7 @@
 						<td>
 							&euro; {{ item.prezzo_teorico }}
 						</td>
-						<td>
+						<td {% if item.autoadj != 0 %}bgcolor="yellow" {% endif %}>
 							{% if item.tipo == 'VENAZ_L' %}VENDITA LONG{% elif item.tipo == 'ACQAZ_L' %}ACQUISTO LONG{% elif item.tipo == 'VENAZ_S' %}VENDITA SHORT{% elif item.tipo == 'ACQAZ_S' %}ACQUISTO SHORT{% endif %}
 						</td>
                         <td>

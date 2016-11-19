@@ -127,7 +127,7 @@ class Pacco:
             tappeto.capitale -= round((self.buy_price_real * self.quantity_buy) + commissione, 2)
             costo_operazione = ((self.buy_price_real * self.quantity_buy) + commissione) * -1
         op = Operazione(self.order_type, data, ora, prezzo, self.quantity_buy, gain, commissione,
-                        self.buy_price, round(tappeto.capitale, 2), round(costo_operazione, 2), 0, 0, 0)
+                        self.buy_price, round(tappeto.capitale, 2), round(costo_operazione, 2), 0, 0, 0, self.autoadj)
         # tappeto.operazioni.append(Operazione(self.order_type, data, ora, prezzo, self.quantity_buy, gain, commissione,
         #                                      self.buy_price, round(tappeto.capitale, 2), round(costo_operazione, 2),
         #                                      copy.deepcopy(tappeto.pacchi)))
@@ -177,7 +177,7 @@ class Pacco:
             tappeto.capitale += round((self.quantity_sell * self.sell_price_real) - commissione, 2)
             costo_operazione = (self.quantity_sell * self.sell_price_real) - commissione
         op = Operazione(self.order_type, data, ora, prezzo, self.quantity_buy, gain, commissione,
-                        self.buy_price, round(tappeto.capitale, 2), round(costo_operazione, 2), 0, 0, 0)
+                        self.buy_price, round(tappeto.capitale, 2), round(costo_operazione, 2), 0, 0, 0, self.autoadj)
         # tappeto.operazioni.append(Operazione(self.order_type, data, ora, prezzo, self.quantity_sell, gain, commissione,
         #                                      self.sell_price, round(tappeto.capitale, 2), round(costo_operazione, 2),
         #                                      copy.deepcopy(tappeto.pacchi)))
@@ -218,7 +218,7 @@ class Pacco:
 
 class Operazione:
     def __init__(self, tipo, data, ora, prezzo, quantita, gain, commissioni, prezzo_teorico, capitale, costo_operazione,
-                 valore_attuale, valore_max, quantita_totale):
+                 valore_attuale, valore_max, quantita_totale, autoadj):
         self.data = data
         self.ora = ora
         self.tipo = tipo
@@ -233,6 +233,7 @@ class Operazione:
         self.valore_attuale = valore_attuale
         self.valore_max = valore_max
         self.quantita_totale = quantita_totale
+        self.autoadj = autoadj
 
 
 class Storico:
@@ -543,7 +544,6 @@ class GeneraSimulazione:
                 filename = folder + self.crea_isin + "\\" + self.data_inizio.strftime("%Y%m%d") + ".csv"
             # per ogni file giornaliero ciclo tra tutti i prezzi
             if os.path.exists(filename):
-                print(filename)
                 with open(filename, newline='') as csvfile:
                     self.storico.append(Storico(self.data_inizio))
                     ultimo_prezzo = 0
