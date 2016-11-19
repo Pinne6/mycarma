@@ -110,6 +110,7 @@ for job in jobs:
         for item in lista:
             w.writerow(item)
         f.close()
+        lista = []
     with open(storico_jobs_csv, 'a', newline="") as f:
         writer = csv.writer(f)
         writer.writerow(job_key)
