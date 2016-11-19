@@ -95,19 +95,23 @@ for job in jobs:
     for item in items:
         lista.append((item['isin'], item['isin_titolo'], item['scadenza'], item['strike'], item['tipo_opzione'],
                       item['volume_contratti'], item['volatilita_implicita']))
+    run_time = job['running_time'] / 1000
+    data = datetime.datetime.fromtimestamp(run_time).strftime("%Y%m%d")
     if server == 'remoto':
         directory = dir + lista[0][1] + "/opzioni/"
-        csv_filename = dir + lista[0][1] + "/opzioni/" + datetime.datetime.today().strftime("%Y%m%d") + '.csv'
+        csv_filename = dir + lista[0][1] + "/opzioni/" + data + '.csv'
     elif server == 'local':
         directory = dir + lista[0][1] + "\\opzioni\\"
-        csv_filename = dir + lista[0][1] + "\\opzioni\\" + datetime.datetime.today().strftime("%Y%m%d") + '.csv'
+        csv_filename = dir + lista[0][1] + "\\opzioni\\" + data + '.csv'
     if not os.path.exists(directory):
         os.makedirs(directory)
     with open(csv_filename, 'w', newline="") as f:
         w = csv.writer(f)
         for item in lista:
             w.writerow(item)
+        f.close()
     with open(storico_jobs_csv, 'a', newline="") as f:
         writer = csv.writer(f)
         writer.writerow(job_key)
+        f.close()
 exit()
