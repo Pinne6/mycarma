@@ -871,6 +871,12 @@
                         <th>
                             Capitale
                         </th>
+                        <th>
+                            Valore attuale
+                        </th>
+                        <th>
+                            Valore max
+                        </th>
 					</tr>
 				</thead>
 				<tbody>
@@ -909,13 +915,20 @@
                         <td {% if item.capitale < 0 %}bgcolor="red" {% endif %}>
 							&euro; {{ item.capitale }}
 						</td>
+                        <td>
+							&euro; {{ item.valore_attuale }}
+						</td>
+                        <td>
+							&euro; {{ item.valore_max }}
+						</td>
 					</tr>
                     {% endfor %}
 				</tbody>
 			</table>
 		</div>
         {% endfor %}
-		{% for it in tappeto %}
+		{% comment %}
+        {% for it in tappeto %}
         {% for is in it.operazioni %}
         <div class="col-md-6" id="dettagli_tappeto_{{ is.ora|cut:"." }}_{{ is.prezzo_teorico|cut:"." }}" style="display: none">
             <table class="table table-fabio table-condensed table-bordered table-hover stripe" id="tabella_tappeto" style="font-size: 10px; text-align: center">
@@ -995,6 +1008,7 @@
 		</div>
         {% endfor %}
         {% endfor %}
+        {% endcomment %}
 	</div>
     <script type="text/javascript">
    $(document).ready(function() {

@@ -49,11 +49,7 @@
       "order": [[ 12, 'desc' ]],
       "info": false
     });
-    var table2 = $('#tabella_' + window.take_migliore_operazioni).DataTable({
-      "paging": false,
-      "searching": false,
-      "info": false
-    });
+    var table2 = $('#tabella_' + window.take_migliore_operazioni);
       $('#tabella_' + window.take_migliore_operazioni).find('tbody').on('click', 'tr', function () {
         var riga = table2.row(this).data();
         var ora = riga[1].replace(/\./g,"");
