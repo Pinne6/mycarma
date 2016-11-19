@@ -152,7 +152,7 @@ class Pacco:
             self.carica = 1
             self.order_type = "VENAZ_L"
         op = Operazione(self.order_type, data, ora, prezzo, self.quantity_buy, gain, commissione,
-                        self.buy_price, round(tappeto.capitale, 2), round(costo_operazione, 2), tappeto.valore_attuale, tappeto.valore_max)
+                        self.buy_price, round(tappeto.capitale, 2), round(costo_operazione, 2), round(tappeto.valore_attuale, 2), round(tappeto.valore_max, 2))
         tappeto.operazioni.append(op)
         return storico
 
@@ -193,7 +193,7 @@ class Pacco:
             self.carica = 1
             self.order_type = "ACQAZ_S"
         op = Operazione(self.order_type, data, ora, prezzo, self.quantity_buy, gain, commissione,
-                        self.buy_price, round(tappeto.capitale, 2), round(costo_operazione, 2), tappeto.valore_attuale, tappeto.valore_max)
+                        self.buy_price, round(tappeto.capitale, 2), round(costo_operazione, 2), round(tappeto.valore_attuale, 2), round(tappeto.valore_max, 2))
         tappeto.operazioni.append(op)
         return storico
 
