@@ -87,9 +87,10 @@ for job in jobs:
         send_email(mail_from, mail_to, mail_username, mail_password, mail_server, mail_port, mail_subject, mail_body)
         exit()
     if job['key'] in str(storico_jobs):
-        mail_subject = "Problema, job nuovo non presente"
-        mail_body = "Problema, job nuovo non presente"
-        send_email(mail_from, mail_to, mail_username, mail_password, mail_server, mail_port, mail_subject, mail_body)
+        # mail_subject = "Problema, job nuovo non presente"
+        # mail_body = "Problema, job nuovo non presente"
+        # send_email(mail_from, mail_to, mail_username, mail_password, mail_server, mail_port, mail_subject, mail_body)
+        continue
     items = hc.get_job(job['key']).items.list()
     job_key = [job['key']]
     for item in items:
@@ -111,6 +112,9 @@ for job in jobs:
             w.writerow(item)
         f.close()
         lista = []
+        mail_subject = "Scraping job eseguito"
+        mail_body = "Scraping job eseguito"
+        send_email(mail_from, mail_to, mail_username, mail_password, mail_server, mail_port, mail_subject, mail_body)
     with open(storico_jobs_csv, 'a', newline="") as f:
         writer = csv.writer(f)
         writer.writerow(job_key)
