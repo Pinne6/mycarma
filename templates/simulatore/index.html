@@ -831,7 +831,7 @@
 	</div>
 	<div class="row" {% if bottone != 'simula' %} hidden {% endif %}>
 		{% for singolo_tappeto in tappeto %}
-        <div class="col-md-6" {% if not singolo_tappeto.take == best_take %}style="display: none"{% endif %} id="dettagli_operazioni_{{ singolo_tappeto.take|cut:"." }}">
+        <div class="col-md-10" {% if not singolo_tappeto.take == best_take %}style="display: none"{% endif %} id="dettagli_operazioni_{{ singolo_tappeto.take|cut:"." }}">
 			<h4 class="text-center">
 				Dettaglio operazioni per take &euro; {{ singolo_tappeto.take }}
 			</h4>
@@ -873,6 +873,9 @@
                         </th>
                         <th>
                             Valore attuale
+                        </th>
+                        <th>
+                            Quantità attuale
                         </th>
                         <th>
                             Valore max
@@ -917,6 +920,9 @@
 						</td>
                         <td>
 							&euro; {{ item.valore_attuale }}
+						</td>
+                        <td>
+							&euro; {{ item.quantita_totale }}
 						</td>
                         <td>
 							&euro; {{ item.valore_max }}

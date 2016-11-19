@@ -127,7 +127,7 @@ class Pacco:
             tappeto.capitale -= round((self.buy_price_real * self.quantity_buy) + self.commissioni, 2)
             costo_operazione = ((self.buy_price_real * self.quantity_buy) + self.commissioni) * -1
         op = Operazione(self.order_type, data, ora, prezzo, self.quantity_buy, gain, commissione,
-                        self.buy_price, round(tappeto.capitale, 2), round(costo_operazione, 2), 0, 0)
+                        self.buy_price, round(tappeto.capitale, 2), round(costo_operazione, 2), 0, 0, tappeto.quantita_totale)
         # tappeto.operazioni.append(Operazione(self.order_type, data, ora, prezzo, self.quantity_buy, gain, commissione,
         #                                      self.buy_price, round(tappeto.capitale, 2), round(costo_operazione, 2),
         #                                      copy.deepcopy(tappeto.pacchi)))
@@ -176,7 +176,7 @@ class Pacco:
             tappeto.capitale += round((self.quantity_sell * self.sell_price_real) - self.commissioni, 2)
             costo_operazione = (self.quantity_sell * self.sell_price_real) - self.commissioni
         op = Operazione(self.order_type, data, ora, prezzo, self.quantity_buy, gain, commissione,
-                        self.buy_price, round(tappeto.capitale, 2), round(costo_operazione, 2), 0, 0)
+                        self.buy_price, round(tappeto.capitale, 2), round(costo_operazione, 2), 0, 0, tappeto.quantita_totale)
         # tappeto.operazioni.append(Operazione(self.order_type, data, ora, prezzo, self.quantity_sell, gain, commissione,
         #                                      self.sell_price, round(tappeto.capitale, 2), round(costo_operazione, 2),
         #                                      copy.deepcopy(tappeto.pacchi)))
@@ -216,7 +216,7 @@ class Pacco:
 
 class Operazione:
     def __init__(self, tipo, data, ora, prezzo, quantita, gain, commissioni, prezzo_teorico, capitale, costo_operazione,
-                 valore_attuale, valore_max):
+                 valore_attuale, valore_max, quantita_totale):
         self.data = data
         self.ora = ora
         self.tipo = tipo
@@ -230,6 +230,7 @@ class Operazione:
         self.costo_operazione = costo_operazione
         self.valore_attuale = valore_attuale
         self.valore_max = valore_max
+        self.quantita_totale = quantita_totale
 
 
 class Storico:
@@ -421,10 +422,10 @@ class Tappeto:
             self.valore_attuale += (prezzo * quantita)
         elif tipo_operazione == "ACQAZ_S" and carica == 1:
             self.quantita_totale -= quantita
-            self.valore_attuale -= (prezzo * quantita)
+            self.valore_attuale -= (prezzo * quantita) + gain
         elif tipo_operazione == "VENAZ_L" and carica == 1:
             self.quantita_totale -= quantita
-            self.valore_attuale -= (prezzo * quantita)
+            self.valore_attuale -= (prezzo * quantita) + gain
         elif tipo_operazione == "VENAZ_S" and carica == 0:
             self.quantita_totale += quantita
             self.valore_attuale += (prezzo * quantita)
