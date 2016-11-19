@@ -121,11 +121,11 @@ class Pacco:
         commissione = self.calcola_commissioni(self.quantity_buy, prezzo, tappeto)
         self.commissioni += commissione
         if self.order_type == "ACQAZ_S":
-            tappeto.capitale += round((self.buy_price_real * self.quantity_buy) - self.commissioni, 2)
-            costo_operazione = ((self.buy_price_real * self.quantity_buy) - self.commissioni)
+            tappeto.capitale += round((self.buy_price_real * self.quantity_buy) - commissione, 2)
+            costo_operazione = ((self.buy_price_real * self.quantity_buy) - commissione)
         else:
-            tappeto.capitale -= round((self.buy_price_real * self.quantity_buy) + self.commissioni, 2)
-            costo_operazione = ((self.buy_price_real * self.quantity_buy) + self.commissioni) * -1
+            tappeto.capitale -= round((self.buy_price_real * self.quantity_buy) + commissione, 2)
+            costo_operazione = ((self.buy_price_real * self.quantity_buy) + commissione) * -1
         op = Operazione(self.order_type, data, ora, prezzo, self.quantity_buy, gain, commissione,
                         self.buy_price, round(tappeto.capitale, 2), round(costo_operazione, 2), 0, 0, 0)
         # tappeto.operazioni.append(Operazione(self.order_type, data, ora, prezzo, self.quantity_buy, gain, commissione,
@@ -171,11 +171,11 @@ class Pacco:
         commissione = self.calcola_commissioni(self.quantity_sell, prezzo, tappeto)
         self.commissioni += commissione
         if self.order_type == "VENAZ_S":
-            tappeto.capitale -= round((self.quantity_sell * self.sell_price_real) + self.commissioni, 2)
-            costo_operazione = ((self.quantity_sell * self.sell_price_real) + self.commissioni) * -1
+            tappeto.capitale -= round((self.quantity_sell * self.sell_price_real) + commissione, 2)
+            costo_operazione = ((self.quantity_sell * self.sell_price_real) + commissione) * -1
         else:
-            tappeto.capitale += round((self.quantity_sell * self.sell_price_real) - self.commissioni, 2)
-            costo_operazione = (self.quantity_sell * self.sell_price_real) - self.commissioni
+            tappeto.capitale += round((self.quantity_sell * self.sell_price_real) - commissione, 2)
+            costo_operazione = (self.quantity_sell * self.sell_price_real) - commissione
         op = Operazione(self.order_type, data, ora, prezzo, self.quantity_buy, gain, commissione,
                         self.buy_price, round(tappeto.capitale, 2), round(costo_operazione, 2), 0, 0, 0)
         # tappeto.operazioni.append(Operazione(self.order_type, data, ora, prezzo, self.quantity_sell, gain, commissione,
