@@ -1,6 +1,8 @@
 # Create your views here.
 
 """
+1.04.06 - 22/11/2016
+- corretto ancora lo scalo dell'aggiustamento
 1.04.05 - 19/11/2016
 - corretto cambio di order_type quando scalo aggiustamento
 1.04.04 - 19/11/2016
@@ -176,7 +178,7 @@ def dettagli_simulazione(request):
 
 # line_profiler
 def index(request):
-    version = '1.04.05'
+    version = '1.04.06'
     if settings.SERVER_DEV is False:
         dire = "/home/carma/dati/isin.conf"
         folder = "/home/carma/dati/intra/"

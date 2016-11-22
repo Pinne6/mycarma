@@ -121,15 +121,14 @@ class Pacco:
             gain = 0
         commissione = self.calcola_commissioni(self.quantity_buy, prezzo, tappeto)
         self.commissioni += commissione
-        paccus = []
         if self.order_type == "ACQAZ_S":
-            tappeto.capitale += round((self.buy_price_real * self.quantity_buy) - commissione, 2)
-            costo_operazione = ((self.buy_price_real * self.quantity_buy) - commissione)
+            tappeto.capitale += round((self.sell_price_real * self.quantity_buy) - commissione + gain, 2)
+            costo_operazione = ((self.sell_price_real * self.quantity_buy) - commissione + gain)
         else:
             tappeto.capitale -= round((self.buy_price_real * self.quantity_buy) + commissione, 2)
             costo_operazione = ((self.buy_price_real * self.quantity_buy) + commissione) * -1
         op = Operazione(self.order_type, data, ora, prezzo, self.quantity_buy, gain, commissione,
-                        self.buy_price, round(tappeto.capitale, 2), round(costo_operazione, 2), 0, 0, 0, self.autoadj, paccus)
+                        self.buy_price, round(tappeto.capitale, 2), round(costo_operazione, 2), 0, 0, 0, self.autoadj)
         # op.paccus = copy.deepcopy(tappeto.pacchi)
         # tappeto.operazioni.append(Operazione(self.order_type, data, ora, prezzo, self.quantity_buy, gain, commissione,
         #                                      self.buy_price, round(tappeto.capitale, 2), round(costo_operazione, 2),
@@ -173,7 +172,6 @@ class Pacco:
             gain = 0
         commissione = self.calcola_commissioni(self.quantity_sell, prezzo, tappeto)
         self.commissioni += commissione
-        paccus = []
         if self.order_type == "VENAZ_S":
             tappeto.capitale -= round((self.quantity_sell * self.sell_price_real) + commissione, 2)
             costo_operazione = ((self.quantity_sell * self.sell_price_real) + commissione) * -1
@@ -181,7 +179,7 @@ class Pacco:
             tappeto.capitale += round((self.quantity_sell * self.sell_price_real) - commissione, 2)
             costo_operazione = (self.quantity_sell * self.sell_price_real) - commissione
         op = Operazione(self.order_type, data, ora, prezzo, self.quantity_buy, gain, commissione,
-                        self.buy_price, round(tappeto.capitale, 2), round(costo_operazione, 2), 0, 0, 0, self.autoadj, paccus)
+                        self.buy_price, round(tappeto.capitale, 2), round(costo_operazione, 2), 0, 0, 0, self.autoadj)
         # op.paccus = copy.deepcopy(tappeto.pacchi)
         # tappeto.operazioni.append(Operazione(self.order_type, data, ora, prezzo, self.quantity_sell, gain, commissione,
         #                                      self.sell_price, round(tappeto.capitale, 2), round(costo_operazione, 2),
@@ -223,7 +221,7 @@ class Pacco:
 
 class Operazione:
     def __init__(self, tipo, data, ora, prezzo, quantita, gain, commissioni, prezzo_teorico, capitale, costo_operazione,
-                 valore_attuale, valore_max, quantita_totale, autoadj, paccus):
+                 valore_attuale, valore_max, quantita_totale, autoadj):
         self.data = data
         self.ora = ora
         self.tipo = tipo
@@ -239,7 +237,6 @@ class Operazione:
         self.valore_max = valore_max
         self.quantita_totale = quantita_totale
         self.autoadj = autoadj
-        self.paccus = paccus
 
 
 class Storico:
@@ -439,7 +436,7 @@ class Tappeto:
             self.valore_attuale += (prezzo * quantita)
         elif tipo_operazione == "ACQAZ_S" and carica == 1:
             self.quantita_totale -= quantita
-            self.valore_attuale -= (prezzo * quantita) - gain
+            self.valore_attuale -= (prezzo * quantita) + gain
         elif tipo_operazione == "VENAZ_L" and carica == 1:
             self.quantita_totale -= quantita
             self.valore_attuale -= (prezzo * quantita) - gain
@@ -566,12 +563,6 @@ class GeneraSimulazione:
                     for row in reversed(list(csv.reader(csvfile, delimiter='|'))):
                         if row[1] == '':
                             continue
-                            # for a in range(len(intra) - 1, -1, -1):
-                            #     if intra[a][1] == '':
-                            #         continue
-                            # prezzo = float(intra[a][1])
-                            # data = self.data_inizio
-                            # ora = intra[a][0]
                         prezzo = float(row[1])
                         ora = row[0]
                         if prezzo == ultimo_prezzo:
@@ -649,6 +640,10 @@ class GeneraSimulazione:
                                 numero_pacchi_da_attivare = tappeto[pacchi_numpy[item]['f0'] - 1].aggiustamento_step
                                 i = 1
                                 while i < numero_pacchi_da_attivare:
+                                    if (item + i) == 665:
+                                        print(tappeto[0].pacchi[item + i - 1].order_type + "|" + str(tappeto[0].pacchi[item + i - 1].buy_price) + "|" + str(
+                                            tappeto[0].pacchi[item + i - 1].sell_price) + "|" + str(tappeto[0].pacchi[item + i - 1].autoadj) + "|" + str(
+                                            tappeto[0].pacchi[item + i - 1].carica) + "|" + str(tappeto[0].pacchi[item + i - 1].disable))
                                     # imposto autoadj a 0
                                     # pacchi_numpy[item + i]['f5'] = 0
                                     # imposto disabled a 0
@@ -730,7 +725,7 @@ class GeneraSimulazione:
                                         # imposto autoadj a -2
                                         pacchi_numpy[item2]['f5'] = -2
                                         # imposto stato a VENAZ
-                                        pacchi_numpy[item2]['f2'] = 0
+                                        pacchi_numpy[item2]['f2'] = 1
                                         # imposto disabled a 1
                                         pacchi_numpy[item2]['f6'] = 1
                                         # ora devo modificare anche nella struttura del tappeto, non solo nell'array numpy
@@ -755,7 +750,7 @@ class GeneraSimulazione:
                                             # imposto autoadj a -1
                                             pacchi_numpy[item2 - i]['f5'] = -1
                                             # imposto stato a VENAZ
-                                            pacchi_numpy[item2 - i]['f2'] = 0
+                                            pacchi_numpy[item2 - i]['f2'] = 1
                                             # imposto disabled a 1
                                             pacchi_numpy[item2 - i]['f6'] = 1
                                             # ora devo modificare anche nella struttura del tappeto, non solo nell'array numpy
@@ -1216,7 +1211,6 @@ class GeneraSimulazione:
                 # opfile.close()
             else:
                 self.data_inizio += datetime.timedelta(days=1)
-                continue
         return tappeto, pacchi_numpy
 
     def genera_statistiche(self, request, tappeto, time):
