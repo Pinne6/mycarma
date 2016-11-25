@@ -239,7 +239,7 @@ class Operazione:
         self.quantita = quantita
         self.gain = gain
         self.commissioni = commissioni
-        self.profitto = gain - commissioni
+        self.profitto = round(gain - commissioni, 2)
         self.prezzo_teorico = prezzo_teorico
         self.capitale = capitale
         self.costo_operazione = costo_operazione
@@ -450,23 +450,23 @@ class Tappeto:
         if tipo_operazione == "ACQAZ_L" and carica == 0:
             self.quantita_totale += quantita
             self.valore_attuale += aggiustamento_carico
-            self.valore_in_carico = round(self.quantita_totale * prezzo, 2)
-            self.marginazione = round(self.capitale + (self.marginazione_fattore * self.valore_in_carico), 2)
+            self.valore_in_carico = self.quantita_totale * prezzo
+            self.marginazione = self.capitale + (self.marginazione_fattore * self.valore_in_carico)
         elif tipo_operazione == "ACQAZ_S" and carica == 1:
             self.quantita_totale -= quantita
             self.valore_attuale -= aggiustamento_carico
-            self.valore_in_carico = round(self.quantita_totale * prezzo, 2)
-            self.marginazione = round(self.capitale + (self.marginazione_fattore * self.valore_in_carico), 2)
+            self.valore_in_carico = self.quantita_totale * prezzo
+            self.marginazione = self.capitale + (self.marginazione_fattore * self.valore_in_carico)
         elif tipo_operazione == "VENAZ_L" and carica == 1:
             self.quantita_totale -= quantita
             self.valore_attuale -= aggiustamento_carico
-            self.valore_in_carico = round(self.quantita_totale * prezzo, 2)
-            self.marginazione = round(self.capitale + (self.marginazione_fattore * self.valore_in_carico), 2)
+            self.valore_in_carico = self.quantita_totale * prezzo
+            self.marginazione = self.capitale + (self.marginazione_fattore * self.valore_in_carico)
         elif tipo_operazione == "VENAZ_S" and carica == 0:
             self.quantita_totale += quantita
             self.valore_attuale += aggiustamento_carico
-            self.valore_in_carico = round(self.quantita_totale * prezzo, 2)
-            self.marginazione = round(self.capitale + (self.marginazione_fattore * self.valore_in_carico), 2)
+            self.valore_in_carico = self.quantita_totale * prezzo
+            self.marginazione = self.capitale + (self.marginazione_fattore * self.valore_in_carico)
         if self.valore_attuale >= self.valore_max:
             self.valore_max = self.valore_attuale
 
