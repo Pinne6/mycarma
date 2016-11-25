@@ -468,7 +468,7 @@ class Tappeto:
             self.valore_in_carico = self.quantita_totale * prezzo
             self.marginazione = self.capitale + (self.marginazione_fattore * self.valore_in_carico)
         if self.valore_attuale >= self.valore_max:
-            self.valore_max = self.valore_attuale
+            self.valore_max = round(self.valore_attuale, 2)
 
 
 class GeneraSimulazione:
