@@ -835,6 +835,13 @@
 			<h4 class="text-center">
 				Dettaglio operazioni per take &euro; {{ singolo_tappeto.take }}
 			</h4>
+            {% comment %}
+            <form action="{% url 'export_operazioni' %}" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="operazioni" value="{{ singolo_tappeto.operazioni }}">
+                <input type="submit" class="btn" name="submit" value="Download" />
+            </form>
+            {% endcomment %}
 			<table class="table table-condensed table-hover stripe table-fabio" style="font-size: 10px; text-align: center" id="tabella_dettagli_operazioni_{{ singolo_tappeto.take|cut:"." }}">
 				<thead>
 					<tr>
@@ -875,7 +882,10 @@
                             Capitale
                         </th>
                         <th>
-                            Valore attuale
+                            Marginazione
+                        </th>
+                        <th>
+                            Valore in carico
                         </th>
                         <th>
                             Quantità attuale
@@ -925,7 +935,10 @@
 							&euro; {{ item.capitale }}
 						</td>
                         <td>
-							&euro; {{ item.valore_attuale }}
+							&euro; {{ item.marginazione }}
+						</td>
+                        <td>
+							&euro; {{ item.valore_in_carico }}
 						</td>
                         <td>
 							{{ item.quantita_totale }}

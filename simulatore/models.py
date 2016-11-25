@@ -119,21 +119,24 @@ class Pacco:
             storico[len(storico) - 1].gain += gain
         else:
             gain = 0
+            self.aggiustamento_carico = round(self.buy_price_real * self.quantity_buy, 2)
         commissione = self.calcola_commissioni(self.quantity_buy, prezzo, tappeto)
         self.commissioni += commissione
         if self.order_type == "ACQAZ_S":
             tappeto.capitale += round((self.sell_price_real * self.quantity_buy) - commissione + gain, 2)
-            costo_operazione = ((self.sell_price_real * self.quantity_buy) - commissione + gain)
+            costo_operazione = round(((self.sell_price_real * self.quantity_buy) - commissione + gain), 2)
         else:
             tappeto.capitale -= round((self.buy_price_real * self.quantity_buy) + commissione, 2)
-            costo_operazione = ((self.buy_price_real * self.quantity_buy) + commissione) * -1
+            costo_operazione = round(((self.buy_price_real * self.quantity_buy) + commissione) * -1, 2)
         op = Operazione(self.order_type, data, ora, prezzo, self.quantity_buy, gain, commissione,
-                        self.buy_price, round(tappeto.capitale, 2), round(costo_operazione, 2), 0, 0, 0, self.autoadj)
+                        self.buy_price, round(tappeto.capitale, 2), round(costo_operazione, 2), 0, 0, 0, self.autoadj,
+                        self.aggiustamento_carico, 0, 0)
         # op.paccus = copy.deepcopy(tappeto.pacchi)
         # tappeto.operazioni.append(Operazione(self.order_type, data, ora, prezzo, self.quantity_buy, gain, commissione,
         #                                      self.buy_price, round(tappeto.capitale, 2), round(costo_operazione, 2),
         #                                      copy.deepcopy(tappeto.pacchi)))
-        tappeto.operazione(self.order_type, data, ora, prezzo, self.quantity_buy, gain, commissione, self.carica)
+        tappeto.operazione(self.order_type, data, ora, prezzo, self.quantity_buy, gain, commissione, self.carica,
+                           self.aggiustamento_carico)
         # if data in storico:
         #    i = storico.index(data)
         #    storico[i].acquisti += 1
@@ -158,6 +161,8 @@ class Pacco:
         op.valore_attuale = round(tappeto.valore_attuale, 2)
         op.valore_max = round(tappeto.valore_max, 2)
         op.quantita_totale = round(tappeto.quantita_totale, 2)
+        op.valore_in_carico = round(tappeto.valore_in_carico, 2)
+        op.marginazione = round(tappeto.marginazione, 2)
         tappeto.operazioni.append(op)
         return storico
 
@@ -170,21 +175,24 @@ class Pacco:
             storico[len(storico) - 1].gain += gain
         else:
             gain = 0
+            self.aggiustamento_carico = round(self.sell_price_real * self.quantity_sell, 2)
         commissione = self.calcola_commissioni(self.quantity_sell, prezzo, tappeto)
         self.commissioni += commissione
         if self.order_type == "VENAZ_S":
             tappeto.capitale -= round((self.quantity_sell * self.sell_price_real) + commissione, 2)
-            costo_operazione = ((self.quantity_sell * self.sell_price_real) + commissione) * -1
+            costo_operazione = round(((self.quantity_sell * self.sell_price_real) + commissione) * -1, 2)
         else:
             tappeto.capitale += round((self.quantity_sell * self.sell_price_real) - commissione, 2)
-            costo_operazione = (self.quantity_sell * self.sell_price_real) - commissione
+            costo_operazione = round((self.quantity_sell * self.sell_price_real) - commissione, 2)
         op = Operazione(self.order_type, data, ora, prezzo, self.quantity_buy, gain, commissione,
-                        self.buy_price, round(tappeto.capitale, 2), round(costo_operazione, 2), 0, 0, 0, self.autoadj)
+                        self.buy_price, round(tappeto.capitale, 2), round(costo_operazione, 2), 0, 0, 0, self.autoadj,
+                        self.aggiustamento_carico, 0, 0)
         # op.paccus = copy.deepcopy(tappeto.pacchi)
         # tappeto.operazioni.append(Operazione(self.order_type, data, ora, prezzo, self.quantity_sell, gain, commissione,
         #                                      self.sell_price, round(tappeto.capitale, 2), round(costo_operazione, 2),
         #                                      copy.deepcopy(tappeto.pacchi)))
-        tappeto.operazione(self.order_type, data, ora, prezzo, self.quantity_sell, gain, commissione, self.carica)
+        tappeto.operazione(self.order_type, data, ora, prezzo, self.quantity_sell, gain, commissione, self.carica,
+                           self.aggiustamento_carico)
         for item in tappeto.storico:
             if item.data == data:
                 item.nr_vendite += 1
@@ -203,6 +211,8 @@ class Pacco:
         op.valore_attuale = round(tappeto.valore_attuale, 2)
         op.valore_max = round(tappeto.valore_max, 2)
         op.quantita_totale = round(tappeto.quantita_totale, 2)
+        op.valore_in_carico = round(tappeto.valore_in_carico, 2)
+        op.marginazione = round(tappeto.marginazione, 2)
         tappeto.operazioni.append(op)
         return storico
 
@@ -221,7 +231,7 @@ class Pacco:
 
 class Operazione:
     def __init__(self, tipo, data, ora, prezzo, quantita, gain, commissioni, prezzo_teorico, capitale, costo_operazione,
-                 valore_attuale, valore_max, quantita_totale, autoadj):
+                 valore_attuale, valore_max, quantita_totale, autoadj, agg, valore_in_carico, marginazione):
         self.data = data
         self.ora = ora
         self.tipo = tipo
@@ -237,6 +247,9 @@ class Operazione:
         self.valore_max = valore_max
         self.quantita_totale = quantita_totale
         self.autoadj = autoadj
+        self.aggiustamento_carico = agg
+        self.valore_in_carico = valore_in_carico
+        self.marginazione = marginazione
 
 
 class Storico:
@@ -316,6 +329,9 @@ class Tappeto:
         self.valore_carico_aggiustamento_short = 0
         self.aggiustamento_carichi = 0
         self.capitale = capitale
+        self.valore_in_carico = 0
+        self.marginazione = 0
+        self.marginazione_fattore = 0.8
         if self.checkFX is True:
             self.tick = 5
         else:
@@ -430,19 +446,27 @@ class Tappeto:
         dt = np.dtype('int,int,int,float,float,int,int,float')
         self.numpy = np.array(lista_per_panda, dtype=dt)
 
-    def operazione(self, tipo_operazione, data, ora, prezzo, quantita, gain, commissioni, carica):
+    def operazione(self, tipo_operazione, data, ora, prezzo, quantita, gain, commissioni, carica, aggiustamento_carico):
         if tipo_operazione == "ACQAZ_L" and carica == 0:
             self.quantita_totale += quantita
-            self.valore_attuale += (prezzo * quantita)
+            self.valore_attuale += aggiustamento_carico
+            self.valore_in_carico = round(self.quantita_totale * prezzo, 2)
+            self.marginazione = round(self.capitale + (self.marginazione_fattore * self.valore_in_carico), 2)
         elif tipo_operazione == "ACQAZ_S" and carica == 1:
             self.quantita_totale -= quantita
-            self.valore_attuale -= (prezzo * quantita) + gain
+            self.valore_attuale -= aggiustamento_carico
+            self.valore_in_carico = round(self.quantita_totale * prezzo, 2)
+            self.marginazione = round(self.capitale + (self.marginazione_fattore * self.valore_in_carico), 2)
         elif tipo_operazione == "VENAZ_L" and carica == 1:
             self.quantita_totale -= quantita
-            self.valore_attuale -= (prezzo * quantita) - gain
+            self.valore_attuale -= aggiustamento_carico
+            self.valore_in_carico = round(self.quantita_totale * prezzo, 2)
+            self.marginazione = round(self.capitale + (self.marginazione_fattore * self.valore_in_carico), 2)
         elif tipo_operazione == "VENAZ_S" and carica == 0:
             self.quantita_totale += quantita
-            self.valore_attuale += (prezzo * quantita)
+            self.valore_attuale += aggiustamento_carico
+            self.valore_in_carico = round(self.quantita_totale * prezzo, 2)
+            self.marginazione = round(self.capitale + (self.marginazione_fattore * self.valore_in_carico), 2)
         if self.valore_attuale >= self.valore_max:
             self.valore_max = self.valore_attuale
 
@@ -557,6 +581,8 @@ class GeneraSimulazione:
             if os.path.exists(filename):
                 with open(filename, newline='') as csvfile:
                     print(filename)
+                    if filename == 'C:\\intra\\NL6666666666\\20150203.csv':
+                        print(tappeto[0].pacchi)
                     self.storico.append(Storico(self.data_inizio))
                     ultimo_prezzo = 0
                     data = self.data_inizio
@@ -568,6 +594,8 @@ class GeneraSimulazione:
                         if prezzo == ultimo_prezzo:
                             continue
                         ultimo_prezzo = prezzo
+                        tmp = tappeto[0].pacchi[591]
+                        tempo = copy.deepcopy(tappeto[0].pacchi[591].carica)
                         # se il prezzo è diverso dall'ultimo prezzo allora ciclo tra tutti i tappeti
                         # per eseguire operazione
                         # ciclo tra tutti i tappeti
@@ -641,9 +669,12 @@ class GeneraSimulazione:
                                 i = 1
                                 while i < numero_pacchi_da_attivare:
                                     if (item + i) == 665:
-                                        print(tappeto[0].pacchi[item + i - 1].order_type + "|" + str(tappeto[0].pacchi[item + i - 1].buy_price) + "|" + str(
-                                            tappeto[0].pacchi[item + i - 1].sell_price) + "|" + str(tappeto[0].pacchi[item + i - 1].autoadj) + "|" + str(
-                                            tappeto[0].pacchi[item + i - 1].carica) + "|" + str(tappeto[0].pacchi[item + i - 1].disable))
+                                        print(tappeto[0].pacchi[item + i - 1].order_type + "|" + str(
+                                            tappeto[0].pacchi[item + i - 1].buy_price) + "|" + str(
+                                            tappeto[0].pacchi[item + i - 1].sell_price) + "|" + str(
+                                            tappeto[0].pacchi[item + i - 1].autoadj) + "|" + str(
+                                            tappeto[0].pacchi[item + i - 1].carica) + "|" + str(
+                                            tappeto[0].pacchi[item + i - 1].disable))
                                     # imposto autoadj a 0
                                     # pacchi_numpy[item + i]['f5'] = 0
                                     # imposto disabled a 0
@@ -669,6 +700,13 @@ class GeneraSimulazione:
                                                                                                     pacchi_numpy[item][
                                                                                                         'f0'] - 1].aggiustamento_step - 1)),
                                               5)
+                                    # imposto il valore di carico di aggiustamento al buy price * quantita
+                                    tappeto[pacchi_numpy[item]['f0'] - 1].pacchi[
+                                        pacchi_numpy[item]['f1'] - 1 + i].aggiustamento_carico = round(
+                                        tappeto[pacchi_numpy[item]['f0'] - 1].pacchi[
+                                            pacchi_numpy[item]['f1'] - 1 + i].buy_price_real *
+                                        tappeto[pacchi_numpy[item]['f0'] - 1].pacchi[
+                                            pacchi_numpy[item]['f1'] - 1 + i].quantity_buy, 2)
                                     # imposto carica a 1
                                     tappeto[pacchi_numpy[item]['f0'] - 1].pacchi[
                                         pacchi_numpy[item]['f1'] - 1 + i].carica = 1
@@ -876,6 +914,12 @@ class GeneraSimulazione:
                                                 pacchi_numpy[pac]['f1'] - 1].buy_price + (
                                                 tappeto[pacchi_numpy[pac]['f0'] - 1].step * (tappeto[pacchi_numpy[pac][
                                                                                                          'f0'] - 1].aggiustamento_step - 1))
+                                        # imposto il nuovo carico aggiustamento
+                                        tappeto[pacchi_numpy[pac]['f0'] - 1].pacchi[
+                                            pacchi_numpy[pac]['f1'] - 1].aggiustamento_carico = \
+                                            tappeto[pacchi_numpy[pac]['f0'] - 1].pacchi[
+                                                pacchi_numpy[pac]['f1'] - 1].buy_price * tappeto[pacchi_numpy[pac]['f0'] - 1].pacchi[
+                                                pacchi_numpy[pac]['f1'] - 1].quantity_buy
                                 # devo trasformare gli ultimi x = agg.step - 1 pacchi long in short
                                 # cerco tutti i pacchi
                                 pacco_short = np.flatnonzero(
@@ -1010,7 +1054,7 @@ class GeneraSimulazione:
                                         pacchi_numpy[item]['f1'] - 1 - i].disable = 0
                                     # imposto stato in ACQAZ_S
                                     tappeto[pacchi_numpy[item]['f0'] - 1].pacchi[
-                                        pacchi_numpy[item]['f1'] - 1 + i].order_type = 'ACQAZ_S'
+                                        pacchi_numpy[item]['f1'] - 1 - i].order_type = 'ACQAZ_S'
                                     # imposto una finta vendita al prezzo di carico: pacco_ven - (step*aggiustamento_step)
                                     # imposto il sell_real_price
                                     tappeto[pacchi_numpy[item]['f0'] - 1].pacchi[
@@ -1018,9 +1062,16 @@ class GeneraSimulazione:
                                         round(tappeto[pacchi_numpy[item]['f0'] - 1].pacchi[
                                                   pacchi_numpy[item]['f1'] - 1 - i].sell_price - (
                                                   tappeto[pacchi_numpy[item]['f0'] - 1].step * (
-                                                  tappeto[pacchi_numpy[item][
-                                                              'f0'] - 1].aggiustamento_step - 1)),
+                                                      tappeto[pacchi_numpy[item][
+                                                                  'f0'] - 1].aggiustamento_step - 1)),
                                               5)
+                                    # imposto il valore di carico di aggiustamento al sell price * quantita
+                                    tappeto[pacchi_numpy[item]['f0'] - 1].pacchi[
+                                        pacchi_numpy[item]['f1'] - 1 - i].aggiustamento_carico = round(
+                                        tappeto[pacchi_numpy[item]['f0'] - 1].pacchi[
+                                            pacchi_numpy[item]['f1'] - 1 - i].sell_price_real *
+                                        tappeto[pacchi_numpy[item]['f0'] - 1].pacchi[
+                                            pacchi_numpy[item]['f1'] - 1 - i].quantity_sell, 2)
                                     # imposto carica a 1
                                     tappeto[pacchi_numpy[item]['f0'] - 1].pacchi[
                                         pacchi_numpy[item]['f1'] - 1 - i].carica = 1
@@ -1149,6 +1200,12 @@ class GeneraSimulazione:
                                                 pacchi_numpy[pac]['f1'] - 1].sell_price - (
                                                 tappeto[pacchi_numpy[pac]['f0'] - 1].step * (tappeto[pacchi_numpy[pac][
                                                                                                          'f0'] - 1].aggiustamento_step - 1))
+                                        # imposto il nuovo aggiustamento carico
+                                        tappeto[pacchi_numpy[pac]['f0'] - 1].pacchi[
+                                            pacchi_numpy[pac]['f1'] - 1].aggiustamento_carico = \
+                                            tappeto[pacchi_numpy[pac]['f0'] - 1].pacchi[
+                                                pacchi_numpy[pac]['f1'] - 1].sell_price * tappeto[pacchi_numpy[pac]['f0'] - 1].pacchi[
+                                                pacchi_numpy[pac]['f1'] - 1].quantity_sell
                             #
                             # se audoadj == -2 e pacco in ACQ, ho chiuso pacco, diventa regular
                             #
@@ -1206,6 +1263,8 @@ class GeneraSimulazione:
                                 # for val in tappeto[pacchi_numpy[item]['f0'] - 1].pacchi:
                                 # writer.writerow([tappeto[pacchi_numpy[item]['f0'] - 1].pacchi])
                                 # strutture.append(copy.deepcopy(tappeto[pacchi_numpy[item]['f0'] - 1].pacchi))
+                if tempo != tappeto[0].pacchi[591].carica:
+                    print(tappeto[0].pacchi[591])
                 self.data_inizio += datetime.timedelta(days=1)
                 csvfile.close()
                 # opfile.close()

@@ -1,6 +1,9 @@
 # Create your views here.
 
 """
+1.04.07 - 25/11/2016
+- calcolo valore in carico con prezzo azione attuale
+- inserito marginazione con parametro fisso a 0.8
 1.04.06 - 22/11/2016
 - corretto ancora lo scalo dell'aggiustamento
 1.04.05 - 19/11/2016
@@ -119,6 +122,15 @@ import mysql.connector
 from django.forms.models import model_to_dict
 from .forms import FormTakeSingolo, FormTakeVariabile
 from django import forms
+import csv
+import json
+
+def json_serial(obj):
+    """JSON serializer for objects not serializable by default json code"""
+
+    if isinstance(obj, datetime.datetime):
+        serial = obj.isoformat()
+        return serial
 
 
 def line_profiler(view=None, extra_view=None):
@@ -140,6 +152,19 @@ def line_profiler(view=None, extra_view=None):
     if view:
         return wrapper(view)
     return wrapper
+
+
+def export_operazioni(request):
+    # Create the HttpResponse object with the appropriate CSV header.
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="eggs.csv"'
+    # operazioni = request.session.get('operazioni')
+    # writer = csv.writer(response)
+    # writer.writerow(['#', 'Data', 'Ora', 'Pacco', 'Operazione', 'Prezzo', 'Quantita', 'Gain', 'Commissioni', 'Profitto', 'Costo', 'Capitale', 'Valore attuale', 'Quantita attuale', 'Valore max'])
+    # for idx, item in enumerate(operazioni):
+    #     writer.writerow([idx, item.ora, item.pacco, '"Testing"', "Here's a quote"])
+
+    return response
 
 
 def read_csv_files(dire):
@@ -178,7 +203,7 @@ def dettagli_simulazione(request):
 
 # line_profiler
 def index(request):
-    version = '1.04.06'
+    version = '1.04.07'
     if settings.SERVER_DEV is False:
         dire = "/home/carma/dati/isin.conf"
         folder = "/home/carma/dati/intra/"
@@ -213,6 +238,12 @@ def index(request):
         # context è un dizionario che associa variabili del template a oggetti python
         if request.POST.get('bottone') == 'simula':
             best_take = simsingolamax.take
+            # with open('eggs.csv', 'w', newline='') as csvfile:
+            #     writer = csv.writer(csvfile)
+            #     writer.writerow(['#', 'Data', 'Ora', 'Pacco', 'Operazione', 'Prezzo', 'Quantita', 'Gain', 'Commissioni', 'Profitto', 'Costo', 'Capitale', 'Valore attuale', 'Quantita attuale', 'Valore max', 'Carico'])
+            #     for idx, item in enumerate(tappeto[0].operazioni):
+            #         writer.writerow([idx + 1, item.data, item.ora, item.prezzo_teorico, item.tipo, item.prezzo, item.quantita, item.gain, item.commissioni, item.profitto, item.costo_operazione, item.capitale, item.valore_attuale, item.quantita_totale, item.valore_max, item.aggiustamento_carico])
+            #    csvfile.close()
         else:
             best_take = ''
             take_array = []
@@ -239,6 +270,8 @@ def index(request):
         request.session['aggiustamento_limite_inferiore'] = simulazione.aggiustamento_limite_inferiore
         request.session['aggiustamento_limite_superiore'] = simulazione.aggiustamento_limite_superiore
         request.session['capitale'] = simulazione.capitale
+        # json_str = json.dumps([ob.__dict__ for ob in tappeto[0].operazioni], default=json_serial)
+        # request.session['operazioni'] = json_str
         form_s = FormTakeSingolo(request=request, isin_conf=isin_conf)
         form_v = FormTakeVariabile(request=request, isin_conf=isin_conf)
         if settings.DEBUG:
