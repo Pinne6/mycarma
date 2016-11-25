@@ -580,9 +580,6 @@ class GeneraSimulazione:
             # per ogni file giornaliero ciclo tra tutti i prezzi
             if os.path.exists(filename):
                 with open(filename, newline='') as csvfile:
-                    print(filename)
-                    if filename == 'C:\\intra\\NL6666666666\\20150203.csv':
-                        print(tappeto[0].pacchi)
                     self.storico.append(Storico(self.data_inizio))
                     ultimo_prezzo = 0
                     data = self.data_inizio
@@ -594,8 +591,6 @@ class GeneraSimulazione:
                         if prezzo == ultimo_prezzo:
                             continue
                         ultimo_prezzo = prezzo
-                        tmp = tappeto[0].pacchi[591]
-                        tempo = copy.deepcopy(tappeto[0].pacchi[591].carica)
                         # se il prezzo è diverso dall'ultimo prezzo allora ciclo tra tutti i tappeti
                         # per eseguire operazione
                         # ciclo tra tutti i tappeti
@@ -668,13 +663,6 @@ class GeneraSimulazione:
                                 numero_pacchi_da_attivare = tappeto[pacchi_numpy[item]['f0'] - 1].aggiustamento_step
                                 i = 1
                                 while i < numero_pacchi_da_attivare:
-                                    if (item + i) == 665:
-                                        print(tappeto[0].pacchi[item + i - 1].order_type + "|" + str(
-                                            tappeto[0].pacchi[item + i - 1].buy_price) + "|" + str(
-                                            tappeto[0].pacchi[item + i - 1].sell_price) + "|" + str(
-                                            tappeto[0].pacchi[item + i - 1].autoadj) + "|" + str(
-                                            tappeto[0].pacchi[item + i - 1].carica) + "|" + str(
-                                            tappeto[0].pacchi[item + i - 1].disable))
                                     # imposto autoadj a 0
                                     # pacchi_numpy[item + i]['f5'] = 0
                                     # imposto disabled a 0
@@ -1263,8 +1251,6 @@ class GeneraSimulazione:
                                 # for val in tappeto[pacchi_numpy[item]['f0'] - 1].pacchi:
                                 # writer.writerow([tappeto[pacchi_numpy[item]['f0'] - 1].pacchi])
                                 # strutture.append(copy.deepcopy(tappeto[pacchi_numpy[item]['f0'] - 1].pacchi))
-                if tempo != tappeto[0].pacchi[591].carica:
-                    print(tappeto[0].pacchi[591])
                 self.data_inizio += datetime.timedelta(days=1)
                 csvfile.close()
                 # opfile.close()
