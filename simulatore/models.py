@@ -268,8 +268,8 @@ class Pacco:
         op.quantita_totale = round(tappeto.quantita_totale, 2)
         op.valore_in_carico = round(tappeto.valore_in_carico, 2)
         op.marginazione = round(tappeto.marginazione, 2)
-        op.carico_pmc = round(tappeto.carico_pmc, 2)
-        op.pmc = round(tappeto.pmc, 2)
+        op.carico_pmc = round(tappeto.carico_pmc, 4)
+        op.pmc = round(tappeto.pmc, 4)
         tappeto.operazioni.append(op)
         return storico
 
@@ -513,27 +513,27 @@ class Tappeto:
             self.valore_attuale += aggiustamento_carico
             self.valore_in_carico = self.quantita_totale * prezzo
             self.carico_pmc += prezzo * quantita
-            self.pmc = round(self.carico_pmc / self.quantita_totale, 2)
+            self.pmc = round(self.carico_pmc / self.quantita_totale, 4)
             self.marginazione = self.capitale + (self.marginazione_fattore * self.valore_in_carico)
         elif tipo_operazione == "ACQAZ_S" and carica == 1:
             self.quantita_totale -= quantita
             self.valore_attuale -= aggiustamento_carico
             self.valore_in_carico = self.quantita_totale * prezzo
             self.marginazione = self.capitale + (self.marginazione_fattore * self.valore_in_carico)
-            self.carico_pmc = round(self.quantita_totale * self.pmc, 2)
+            self.carico_pmc = round(self.quantita_totale * self.pmc, 4)
         elif tipo_operazione == "VENAZ_L" and carica == 1:
             self.quantita_totale -= quantita
             self.valore_attuale -= aggiustamento_carico
             self.valore_in_carico = self.quantita_totale * prezzo
             self.marginazione = self.capitale + (self.marginazione_fattore * self.valore_in_carico)
-            self.carico_pmc = round(self.quantita_totale * self.pmc, 2)
+            self.carico_pmc = round(self.quantita_totale * self.pmc, 4)
         elif tipo_operazione == "VENAZ_S" and carica == 0:
             self.quantita_totale += quantita
             self.valore_attuale += aggiustamento_carico
             self.valore_in_carico = self.quantita_totale * prezzo
             self.marginazione = self.capitale + (self.marginazione_fattore * self.valore_in_carico)
             self.carico_pmc += quantita * prezzo
-            self.pmc = round(self.carico_pmc / self.quantita_totale, 2)
+            self.pmc = round(self.carico_pmc / self.quantita_totale, 4)
         if self.valore_attuale >= self.valore_max:
             self.valore_max = round(self.valore_attuale, 2)
 
