@@ -183,10 +183,11 @@ class Pacco:
         if self.order_type == "ACQAZ_S":
             tappeto.capitale += round((self.sell_price_real * self.quantity_buy) - commissione + gain, 2)
             costo_operazione = round(((self.sell_price_real * self.quantity_buy) - commissione + gain), 2)
+            tappeto.pmc_capitale += (self.buy_price_real * self.quantity_buy) - commissione + pmc_gain
         else:
             tappeto.capitale -= round((self.buy_price_real * self.quantity_buy) + commissione, 2)
             costo_operazione = round(((self.buy_price_real * self.quantity_buy) + commissione) * -1, 2)
-        tappeto.pmc_capitale += pmc_gain - commissione
+            tappeto.pmc_capitale -= (self.buy_price_real * self.quantity_buy + commissione)
         op = Operazione(self.order_type, data, ora, prezzo, self.quantity_buy, gain, commissione,
                         self.buy_price, round(tappeto.capitale, 2), round(costo_operazione, 2), 0, 0, 0, self.autoadj,
                         self.aggiustamento_carico, 0, 0, 0, 0, pmc_gain, round(tappeto.pmc_capitale, 2), 0)
@@ -245,10 +246,11 @@ class Pacco:
         if self.order_type == "VENAZ_S":
             tappeto.capitale -= round((self.quantity_sell * self.sell_price_real) + commissione, 2)
             costo_operazione = round(((self.quantity_sell * self.sell_price_real) + commissione) * -1, 2)
+            tappeto.pmc_capitale -= (self.quantity_sell * self.sell_price_real) + commissione
         else:
             tappeto.capitale += round((self.quantity_sell * self.sell_price_real) - commissione, 2)
             costo_operazione = round((self.quantity_sell * self.sell_price_real) - commissione, 2)
-        tappeto.pmc_capitale += pmc_gain - commissione
+            tappeto.pmc_capitale += self.quantity_sell * quantita + pmc_gain - commissione
         op = Operazione(self.order_type, data, ora, prezzo, self.quantity_buy, gain, commissione,
                         self.buy_price, round(tappeto.capitale, 2), round(costo_operazione, 2), 0, 0, 0, self.autoadj,
                         self.aggiustamento_carico, 0, 0, 0, 0, pmc_gain, round(tappeto.pmc_capitale, 2), 0)
@@ -533,21 +535,21 @@ class Tappeto:
             self.carico_pmc += (prezzo * quantita) + commissioni
             self.pmc = round(self.carico_pmc / self.quantita_totale, 4)
             self.marginazione = self.capitale + (self.marginazione_fattore * self.valore_in_carico)
-            self.patrimonio = self.capitale + self.valore_in_carico
+            self.patrimonio = self.pmc_capitale + self.valore_in_carico
         elif tipo_operazione == "ACQAZ_S" and carica == 1:
             self.quantita_totale -= quantita
             self.valore_attuale -= aggiustamento_carico
             self.valore_in_carico = self.quantita_totale * prezzo
             self.marginazione = self.capitale + (self.marginazione_fattore * self.valore_in_carico)
             self.carico_pmc = round(self.quantita_totale * self.pmc, 4)
-            self.patrimonio = self.capitale + self.valore_in_carico
+            self.patrimonio = self.pmc_capitale + self.valore_in_carico
         elif tipo_operazione == "VENAZ_L" and carica == 1:
             self.quantita_totale -= quantita
             self.valore_attuale -= aggiustamento_carico
             self.valore_in_carico = self.quantita_totale * prezzo
             self.marginazione = self.capitale + (self.marginazione_fattore * self.valore_in_carico)
             self.carico_pmc = round(self.quantita_totale * self.pmc, 4)
-            self.patrimonio = self.capitale + self.valore_in_carico
+            self.patrimonio = self.pmc_capitale + self.valore_in_carico
         elif tipo_operazione == "VENAZ_S" and carica == 0:
             self.quantita_totale += quantita
             self.valore_attuale += aggiustamento_carico
@@ -555,7 +557,7 @@ class Tappeto:
             self.marginazione = self.capitale + (self.marginazione_fattore * self.valore_in_carico)
             self.carico_pmc += (quantita * prezzo) + commissioni
             self.pmc = round(self.carico_pmc / self.quantita_totale, 4)
-            self.patrimonio = self.capitale + self.valore_in_carico - self.carico_pmc + self.valore_in_carico
+            self.patrimonio = self.pmc_capitale + self.valore_in_carico - self.carico_pmc + self.valore_in_carico
         if self.carico_pmc >= self.valore_max:
             self.valore_max = round(self.carico_pmc, 2)
 
