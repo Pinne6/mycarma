@@ -540,7 +540,7 @@ class Tappeto:
             self.valore_in_carico = self.quantita_totale * prezzo
             self.marginazione = self.capitale + (self.marginazione_fattore * self.valore_in_carico)
             self.carico_pmc = round(self.quantita_totale * self.pmc, 4)
-            self.patrimonio = self.capitale + self.valore_in_carico - self.carico_pmc + self.valore_in_carico
+            self.patrimonio = self.capitale + self.valore_in_carico
         elif tipo_operazione == "VENAZ_L" and carica == 1:
             self.quantita_totale -= quantita
             self.valore_attuale -= aggiustamento_carico
