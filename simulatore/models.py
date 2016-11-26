@@ -170,9 +170,11 @@ class Pacco:
             gain = round((self.sell_price_real * self.quantity_sell) - (self.buy_price_real * self.quantity_buy), 4)
             self.gain += gain
             storico[len(storico) - 1].gain += gain
+            pmc_gain = (tappeto.pmc - prezzo) * self.quantity_buy
         else:
             gain = 0
             self.aggiustamento_carico = round(self.buy_price_real * self.quantity_buy, 2)
+            pmc_gain = 0
         commissione = self.calcola_commissioni(self.quantity_buy, prezzo, tappeto)
         self.commissioni += commissione
         if self.order_type == "ACQAZ_S":
@@ -181,9 +183,10 @@ class Pacco:
         else:
             tappeto.capitale -= round((self.buy_price_real * self.quantity_buy) + commissione, 2)
             costo_operazione = round(((self.buy_price_real * self.quantity_buy) + commissione) * -1, 2)
+        tappeto.pmc_capitale += pmc_gain - commissione
         op = Operazione(self.order_type, data, ora, prezzo, self.quantity_buy, gain, commissione,
                         self.buy_price, round(tappeto.capitale, 2), round(costo_operazione, 2), 0, 0, 0, self.autoadj,
-                        self.aggiustamento_carico, 0, 0, 0, 0)
+                        self.aggiustamento_carico, 0, 0, 0, 0, pmc_gain, tappeto.pmc_capitale)
         # op.paccus = copy.deepcopy(tappeto.pacchi)
         # tappeto.operazioni.append(Operazione(self.order_type, data, ora, prezzo, self.quantity_buy, gain, commissione,
         #                                      self.buy_price, round(tappeto.capitale, 2), round(costo_operazione, 2),
@@ -228,9 +231,11 @@ class Pacco:
             gain = round((prezzo * self.quantity_sell) - (self.buy_price_real * self.quantity_buy), 4)
             self.gain += gain
             storico[len(storico) - 1].gain += gain
+            pmc_gain = (prezzo - tappeto.pmc) * self.quantity_sell
         else:
             gain = 0
             self.aggiustamento_carico = round(self.sell_price_real * self.quantity_sell, 2)
+            pmc_gain = 0
         commissione = self.calcola_commissioni(self.quantity_sell, prezzo, tappeto)
         self.commissioni += commissione
         if self.order_type == "VENAZ_S":
@@ -239,9 +244,10 @@ class Pacco:
         else:
             tappeto.capitale += round((self.quantity_sell * self.sell_price_real) - commissione, 2)
             costo_operazione = round((self.quantity_sell * self.sell_price_real) - commissione, 2)
+        tappeto.pmc_capitale += pmc_gain - commissione
         op = Operazione(self.order_type, data, ora, prezzo, self.quantity_buy, gain, commissione,
                         self.buy_price, round(tappeto.capitale, 2), round(costo_operazione, 2), 0, 0, 0, self.autoadj,
-                        self.aggiustamento_carico, 0, 0, 0, 0)
+                        self.aggiustamento_carico, 0, 0, 0, 0, pmc_gain, round(tappeto.pmc_capitale, 2))
         # op.paccus = copy.deepcopy(tappeto.pacchi)
         # tappeto.operazioni.append(Operazione(self.order_type, data, ora, prezzo, self.quantity_sell, gain, commissione,
         #                                      self.sell_price, round(tappeto.capitale, 2), round(costo_operazione, 2),
@@ -288,7 +294,7 @@ class Pacco:
 
 class Operazione:
     def __init__(self, tipo, data, ora, prezzo, quantita, gain, commissioni, prezzo_teorico, capitale, costo_operazione,
-                 valore_attuale, valore_max, quantita_totale, autoadj, agg, valore_in_carico, marginazione, carico_pmc, pmc):
+                 valore_attuale, valore_max, quantita_totale, autoadj, agg, valore_in_carico, marginazione, carico_pmc, pmc, pmc_gain, pmc_capitale):
         self.data = data
         self.ora = ora
         self.tipo = tipo
@@ -309,6 +315,9 @@ class Operazione:
         self.marginazione = marginazione
         self.carico_pmc = carico_pmc
         self.pmc = pmc
+        self.pmc_gain = round(pmc_gain, 2)
+        self.pmc_profitto = round(pmc_gain - commissioni, 2)
+        self.pmc_capitale = pmc_capitale
 
 
 class Storico:
@@ -393,6 +402,7 @@ class Tappeto:
         self.marginazione_fattore = 0.8
         self.carico_pmc = 0
         self.pmc = 0
+        self.pmc_capitale = 0
         if self.checkFX is True:
             self.tick = 5
         else:
@@ -512,7 +522,7 @@ class Tappeto:
             self.quantita_totale += quantita
             self.valore_attuale += aggiustamento_carico
             self.valore_in_carico = self.quantita_totale * prezzo
-            self.carico_pmc += prezzo * quantita
+            self.carico_pmc += (prezzo * quantita) + commissioni
             self.pmc = round(self.carico_pmc / self.quantita_totale, 4)
             self.marginazione = self.capitale + (self.marginazione_fattore * self.valore_in_carico)
         elif tipo_operazione == "ACQAZ_S" and carica == 1:
@@ -532,7 +542,7 @@ class Tappeto:
             self.valore_attuale += aggiustamento_carico
             self.valore_in_carico = self.quantita_totale * prezzo
             self.marginazione = self.capitale + (self.marginazione_fattore * self.valore_in_carico)
-            self.carico_pmc += quantita * prezzo
+            self.carico_pmc += (quantita * prezzo) + commissioni
             self.pmc = round(self.carico_pmc / self.quantita_totale, 4)
         if self.valore_attuale >= self.valore_max:
             self.valore_max = round(self.valore_attuale, 2)

@@ -831,7 +831,7 @@
 	</div>
 	<div class="row" {% if bottone != 'simula' %} hidden {% endif %}>
 		{% for singolo_tappeto in tappeto %}
-        <div class="col-md-8" {% if not singolo_tappeto.take == best_take %}style="display: none"{% endif %} id="dettagli_operazioni_{{ singolo_tappeto.take|cut:"." }}">
+        <div class="col-md-10" {% if not singolo_tappeto.take == best_take %}style="display: none"{% endif %} id="dettagli_operazioni_{{ singolo_tappeto.take|cut:"." }}">
 			<h4 class="text-center">
 				Dettaglio operazioni per take &euro; {{ singolo_tappeto.take }}
 			</h4>
@@ -883,6 +883,15 @@
                         </th>
                         <th>
                            Carico pmc
+                        </th>
+                        <th>
+                            Pmc gain
+                        </th>
+                        <th>
+                            Pmc profitto
+                        </th>
+                        <th>
+                            Pmc capitale
                         </th>
                         <th>
                             Pmc
@@ -939,6 +948,15 @@
 						</td>
                         <td>
 							&euro; {{ item.pmc }}
+						</td>
+                        <td>
+							&euro; {{ item.pmc_gain }}
+						</td>
+                        <td>
+							&euro; {{ item.pmc_profitto }}
+						</td>
+                        <td {% if item.pmc_capitale < 0 %}bgcolor="red" {% endif %}>
+							&euro; {{ item.pmc_capitale }}
 						</td>
                         <td>
 							{{ item.quantita_totale }}
