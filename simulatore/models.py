@@ -173,7 +173,7 @@ class Pacco:
             gain = round((self.sell_price_real * self.quantity_sell) - (self.buy_price_real * self.quantity_buy), 4)
             self.gain += gain
             storico[len(storico) - 1].gain += gain
-            pmc_gain = (prezzo - tappeto.pmc) * self.quantity_buy * -1
+            pmc_gain = (prezzo - tappeto.pmc) * self.quantity_buy
         else:
             gain = 0
             self.aggiustamento_carico = round(self.buy_price_real * self.quantity_buy, 2)
@@ -183,7 +183,7 @@ class Pacco:
         if self.order_type == "ACQAZ_S":
             tappeto.capitale += round((self.sell_price_real * self.quantity_buy) - commissione + gain, 2)
             costo_operazione = round(((self.sell_price_real * self.quantity_buy) - commissione + gain), 2)
-            tappeto.pmc_capitale += (self.buy_price_real * self.quantity_buy) - commissione + pmc_gain
+            tappeto.pmc_capitale += (self.buy_price_real * self.quantity_buy) - commissione - pmc_gain
         else:
             tappeto.capitale -= round((self.buy_price_real * self.quantity_buy) + commissione, 2)
             costo_operazione = round(((self.buy_price_real * self.quantity_buy) + commissione) * -1, 2)
