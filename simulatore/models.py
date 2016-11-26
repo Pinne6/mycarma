@@ -250,7 +250,7 @@ class Pacco:
         else:
             tappeto.capitale += round((self.quantity_sell * self.sell_price_real) - commissione, 2)
             costo_operazione = round((self.quantity_sell * self.sell_price_real) - commissione, 2)
-            tappeto.pmc_capitale += self.quantity_sell * quantita + pmc_gain - commissione
+            tappeto.pmc_capitale += (self.quantity_sell * self.sell_price_real) + pmc_gain - commissione
         op = Operazione(self.order_type, data, ora, prezzo, self.quantity_buy, gain, commissione,
                         self.buy_price, round(tappeto.capitale, 2), round(costo_operazione, 2), 0, 0, 0, self.autoadj,
                         self.aggiustamento_carico, 0, 0, 0, 0, pmc_gain, round(tappeto.pmc_capitale, 2), 0)
