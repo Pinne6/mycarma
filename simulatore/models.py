@@ -555,7 +555,7 @@ class Tappeto:
             self.marginazione = self.capitale + (self.marginazione_fattore * self.valore_in_carico)
             self.carico_pmc += (quantita * prezzo) + commissioni
             self.pmc = round(self.carico_pmc / self.quantita_totale, 4)
-            self.patrimonio = self.capitale + self.valore_in_carico
+            self.patrimonio = self.capitale + self.valore_in_carico - self.carico_pmc + self.valore_in_carico
         if self.carico_pmc >= self.valore_max:
             self.valore_max = round(self.carico_pmc, 2)
 
