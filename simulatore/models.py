@@ -11,6 +11,59 @@ import csv
 
 # Create your models here.
 
+class CalcoloPacco:
+    def __init__(self, primo_acquisto, copertura, capitale, incremento_step, step_iniziale, step_finale):
+        self.primo_acquisto = primo_acquisto
+        self.copertura = copertura
+        self.capitale = capitale
+        self.limite_inferiore = 0
+        self.limite_superiore = 0
+        self.incremento_step = incremento_step
+        self.step_iniziale = step_iniziale
+        self.step_finale = step_finale
+        self.tick = 4
+        self.risultati = []
+
+    def costruzione_array(self, i, tipo, step, limite_inferiore):
+        if tipo == 'long':
+            pacco = limite_inferiore + (step * i)
+        else:
+            pacco = self.primo_acquisto + (step * i) + step
+        return pacco
+
+    def calcolo_pacco(self):
+        # calcolo limite inferiore e superiore
+        self.limite_inferiore = self.primo_acquisto / (1 + self.copertura)
+        self.limite_superiore = self.primo_acquisto * (1 + self.copertura)
+        step = self.step_iniziale
+        while step <= self.step_finale:
+            check = round(round((self.primo_acquisto - self.limite_inferiore), self.tick) / step, self.tick)
+            check2 = round(round((self.limite_superiore - self.primo_acquisto), self.tick) / step, self.tick)
+            # controlli per verificare che i parametri abbiano senso
+            if not check.is_integer():
+                # se il primo acquisto non è multiplo dello step, arrotondo alla cifra inferiore
+                limite_inferiore = round(self.primo_acquisto - (np.ceil((self.primo_acquisto - self.limite_inferiore) / step) * step), self.tick)
+            else:
+                limite_inferiore = self.limite_inferiore
+            if not check2.is_integer():
+                limite_superiore = round((((self.limite_superiore - self.limite_inferiore) // step) *
+                                               step) + self.limite_inferiore, self.tick)
+            else:
+                limite_superiore = self.limite_superiore
+            numero_pacchi_long = int(((self.primo_acquisto - limite_inferiore)/step) + 1)
+            array_long = np.fromfunction(lambda i: self.costruzione_array(i, 'long', step, limite_inferiore), (numero_pacchi_long,))
+            numero_pacchi_short = int(((limite_superiore - self.primo_acquisto)/step))
+            array_short = np.fromfunction(lambda i: self.costruzione_array(i, 'short', step, 0), (numero_pacchi_short,))
+            dim_pacchi_long = np.floor(self.capitale / np.sum(array_long))
+            dim_pacchi_short = np.floor(self.capitale / np.sum(array_short))
+            capitale_long = dim_pacchi_long * np.sum(array_long)
+            capitale_short = dim_pacchi_short * np.sum(array_short)
+            self.risultati.append([limite_inferiore, limite_superiore, round(step, 4), numero_pacchi_long, dim_pacchi_long, int(capitale_long), numero_pacchi_short, dim_pacchi_short, int(capitale_short)])
+            step += self.incremento_step
+        return
+
+
+
 
 class UserPerm(models.Model):
     class Meta:
@@ -130,7 +183,7 @@ class Pacco:
             costo_operazione = round(((self.buy_price_real * self.quantity_buy) + commissione) * -1, 2)
         op = Operazione(self.order_type, data, ora, prezzo, self.quantity_buy, gain, commissione,
                         self.buy_price, round(tappeto.capitale, 2), round(costo_operazione, 2), 0, 0, 0, self.autoadj,
-                        self.aggiustamento_carico, 0, 0)
+                        self.aggiustamento_carico, 0, 0, 0, 0)
         # op.paccus = copy.deepcopy(tappeto.pacchi)
         # tappeto.operazioni.append(Operazione(self.order_type, data, ora, prezzo, self.quantity_buy, gain, commissione,
         #                                      self.buy_price, round(tappeto.capitale, 2), round(costo_operazione, 2),
@@ -163,6 +216,8 @@ class Pacco:
         op.quantita_totale = round(tappeto.quantita_totale, 2)
         op.valore_in_carico = round(tappeto.valore_in_carico, 2)
         op.marginazione = round(tappeto.marginazione, 2)
+        op.carico_pmc = round(tappeto.carico_pmc, 2)
+        op.pmc = round(tappeto.pmc, 2)
         tappeto.operazioni.append(op)
         return storico
 
@@ -186,7 +241,7 @@ class Pacco:
             costo_operazione = round((self.quantity_sell * self.sell_price_real) - commissione, 2)
         op = Operazione(self.order_type, data, ora, prezzo, self.quantity_buy, gain, commissione,
                         self.buy_price, round(tappeto.capitale, 2), round(costo_operazione, 2), 0, 0, 0, self.autoadj,
-                        self.aggiustamento_carico, 0, 0)
+                        self.aggiustamento_carico, 0, 0, 0, 0)
         # op.paccus = copy.deepcopy(tappeto.pacchi)
         # tappeto.operazioni.append(Operazione(self.order_type, data, ora, prezzo, self.quantity_sell, gain, commissione,
         #                                      self.sell_price, round(tappeto.capitale, 2), round(costo_operazione, 2),
@@ -213,6 +268,8 @@ class Pacco:
         op.quantita_totale = round(tappeto.quantita_totale, 2)
         op.valore_in_carico = round(tappeto.valore_in_carico, 2)
         op.marginazione = round(tappeto.marginazione, 2)
+        op.carico_pmc = round(tappeto.carico_pmc, 2)
+        op.pmc = round(tappeto.pmc, 2)
         tappeto.operazioni.append(op)
         return storico
 
@@ -231,7 +288,7 @@ class Pacco:
 
 class Operazione:
     def __init__(self, tipo, data, ora, prezzo, quantita, gain, commissioni, prezzo_teorico, capitale, costo_operazione,
-                 valore_attuale, valore_max, quantita_totale, autoadj, agg, valore_in_carico, marginazione):
+                 valore_attuale, valore_max, quantita_totale, autoadj, agg, valore_in_carico, marginazione, carico_pmc, pmc):
         self.data = data
         self.ora = ora
         self.tipo = tipo
@@ -250,6 +307,8 @@ class Operazione:
         self.aggiustamento_carico = agg
         self.valore_in_carico = valore_in_carico
         self.marginazione = marginazione
+        self.carico_pmc = carico_pmc
+        self.pmc = pmc
 
 
 class Storico:
@@ -332,6 +391,8 @@ class Tappeto:
         self.valore_in_carico = 0
         self.marginazione = 0
         self.marginazione_fattore = 0.8
+        self.carico_pmc = 0
+        self.pmc = 0
         if self.checkFX is True:
             self.tick = 5
         else:
@@ -451,22 +512,28 @@ class Tappeto:
             self.quantita_totale += quantita
             self.valore_attuale += aggiustamento_carico
             self.valore_in_carico = self.quantita_totale * prezzo
+            self.carico_pmc += prezzo * quantita
+            self.pmc = round(self.carico_pmc / self.quantita_totale, 2)
             self.marginazione = self.capitale + (self.marginazione_fattore * self.valore_in_carico)
         elif tipo_operazione == "ACQAZ_S" and carica == 1:
             self.quantita_totale -= quantita
             self.valore_attuale -= aggiustamento_carico
             self.valore_in_carico = self.quantita_totale * prezzo
             self.marginazione = self.capitale + (self.marginazione_fattore * self.valore_in_carico)
+            self.carico_pmc = round(self.quantita_totale * self.pmc, 2)
         elif tipo_operazione == "VENAZ_L" and carica == 1:
             self.quantita_totale -= quantita
             self.valore_attuale -= aggiustamento_carico
             self.valore_in_carico = self.quantita_totale * prezzo
             self.marginazione = self.capitale + (self.marginazione_fattore * self.valore_in_carico)
+            self.carico_pmc = round(self.quantita_totale * self.pmc, 2)
         elif tipo_operazione == "VENAZ_S" and carica == 0:
             self.quantita_totale += quantita
             self.valore_attuale += aggiustamento_carico
             self.valore_in_carico = self.quantita_totale * prezzo
             self.marginazione = self.capitale + (self.marginazione_fattore * self.valore_in_carico)
+            self.carico_pmc += quantita * prezzo
+            self.pmc = round(self.carico_pmc / self.quantita_totale, 2)
         if self.valore_attuale >= self.valore_max:
             self.valore_max = round(self.valore_attuale, 2)
 

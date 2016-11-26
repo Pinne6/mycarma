@@ -1,0 +1,179 @@
+{% extends 'base.html' %}
+{% block title %}Costruttore Tappeto{% endblock %}
+{% block nav_class_home %}inactive{% endblock %}
+{% block nav_class_simulatore %}active{% endblock %}
+<!--{% block nav_class_carma %}inactive{% endblock %}-->
+{% block corpo_centrale %}
+	<div class="row">
+		<div class="col-md-5">
+        <form role="form" method="post" class="form-horizontal" id="take_singolo">{% csrf_token %}
+            <div class="row">
+                <div class="col-md-12">
+                    {% if not user.is_authenticated %}
+                        <p>La versione gratuita ti permette di simulare a parametri fissi solo per gli ultimi 15 giorni.</p>
+                        <p>Per effettuare simulazioni su date più ampie e a parametri variabili richiedi l'accesso agli sviluppatori.</p>
+                    {% endif %}
+                </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 form-group-sm">
+                        <label>
+                            {{ form.primo_acquisto.label }}
+                            {{ form.primo_acquisto }}
+                        </label>
+                    </div>
+                    <div class="col-md-3 form-group-sm">
+                        <label>
+                            {{ form.copertura.label }}
+                            {{ form.copertura }}
+                        </label>
+                    </div>
+                    <div class="col-md-3 form-group-sm">
+                        <label>
+                            {{ form.capitale.label }}
+                            {{ form.capitale }}
+                        </label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 form-group-sm">
+                        <label>
+                            {{ form.step_iniziale.label }}
+                            {{ form.step_iniziale }}
+                        </label>
+                    </div>
+                    <div class="col-md-3 form-group-sm">
+                        <label>
+                            {{ form.step_finale.label }}
+                            {{ form.step_finale }}
+                        </label>
+                    </div>
+                    <div class="col-md-3 form-group-sm">
+                        <label>
+                            {{ form.incremento_step.label }}
+                            {{ form.incremento_step }}
+                        </label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3">
+                        <button type="button" class="btn btn-info" name="bottone" value="guida" id="bottone_guida">
+                        Guida
+                        </button>
+                    </div>
+                    <div class="col-md-3">
+                        <button type="submit" class="btn btn-primary" name="bottone" value="costruisci">
+                        Costruisci tappeto
+                        </button>
+                    </div>
+                </div>
+        </form>
+        </div>
+        <div class="col-md-6" {{ mostra_risultati }}>
+                <br />
+			    <h3 class="text-center">
+				Risultato simulazioni
+			</h3>
+            <table class="table table-condensed table-bordered table-hover stripe" id="tabella_risultato_simulazione" style="font-size: 12px; text-align: center">
+				<thead>
+					<tr>
+						<th style="padding: 5px 5px; vertical-align: middle">
+							Limite<br/>inferiore
+						</th>
+						<th style="padding: 5px 5px; vertical-align: middle">
+							Limite<br/>superiore
+						</th>
+						<th style="padding: 5px 5px; vertical-align: middle">
+							Primo<br/>acquisto
+						</th>
+						<th style="padding: 5px 5px; vertical-align: middle">
+							Step
+						</th>
+                        <th style="padding: 5px 5px; vertical-align: middle">
+							Numero<br/>pacchi long
+						</th>
+                        <th style="padding: 5px 5px; vertical-align: middle">
+							Dimensione<br/>pacchi long
+						</th>
+                        <th style="padding: 5px 5px; vertical-align: middle">
+							Copertura long
+						</th>
+                        <th style="padding: 5px 5px; vertical-align: middle">
+							Numero<br/>pacchi short
+						</th>
+                        <th style="padding: 5px 5px; vertical-align: middle">
+							Dimensione<br/>pacchi short
+						</th>
+                        <th style="padding: 5px 5px; vertical-align: middle">
+							Copertura short
+						</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for item in pacco.risultati %}
+                    <tr>
+						<td style="padding: 5px 5px">
+							&euro; {{ item.0 }}
+						</td>
+						<td style="padding: 5px 5px">
+							&euro; {{ item.1 }}
+						</td>
+						<td style="padding: 5px 5px">
+							&euro; {{ pacco.primo_acquisto }}
+						</td>
+						<td style="padding: 5px 5px">
+							&euro; {{ item.2 }}
+						</td>
+                        <td style="padding: 5px 5px">
+							{{ item.3 }}
+						</td>
+                        <td style="padding: 5px 5px">
+							{{ item.4 }}
+						</td>
+                        <td style="padding: 5px 5px">
+							&euro; {{ item.5 }}
+                        </td>
+                        <td style="padding: 5px 5px">
+							{{ item.6 }}
+						</td>
+                        <td style="padding: 5px 5px">
+							{{ item.7 }}
+						</td>
+                        <td style="padding: 5px 5px">
+							&euro; {{ item.8 }}
+						</td>
+						</td>
+					</tr>
+                    {% endfor %}
+				</tbody>
+			</table>
+        </div>
+    </div>
+	<script type="text/javascript">
+   $(document).ready(function() {
+   $('#form').formValidation({
+        // I am validating Bootstrap form
+        framework: 'bootstrap',
+
+        // Feedback icons
+        icon: {
+            valid: 'checkmark icon',
+            invalid: 'glyphicon glyphicon-remove',
+            validating: 'glyphicon glyphicon-refresh'
+        },
+
+        // List of fields and their validation rules
+        fields: {
+            primo_acquisto: {
+                validators: {
+                    between: {
+                        min: 0.0001,
+                        message: 'La quantità in acquisto deve essere almeno 0.0001'
+                    }
+                }
+            }
+        }
+   });
+   });
+</script>
+{% endblock %}

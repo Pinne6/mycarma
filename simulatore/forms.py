@@ -199,3 +199,29 @@ class FormTakeVariabile(forms.Form):
             self.fields['autoaggiustamento_limite_superiore'] = forms.DecimalField(
                 widget=forms.NumberInput(attrs={'class': 'form-control', 'step': 0.0001, 'placeholder': 11.0}),
                 initial=self.request.session.get('autoaggiustamento_limite_superiore'), decimal_places=4)
+
+
+class FormCostruzione(forms.Form):
+    def __init__(self, *args, **kwargs):
+        self.data_oggi = datetime.datetime.strftime(datetime.date.today(), "%d/%m/%Y")
+        self.request = kwargs.pop('request')
+        if self.request.user.is_authenticated and self.request.user.has_perm('simulatore.take_variabile'):
+            super(FormCostruzione, self).__init__(*args, **kwargs)
+            self.fields['primo_acquisto'] = forms.DecimalField(
+                widget=forms.NumberInput(attrs={'class': 'form-control', 'step': 0.0001, 'placeholder': 6.0}),
+                initial=self.request.session.get('costruisci_primo_acquisto'), decimal_places=4)
+            self.fields['step_iniziale'] = forms.DecimalField(
+                widget=forms.NumberInput(attrs={'class': 'form-control', 'step': 0.0001, 'placeholder': 0.01}),
+                initial=self.request.session.get('costruisci_step_iniziale'), decimal_places=4)
+            self.fields['step_finale'] = forms.DecimalField(
+                widget=forms.NumberInput(attrs={'class': 'form-control', 'step': 0.0001, 'placeholder': 0.5}),
+                initial=self.request.session.get('costruisci_step_finale'), decimal_places=4)
+            self.fields['incremento_step'] = forms.DecimalField(
+                widget=forms.NumberInput(attrs={'class': 'form-control', 'step': 0.0001, 'placeholder': 0.01}),
+                initial=self.request.session.get('costruisci_incremento_step'), decimal_places=4)
+            self.fields['copertura'] = forms.DecimalField(
+                widget=forms.NumberInput(attrs={'class': 'form-control', 'step': 0.01, 'placeholder': 0.30}),
+                initial=self.request.session.get('costruisci_copertura'), decimal_places=2)
+            self.fields['capitale'] = forms.IntegerField(
+                widget=forms.NumberInput(attrs={'class': 'form-control', 'step': 1, 'placeholder': 20000}),
+                initial=self.request.session.get('costruisci_capitale'))

@@ -120,7 +120,7 @@ from django.db import transaction
 from django.template import RequestContext
 import mysql.connector
 from django.forms.models import model_to_dict
-from .forms import FormTakeSingolo, FormTakeVariabile
+from .forms import FormTakeSingolo, FormTakeVariabile, FormCostruzione
 from django import forms
 import csv
 import json
@@ -200,6 +200,34 @@ def dettagli_simulazione(request):
     dettagli_tappeto = [x for x in request.POST.get('tappeto') if x.take == request.POST.get('take')]
     return render(request, 'simulatore/dettagli_simulazione.html', {'dettagli_tappeto': dettagli_tappeto})
 
+
+def costruzione_pacco(request):
+    if request.POST.get('bottone') == 'costruisci':
+        primo_acquisto = float(request.POST.get('primo_acquisto'))
+        copertura = float(request.POST.get('copertura'))
+        capitale = float(request.POST.get('capitale'))
+        incremento_step = float(request.POST.get('incremento_step'))
+        step_iniziale = float(request.POST.get('step_iniziale'))
+        step_finale = float(request.POST.get('step_finale'))
+        pacco = CalcoloPacco(primo_acquisto, copertura, capitale, incremento_step, step_iniziale, step_finale)
+        pacco.calcolo_pacco()
+        form = FormCostruzione(request=request)
+        context = {
+            'pacco': pacco,
+            'form': form
+        }
+        request.session['costruisci_primo_acquisto'] = primo_acquisto
+        request.session['costruisci_copertura'] = copertura
+        request.session['costruisci_capitale'] = capitale
+        request.session['costruisci_incremento_step'] = incremento_step
+        request.session['costruisci_step_iniziale'] = step_iniziale
+        request.session['costruisci_step_finale'] = step_finale
+    else:
+        form = FormCostruzione(request=request)
+        context = {
+            'form': form
+        }
+    return render(request, 'simulatore/costruzione_pacco.html', context)
 
 # line_profiler
 def index(request):
