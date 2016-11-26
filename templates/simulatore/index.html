@@ -879,7 +879,7 @@
 							Costo
 						</th>
                         <th>
-                            Capitale
+                            Liquidità
                         </th>
                         <th>
                            Carico pmc
@@ -888,13 +888,10 @@
                             Pmc
                         </th>
                         <th>
-                            Pmc gain
+                            Carico attuale
                         </th>
                         <th>
-                            Pmc profitto
-                        </th>
-                        <th>
-                            Pmc capitale
+                            Patrimonio
                         </th>
                         <th>
                             Quantità attuale
@@ -950,13 +947,10 @@
 							&euro; {{ item.pmc }}
 						</td>
                         <td>
-							&euro; {{ item.pmc_gain }}
+							&euro; {{ item.valore_in_carico }}
 						</td>
-                        <td>
-							&euro; {{ item.pmc_profitto }}
-						</td>
-                        <td {% if item.pmc_capitale < 0 %}bgcolor="red" {% endif %}>
-							&euro; {{ item.pmc_capitale }}
+                        <td {% if item.patrimonio < 0 %}bgcolor="red" {% endif %}>
+							&euro; {{ item.patrimonio }}
 						</td>
                         <td>
 							{{ item.quantita_totale }}
