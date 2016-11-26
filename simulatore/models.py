@@ -42,27 +42,30 @@ class CalcoloPacco:
             # controlli per verificare che i parametri abbiano senso
             if not check.is_integer():
                 # se il primo acquisto non è multiplo dello step, arrotondo alla cifra inferiore
-                limite_inferiore = round(self.primo_acquisto - (np.ceil((self.primo_acquisto - self.limite_inferiore) / step) * step), self.tick)
+                limite_inferiore = round(
+                    self.primo_acquisto - (np.ceil((self.primo_acquisto - self.limite_inferiore) / step) * step),
+                    self.tick)
             else:
                 limite_inferiore = self.limite_inferiore
             if not check2.is_integer():
                 limite_superiore = round((((self.limite_superiore - self.limite_inferiore) // step) *
-                                               step) + self.limite_inferiore, self.tick)
+                                          step) + self.limite_inferiore, self.tick)
             else:
                 limite_superiore = self.limite_superiore
-            numero_pacchi_long = int(((self.primo_acquisto - limite_inferiore)/step) + 1)
-            array_long = np.fromfunction(lambda i: self.costruzione_array(i, 'long', step, limite_inferiore), (numero_pacchi_long,))
-            numero_pacchi_short = int(((limite_superiore - self.primo_acquisto)/step))
+            numero_pacchi_long = int(((self.primo_acquisto - limite_inferiore) / step) + 1)
+            array_long = np.fromfunction(lambda i: self.costruzione_array(i, 'long', step, limite_inferiore),
+                                         (numero_pacchi_long,))
+            numero_pacchi_short = int(((limite_superiore - self.primo_acquisto) / step))
             array_short = np.fromfunction(lambda i: self.costruzione_array(i, 'short', step, 0), (numero_pacchi_short,))
             dim_pacchi_long = np.floor(self.capitale / np.sum(array_long))
             dim_pacchi_short = np.floor(self.capitale / np.sum(array_short))
             capitale_long = dim_pacchi_long * np.sum(array_long)
             capitale_short = dim_pacchi_short * np.sum(array_short)
-            self.risultati.append([limite_inferiore, limite_superiore, round(step, 4), numero_pacchi_long, dim_pacchi_long, int(capitale_long), numero_pacchi_short, dim_pacchi_short, int(capitale_short)])
+            self.risultati.append(
+                [limite_inferiore, limite_superiore, round(step, 4), numero_pacchi_long, dim_pacchi_long,
+                 int(capitale_long), numero_pacchi_short, dim_pacchi_short, int(capitale_short)])
             step += self.incremento_step
         return
-
-
 
 
 class UserPerm(models.Model):
@@ -186,7 +189,7 @@ class Pacco:
         tappeto.pmc_capitale += pmc_gain - commissione
         op = Operazione(self.order_type, data, ora, prezzo, self.quantity_buy, gain, commissione,
                         self.buy_price, round(tappeto.capitale, 2), round(costo_operazione, 2), 0, 0, 0, self.autoadj,
-                        self.aggiustamento_carico, 0, 0, 0, 0, pmc_gain, round(tappeto.pmc_capitale, 2))
+                        self.aggiustamento_carico, 0, 0, 0, 0, pmc_gain, round(tappeto.pmc_capitale, 2), 0)
         # op.paccus = copy.deepcopy(tappeto.pacchi)
         # tappeto.operazioni.append(Operazione(self.order_type, data, ora, prezzo, self.quantity_buy, gain, commissione,
         #                                      self.buy_price, round(tappeto.capitale, 2), round(costo_operazione, 2),
@@ -221,6 +224,7 @@ class Pacco:
         op.marginazione = round(tappeto.marginazione, 2)
         op.carico_pmc = round(tappeto.carico_pmc, 2)
         op.pmc = round(tappeto.pmc, 2)
+        op.patrimonio = round(tappeto.patrimonio, 2)
         tappeto.operazioni.append(op)
         return storico
 
@@ -247,7 +251,7 @@ class Pacco:
         tappeto.pmc_capitale += pmc_gain - commissione
         op = Operazione(self.order_type, data, ora, prezzo, self.quantity_buy, gain, commissione,
                         self.buy_price, round(tappeto.capitale, 2), round(costo_operazione, 2), 0, 0, 0, self.autoadj,
-                        self.aggiustamento_carico, 0, 0, 0, 0, pmc_gain, round(tappeto.pmc_capitale, 2))
+                        self.aggiustamento_carico, 0, 0, 0, 0, pmc_gain, round(tappeto.pmc_capitale, 2), 0)
         # op.paccus = copy.deepcopy(tappeto.pacchi)
         # tappeto.operazioni.append(Operazione(self.order_type, data, ora, prezzo, self.quantity_sell, gain, commissione,
         #                                      self.sell_price, round(tappeto.capitale, 2), round(costo_operazione, 2),
@@ -276,6 +280,7 @@ class Pacco:
         op.marginazione = round(tappeto.marginazione, 2)
         op.carico_pmc = round(tappeto.carico_pmc, 4)
         op.pmc = round(tappeto.pmc, 4)
+        op.patrimonio = round(tappeto.patrimonio, 2)
         tappeto.operazioni.append(op)
         return storico
 
@@ -294,7 +299,8 @@ class Pacco:
 
 class Operazione:
     def __init__(self, tipo, data, ora, prezzo, quantita, gain, commissioni, prezzo_teorico, capitale, costo_operazione,
-                 valore_attuale, valore_max, quantita_totale, autoadj, agg, valore_in_carico, marginazione, carico_pmc, pmc, pmc_gain, pmc_capitale):
+                 valore_attuale, valore_max, quantita_totale, autoadj, agg, valore_in_carico, marginazione, carico_pmc,
+                 pmc, pmc_gain, pmc_capitale, patrimonio):
         self.data = data
         self.ora = ora
         self.tipo = tipo
@@ -318,6 +324,7 @@ class Operazione:
         self.pmc_gain = round(pmc_gain, 2)
         self.pmc_profitto = round(pmc_gain - commissioni, 2)
         self.pmc_capitale = pmc_capitale
+        self.patrimonio = patrimonio
 
 
 class Storico:
@@ -403,6 +410,7 @@ class Tappeto:
         self.carico_pmc = 0
         self.pmc = 0
         self.pmc_capitale = capitale
+        self.patrimonio = 0
         if self.checkFX is True:
             self.tick = 5
         else:
@@ -525,18 +533,21 @@ class Tappeto:
             self.carico_pmc += (prezzo * quantita) + commissioni
             self.pmc = round(self.carico_pmc / self.quantita_totale, 4)
             self.marginazione = self.capitale + (self.marginazione_fattore * self.valore_in_carico)
+            self.patrimonio = self.capitale + self.valore_in_carico
         elif tipo_operazione == "ACQAZ_S" and carica == 1:
             self.quantita_totale -= quantita
             self.valore_attuale -= aggiustamento_carico
             self.valore_in_carico = self.quantita_totale * prezzo
             self.marginazione = self.capitale + (self.marginazione_fattore * self.valore_in_carico)
             self.carico_pmc = round(self.quantita_totale * self.pmc, 4)
+            self.patrimonio = self.capitale + self.valore_in_carico - self.carico_pmc + self.valore_in_carico
         elif tipo_operazione == "VENAZ_L" and carica == 1:
             self.quantita_totale -= quantita
             self.valore_attuale -= aggiustamento_carico
             self.valore_in_carico = self.quantita_totale * prezzo
             self.marginazione = self.capitale + (self.marginazione_fattore * self.valore_in_carico)
             self.carico_pmc = round(self.quantita_totale * self.pmc, 4)
+            self.patrimonio = self.capitale + self.valore_in_carico
         elif tipo_operazione == "VENAZ_S" and carica == 0:
             self.quantita_totale += quantita
             self.valore_attuale += aggiustamento_carico
@@ -544,8 +555,9 @@ class Tappeto:
             self.marginazione = self.capitale + (self.marginazione_fattore * self.valore_in_carico)
             self.carico_pmc += (quantita * prezzo) + commissioni
             self.pmc = round(self.carico_pmc / self.quantita_totale, 4)
-        if self.valore_attuale >= self.valore_max:
-            self.valore_max = round(self.valore_attuale, 2)
+            self.patrimonio = self.capitale + self.valore_in_carico
+        if self.carico_pmc >= self.valore_max:
+            self.valore_max = round(self.carico_pmc, 2)
 
 
 class GeneraSimulazione:
@@ -983,7 +995,8 @@ class GeneraSimulazione:
                                         tappeto[pacchi_numpy[pac]['f0'] - 1].pacchi[
                                             pacchi_numpy[pac]['f1'] - 1].aggiustamento_carico = \
                                             tappeto[pacchi_numpy[pac]['f0'] - 1].pacchi[
-                                                pacchi_numpy[pac]['f1'] - 1].buy_price * tappeto[pacchi_numpy[pac]['f0'] - 1].pacchi[
+                                                pacchi_numpy[pac]['f1'] - 1].buy_price * \
+                                            tappeto[pacchi_numpy[pac]['f0'] - 1].pacchi[
                                                 pacchi_numpy[pac]['f1'] - 1].quantity_buy
                                 # devo trasformare gli ultimi x = agg.step - 1 pacchi long in short
                                 # cerco tutti i pacchi
@@ -1269,7 +1282,8 @@ class GeneraSimulazione:
                                         tappeto[pacchi_numpy[pac]['f0'] - 1].pacchi[
                                             pacchi_numpy[pac]['f1'] - 1].aggiustamento_carico = \
                                             tappeto[pacchi_numpy[pac]['f0'] - 1].pacchi[
-                                                pacchi_numpy[pac]['f1'] - 1].sell_price * tappeto[pacchi_numpy[pac]['f0'] - 1].pacchi[
+                                                pacchi_numpy[pac]['f1'] - 1].sell_price * \
+                                            tappeto[pacchi_numpy[pac]['f0'] - 1].pacchi[
                                                 pacchi_numpy[pac]['f1'] - 1].quantity_sell
                             #
                             # se audoadj == -2 e pacco in ACQ, ho chiuso pacco, diventa regular
