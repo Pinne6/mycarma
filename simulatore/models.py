@@ -402,7 +402,7 @@ class Tappeto:
         self.marginazione_fattore = 0.8
         self.carico_pmc = 0
         self.pmc = 0
-        self.pmc_capitale = 0
+        self.pmc_capitale = capitale
         if self.checkFX is True:
             self.tick = 5
         else:
