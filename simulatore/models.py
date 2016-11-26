@@ -170,7 +170,7 @@ class Pacco:
             gain = round((self.sell_price_real * self.quantity_sell) - (self.buy_price_real * self.quantity_buy), 4)
             self.gain += gain
             storico[len(storico) - 1].gain += gain
-            pmc_gain = (prezzo - tappeto.pmc) * self.quantity_buy
+            pmc_gain = (prezzo - tappeto.pmc) * self.quantity_buy * -1
         else:
             gain = 0
             self.aggiustamento_carico = round(self.buy_price_real * self.quantity_buy, 2)
