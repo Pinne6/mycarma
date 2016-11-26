@@ -170,7 +170,7 @@ class Pacco:
             gain = round((self.sell_price_real * self.quantity_sell) - (self.buy_price_real * self.quantity_buy), 4)
             self.gain += gain
             storico[len(storico) - 1].gain += gain
-            pmc_gain = (tappeto.pmc - prezzo) * self.quantity_buy
+            pmc_gain = (prezzo - tappeto.pmc) * self.quantity_buy
         else:
             gain = 0
             self.aggiustamento_carico = round(self.buy_price_real * self.quantity_buy, 2)
@@ -186,7 +186,7 @@ class Pacco:
         tappeto.pmc_capitale += pmc_gain - commissione
         op = Operazione(self.order_type, data, ora, prezzo, self.quantity_buy, gain, commissione,
                         self.buy_price, round(tappeto.capitale, 2), round(costo_operazione, 2), 0, 0, 0, self.autoadj,
-                        self.aggiustamento_carico, 0, 0, 0, 0, pmc_gain, tappeto.pmc_capitale)
+                        self.aggiustamento_carico, 0, 0, 0, 0, pmc_gain, round(tappeto.pmc_capitale, 2))
         # op.paccus = copy.deepcopy(tappeto.pacchi)
         # tappeto.operazioni.append(Operazione(self.order_type, data, ora, prezzo, self.quantity_buy, gain, commissione,
         #                                      self.buy_price, round(tappeto.capitale, 2), round(costo_operazione, 2),
