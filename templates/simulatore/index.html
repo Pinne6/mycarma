@@ -410,7 +410,7 @@
                                     Valore finale tappeto
                                 </td>
                                 <td>
-                                    &euro; {{ singolo_tappeto.valore_attuale }}
+                                    &euro; {{ singolo_tappeto.valore_in_carico }}
                                 </td>
                             </tr>
                             <tr>
@@ -434,7 +434,7 @@
                                     Gain
                                 </td>
                                 <td>
-                                    &euro; {{ singolo_tappeto.gain }}
+                                    &euro; {{ singolo_tappeto.pmc_gain }}
                                 </td>
                             </tr>
                             <tr>
@@ -450,7 +450,7 @@
                                     Profitto
                                 </td>
                                 <td>
-                                    &euro; {{ singolo_tappeto.profitto }}
+                                    &euro; {{ singolo_tappeto.pmc_profitto }}
                                 </td>
                             </tr>
                             <tr class="success">
@@ -770,10 +770,13 @@
 							Profitto
 						</th>
                         <th style="padding: 5px 5px; vertical-align: middle">
-							Rendimento
+							Rendimento su<br/>valore massimo
 						</th>
                         <th style="padding: 5px 5px; vertical-align: middle">
                             Valore<br/>massimo
+                        </th>
+                        <th style="padding: 5px 5px; vertical-align: middle">
+                            Rendimento su<br/>capitale
                         </th>
 					</tr>
 				</thead>
@@ -808,19 +811,22 @@
 							{{ Tappeto.nr_vendite }}
 						</td>
                         <td style="padding: 5px 5px">
-							&euro; {{ Tappeto.gain }}
+							&euro; {{ Tappeto.pmc_gain }}
 						</td>
                         <td style="padding: 5px 5px">
 							&euro; {{ Tappeto.commissioni }}
 						</td>
                         <td style="padding: 5px 5px">
-							&euro; {{ Tappeto.profitto }}
+							&euro; {{ Tappeto.pmc_profitto }}
 						</td>
                         <td style="padding: 5px 5px">
 							{{ Tappeto.rendimento }}%
 						</td>
                         <td style="padding: 5px 5px">
                             &euro; {{ Tappeto.valore_max }}
+                        </td>
+                        <td style="padding: 5px 5px">
+                            {{ Tappeto.rendimento_capitale }}%
                         </td>
 					</tr>
                     {% endfor %}

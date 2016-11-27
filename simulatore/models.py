@@ -165,6 +165,7 @@ class Pacco:
         self.carica = carica
         self.disable = disable
         self.aggiustamento_carico = 0
+        self.pmc_gain = 0
 
     def acquisto(self, prezzo, tappeto, data, ora, storico):
         self.nr_acquisti += 1
@@ -174,6 +175,7 @@ class Pacco:
             self.gain += gain
             storico[len(storico) - 1].gain += gain
             pmc_gain = (prezzo - tappeto.pmc) * self.quantity_buy
+            self.pmc_gain += pmc_gain * (-1)
         else:
             gain = 0
             self.aggiustamento_carico = round(self.buy_price_real * self.quantity_buy, 2)
@@ -237,6 +239,7 @@ class Pacco:
             self.gain += gain
             storico[len(storico) - 1].gain += gain
             pmc_gain = (prezzo - tappeto.pmc) * self.quantity_sell
+            self.pmc_gain += pmc_gain
         else:
             gain = 0
             self.aggiustamento_carico = round(self.sell_price_real * self.quantity_sell, 2)
@@ -413,6 +416,9 @@ class Tappeto:
         self.pmc = 0
         self.pmc_capitale = capitale
         self.patrimonio = 0
+        self.pmc_gain = 0
+        self.pmc_profitto = 0
+        self.rendimento_capitale = 0
         if self.checkFX is True:
             self.tick = 5
         else:
@@ -1386,12 +1392,17 @@ class GeneraSimulazione:
             item.nr_acquisti = sum(pack.nr_acquisti for pack in item.pacchi)
             item.nr_vendite = sum(pack.nr_vendite for pack in item.pacchi)
             item.gain = round(sum(pack.gain for pack in item.pacchi), 2)
+            item.pmc_gain = round(sum(pack.pmc_gain for pack in item.pacchi), 2)
             item.commissioni = round(sum(pack.commissioni for pack in item.pacchi), 2)
             item.profitto = round(item.gain - item.commissioni, 2)
+            item.pmc_profitto = round(item.pmc_gain - item.commissioni, 2)
             if item.valore_max == 0:
                 item.rendimento = 0
             else:
-                item.rendimento = round(((item.gain - item.commissioni) / item.valore_max) * 100, 2)
+                # questo è quello vecchio senza pmc
+                # item.rendimento = round(((item.gain - item.commissioni) / item.valore_max) * 100, 2)
+                item.rendimento = round(((item.pmc_gain - item.commissioni) / item.valore_max) * 100, 2)
+                item.rendimento_capitale = round(((item.pmc_gain - item.commissioni) / item.capitale) * 100, 2)
             if count == 0:
                 rendimento_max = item.rendimento
                 rendimento_min = item.rendimento
