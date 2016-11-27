@@ -224,7 +224,7 @@ class Pacco:
         op.valore_in_carico = round(tappeto.valore_in_carico, 2)
         op.marginazione = round(tappeto.marginazione, 2)
         op.carico_pmc = round(tappeto.carico_pmc, 2)
-        op.pmc = round(tappeto.pmc, 2)
+        op.pmc = round(tappeto.pmc, 4)
         op.patrimonio = round(tappeto.patrimonio, 2)
         tappeto.operazioni.append(op)
         return storico
@@ -542,7 +542,7 @@ class Tappeto:
             self.valore_in_carico = self.quantita_totale * prezzo
             self.marginazione = self.capitale + (self.marginazione_fattore * self.valore_in_carico)
             self.carico_pmc = round(self.quantita_totale * self.pmc, 4)
-            self.patrimonio = self.pmc_capitale + self.valore_in_carico
+            self.patrimonio = self.pmc_capitale + self.carico_pmc + self.carico_pmc - self.valore_in_carico
         elif tipo_operazione == "VENAZ_L" and carica == 1:
             self.quantita_totale -= quantita
             self.valore_attuale -= aggiustamento_carico
@@ -557,7 +557,7 @@ class Tappeto:
             self.marginazione = self.capitale + (self.marginazione_fattore * self.valore_in_carico)
             self.carico_pmc += (quantita * prezzo) + commissioni
             self.pmc = round(self.carico_pmc / self.quantita_totale, 4)
-            self.patrimonio = self.pmc_capitale + self.valore_in_carico - self.carico_pmc + self.valore_in_carico
+            self.patrimonio = self.pmc_capitale + self.carico_pmc + self.carico_pmc - self.valore_in_carico
         if self.carico_pmc >= self.valore_max:
             self.valore_max = round(self.carico_pmc, 2)
 
