@@ -882,31 +882,25 @@
 							Profitto
 						</th>
                         <th>
-							Costo
+							Costo<br/>operazione
 						</th>
                         <th>
                             Liquidità
                         </th>
                         <th>
-                           Carico pmc
+                           Carico azioni<br/>al pmc
                         </th>
                         <th>
                             Pmc
                         </th>
                         <th>
-                            Carico attuale
+                            Carico azioni<br/>al prezzo attuale
+                        </th>
+                        <th>
+                            Quantità azioni
                         </th>
                         <th>
                             Patrimonio
-                        </th>
-                        <th>
-                            Quantità attuale
-                        </th>
-                        <th>
-                            Valore max
-                        </th>
-                        <th>
-                            Liquidità nuova
                         </th>
 					</tr>
 				</thead>
@@ -926,7 +920,7 @@
 							&euro; {{ item.prezzo_teorico }}
 						</td>
 						<td {% if item.autoadj != 0 %}bgcolor="yellow" {% endif %}>
-							{% if item.tipo == 'VENAZ_L' %}VENDITA LONG{% elif item.tipo == 'ACQAZ_L' %}ACQUISTO LONG{% elif item.tipo == 'VENAZ_S' %}VENDITA SHORT{% elif item.tipo == 'ACQAZ_S' %}ACQUISTO SHORT{% endif %}
+							{% if item.tipo == 'VENAZ_L' %}VENDITA LONG{% if item.autoadj != 0 %}_A{% endif %}{% elif item.tipo == 'ACQAZ_L' %}ACQUISTO LONG{% if item.autoadj != 0 %}_A{% endif %}{% elif item.tipo == 'VENAZ_S' %}VENDITA SHORT{% if item.autoadj != 0 %}_A{% endif %}{% elif item.tipo == 'ACQAZ_S' %}ACQUISTO SHORT{% if item.autoadj != 0 %}_A{% endif %}{% endif %}
 						</td>
                         <td>
 							&euro; {{ item.prezzo }}
@@ -935,19 +929,19 @@
 							{{ item.quantita }}
 						</td>
                         <td>
-							&euro; {{ item.gain }}
+							&euro; {{ item.pmc_gain }}
 						</td>
                         <td>
 							&euro; {{ item.commissioni }}
 						</td>
                         <td>
-							&euro; {{ item.profitto }}
+							&euro; {{ item.pmc_profitto }}
 						</td>
                         <td>
 							&euro; {{ item.costo_operazione }}
 						</td>
                         <td {% if item.capitale < 0 %}bgcolor="red" {% endif %}>
-							&euro; {{ item.capitale }}
+							&euro; {{ item.pmc_capitale }}
 						</td>
                         <td>
 							&euro; {{ item.carico_pmc }}
@@ -958,20 +952,11 @@
                         <td>
 							&euro; {{ item.valore_in_carico }}
 						</td>
-                        <td {% if item.patrimonio < 0 %}bgcolor="red" {% endif %}>
-							&euro; {{ item.patrimonio }}
-						</td>
                         <td>
 							{{ item.quantita_totale }}
 						</td>
-                        <td>
-							&euro; {{ item.valore_max }}
-						</td>
-                        <td>
-							&euro; {{ item.pmc_capitale }}
-						</td>
-                        <td>
-							&euro; {{ item.pmc_gain }}
+                        <td {% if item.patrimonio < 0 %}bgcolor="red" {% endif %}>
+							&euro; {{ item.patrimonio }}
 						</td>
 					</tr>
                     {% endfor %}
