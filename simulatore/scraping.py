@@ -78,12 +78,12 @@ jobs = hc.get_project('119655').jobq.list()
 for job in jobs:
     if job['state'] != 'finished':
         mail_subject = "Problema, stato job non finito"
-        mail_body = "Problema, stato job non finito"
+        mail_body = "Problema, stato job non finito " + job['key']
         send_email(mail_from, mail_to, mail_username, mail_password, mail_server, mail_port, mail_subject, mail_body)
         exit()
-    if job['items'] == 0:
+    if 'items' not in job:
         mail_subject = "Problema, job non contiene elementi"
-        mail_body = "Problema, job non contiene elementi"
+        mail_body = "Problema, job non contiene elementi " + job['key']
         send_email(mail_from, mail_to, mail_username, mail_password, mail_server, mail_port, mail_subject, mail_body)
         exit()
     if job['key'] in str(storico_jobs):
@@ -113,7 +113,7 @@ for job in jobs:
         f.close()
         lista = []
         mail_subject = "Scraping job eseguito"
-        mail_body = "Scraping job eseguito"
+        mail_body = "Scraping job eseguito " + job['key']
         send_email(mail_from, mail_to, mail_username, mail_password, mail_server, mail_port, mail_subject, mail_body)
     with open(storico_jobs_csv, 'a', newline="") as f:
         writer = csv.writer(f)

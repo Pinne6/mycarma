@@ -183,11 +183,11 @@ class Pacco:
         if self.order_type == "ACQAZ_S":
             tappeto.capitale += round((self.sell_price_real * self.quantity_buy) - commissione + gain, 2)
             costo_operazione = round(((self.sell_price_real * self.quantity_buy) - commissione + gain), 2)
-            tappeto.pmc_capitale += (self.buy_price_real * self.quantity_buy) - commissione - pmc_gain
+            tappeto.pmc_capitale += (self.sell_price_real * self.quantity_buy) - commissione - pmc_gain
         else:
             tappeto.capitale -= round((self.buy_price_real * self.quantity_buy) + commissione, 2)
             costo_operazione = round(((self.buy_price_real * self.quantity_buy) + commissione) * -1, 2)
-            tappeto.pmc_capitale -= (self.buy_price_real * self.quantity_buy + commissione)
+            tappeto.pmc_capitale -= (self.buy_price_real * self.quantity_buy) + commissione
         op = Operazione(self.order_type, data, ora, prezzo, self.quantity_buy, gain, commissione,
                         self.buy_price, round(tappeto.capitale, 2), round(costo_operazione, 2), 0, 0, 0, self.autoadj,
                         self.aggiustamento_carico, 0, 0, 0, 0, pmc_gain, round(tappeto.pmc_capitale, 2), 0)
