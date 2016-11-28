@@ -1,6 +1,9 @@
 # Create your views here.
 
 """
+1.05.00 - 28/11/2016
+- nuovi nomi nei riassunti
+- nuovo calcolo gain e patrimonio usando il pmc
 1.04.07 - 25/11/2016
 - calcolo valore in carico con prezzo azione attuale
 - inserito marginazione con parametro fisso a 0.8
@@ -231,7 +234,7 @@ def costruzione_pacco(request):
 
 # line_profiler
 def index(request):
-    version = '1.04.07'
+    version = '1.05.00'
     if settings.SERVER_DEV is False:
         dire = "/home/carma/dati/isin.conf"
         folder = "/home/carma/dati/intra/"

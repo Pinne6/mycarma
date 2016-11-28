@@ -383,23 +383,7 @@
                             </tr>
                             <tr>
                                 <td>
-                                    Esposizione max tappeto long
-                                </td>
-                                <td>
-                                    &euro; {{ singolo_tappeto.valore_carico_long }}
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    Esposizione max tappeto short
-                                </td>
-                                <td>
-                                    &euro; {{ singolo_tappeto.valore_carico_short }}
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    Valore max reale tappeto
+                                    Esposizione max tappeto
                                 </td>
                                 <td>
                                     &euro; {{ singolo_tappeto.valore_max }}
@@ -407,7 +391,7 @@
                             </tr>
                             <tr>
                                 <td>
-                                    Valore finale tappeto
+                                    Carico al prezzo attuale
                                 </td>
                                 <td>
                                     &euro; {{ singolo_tappeto.valore_in_carico }}
@@ -453,12 +437,30 @@
                                     &euro; {{ singolo_tappeto.pmc_profitto }}
                                 </td>
                             </tr>
+                            {% if singolo_tappeto.negativo == True %}
+                            <tr style="background-color: red">
+                                <td>
+                                    Liquidità negativa
+                                </td>
+                                <td>
+                                    Sei sceso sotto &euro; 0!
+                                </td>
+                            </tr>
+                            {% endif %}
                             <tr class="success">
                                 <td>
-                                    <strong>Rendimento reale</strong>
+                                    <strong>Rendimento su esposizione max</strong>
                                 </td>
                                 <td>
                                     <strong>{{ singolo_tappeto.rendimento }}%</strong>
+                                </td>
+                            </tr>
+                            <tr class="success">
+                                <td>
+                                    <strong>Rendimento su capitale</strong>
+                                </td>
+                                <td>
+                                    <strong>{{ singolo_tappeto.rendimento_capitale }}%</strong>
                                 </td>
                             </tr>
                         </tbody>
@@ -728,7 +730,7 @@
 			</table>
             {% elif bottone == 'simula' %}
             <h3 class="text-center">
-				Risultato simulazioni per {{ isin }}&#13;&#10;Data inizio: {{ data_inizio }} - Data fine: {{ data_fine }}
+				Risultato simulazioni per {{ isin }}&#13;&#10;Data inizio: {{ data_inizio }} - Data fine: {{ data_fine }}<br/>Lim. inferiore: &euro;{{ tappeto.0.limite_inferiore }} Limite superiore: &euro; {{ tappeto.0.limite_superiore }} Primo acquisto: &euro; {{ tappeto.0.primo_acquisto }}
 			</h3>
             <table class="table table-condensed table-bordered table-hover stripe" id="tabella_risultato_simulazione" style="font-size: 12px; text-align: center">
 				<thead>
@@ -770,10 +772,10 @@
 							Profitto
 						</th>
                         <th style="padding: 5px 5px; vertical-align: middle">
-							Rendimento su<br/>valore massimo
+							Rendimento su<br/>esposizione max
 						</th>
                         <th style="padding: 5px 5px; vertical-align: middle">
-                            Valore<br/>massimo
+                            Esposizione<br/>max tappeto
                         </th>
                         <th style="padding: 5px 5px; vertical-align: middle">
                             Rendimento su<br/>capitale

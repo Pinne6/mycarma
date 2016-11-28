@@ -418,6 +418,7 @@ class Tappeto:
         self.patrimonio = 0
         self.pmc_gain = 0
         self.pmc_profitto = 0
+        self.negativo = False
         self.rendimento_capitale = 0
         if self.checkFX is True:
             self.tick = 5
@@ -566,6 +567,8 @@ class Tappeto:
             self.patrimonio = self.pmc_capitale + self.carico_pmc + self.carico_pmc - self.valore_in_carico
         if self.carico_pmc >= self.valore_max:
             self.valore_max = round(self.carico_pmc, 2)
+        if self.pmc_capitale < 0:
+            self.negativo = True
 
 
 class GeneraSimulazione:
