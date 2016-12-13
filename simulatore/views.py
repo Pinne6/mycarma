@@ -315,7 +315,7 @@ def index(request):
             best_take = ''
             take_array = []
             take_array_size = 0
-            filename = ''
+            filename_url = ''
         request.session['isin'] = simulazione.crea_isin
         request.session['data_inizio'] = datetime.datetime.strftime(simulazione.data_inizio_2, "%d/%m/%Y")
         request.session['data_fine'] = datetime.datetime.strftime(simulazione.data_fine_2, "%d/%m/%Y")
