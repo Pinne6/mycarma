@@ -1,6 +1,9 @@
 # Create your views here.
 
 """
+1.06.00 - 13/12/2016
+- vari fix alla gestione aggiustamento e scalo di uno invece che due
+- lista operazioni in file csv da scaricare
 1.05.00 - 28/11/2016
 - nuovi nomi nei riassunti
 - nuovo calcolo gain e patrimonio usando il pmc
@@ -234,13 +237,21 @@ def costruzione_pacco(request):
 
 # line_profiler
 def index(request):
-    version = '1.05.00'
+    version = '1.06.00'
+    if not request.user:
+        user_id = User.objects.get(username='Anonymous')
+    elif request.user.is_anonymous:
+        user_id = User.objects.get(username='Anonymous')
+    else:
+        user_id = request.user
     if settings.SERVER_DEV is False:
         dire = "/home/carma/dati/isin.conf"
         folder = "/home/carma/dati/intra/"
+        folder2 = "/home/carma/simulazioni/" + str(user_id) + "/"
     else:
         dire = "C:\\Users\\fesposti\\Box Sync\\Simulatore\\intra\\isin.conf"
         folder = "C:\\intra\\"
+        folder2 = "C:\\ope\\"
     isin_conf = read_csv_files(dire)
     # se method = POST --> c'è una richiesta di creazione del tappeto o simulazione del tappeto
     if request.method == "POST":
@@ -269,16 +280,41 @@ def index(request):
         # context è un dizionario che associa variabili del template a oggetti python
         if request.POST.get('bottone') == 'simula':
             best_take = simsingolamax.take
-            # with open('eggs.csv', 'w', newline='') as csvfile:
-            #     writer = csv.writer(csvfile)
-            #     writer.writerow(['#', 'Data', 'Ora', 'Pacco', 'Operazione', 'Prezzo', 'Quantita', 'Gain', 'Commissioni', 'Profitto', 'Costo', 'Capitale', 'Valore attuale', 'Quantita attuale', 'Valore max', 'Carico'])
-            #     for idx, item in enumerate(tappeto[0].operazioni):
-            #         writer.writerow([idx + 1, item.data, item.ora, item.prezzo_teorico, item.tipo, item.prezzo, item.quantita, item.gain, item.commissioni, item.profitto, item.costo_operazione, item.capitale, item.valore_attuale, item.quantita_totale, item.valore_max, item.aggiustamento_carico])
-            #    csvfile.close()
+            # se user non è loggato, allora associo la simulazione a Anonymous
+            if not request.user:
+                user_id = User.objects.get(username='Anonymous')
+            elif request.user.is_anonymous:
+                user_id = User.objects.get(username='Anonymous')
+            else:
+                user_id = request.user
+            if not os.path.exists(folder2):
+                os.makedirs(folder2)
+            else:
+                filelist = [f for f in os.listdir(folder2)]
+                for f in filelist:
+                    ff = folder2 + f
+                    os.remove(ff)
+            filename = folder2 + str(user_id) + '_simulazione_tappeto_' + datetime.datetime.strftime(datetime.date.today(), "%Y-%m-%d") + '.csv'
+            with open(filename, 'w', newline='') as csvfile:
+                writer = csv.writer(csvfile)
+                writer.writerow(['#', 'Data', 'Ora', 'Pacco', 'Operazione', 'Prezzo', 'Quantita', 'Gain', 'Commissioni',
+                                 'Profitto', 'Costo operazione', 'Liquidita', 'Carico azioni al pmc', 'Pmc',
+                                 'Carico azioni al prezzo attuale', 'Quantita azioni', 'Patrimonio', "Punto flat"])
+                for idx, item in enumerate(tappeto[0].operazioni):
+                    if item.autoadj != 0:
+                        tipo = item.tipo + '_A'
+                    else:
+                        tipo = item.tipo
+                    writer.writerow([idx + 1, item.data, item.ora, item.prezzo_teorico, tipo, item.prezzo,
+                                     item.quantita, item.pmc_gain, item.commissioni, item.pmc_profitto, item.costo_operazione,
+                                     item.pmc_capitale, item.carico_pmc, item.pmc, item.valore_in_carico,
+                                     item.quantita_totale, item.patrimonio, item.punto_flat])
+                csvfile.close()
         else:
             best_take = ''
             take_array = []
             take_array_size = 0
+            filename = ''
         request.session['isin'] = simulazione.crea_isin
         request.session['data_inizio'] = datetime.datetime.strftime(simulazione.data_inizio_2, "%d/%m/%Y")
         request.session['data_fine'] = datetime.datetime.strftime(simulazione.data_fine_2, "%d/%m/%Y")
@@ -336,7 +372,8 @@ def index(request):
             'version': version,
             'form_singolo': form_s,
             'form_variabile': form_v,
-            'test': test
+            'test': test,
+            'filename': filename
         }
     else:
         if settings.DEBUG:

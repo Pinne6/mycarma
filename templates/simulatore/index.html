@@ -166,6 +166,12 @@
                                         {{ form_singolo.capitale }}
                                     </label>
                                 </div>
+                                <div class="col-md-3 form-group-sm">
+                                    <label>
+                                        {{ form_singolo.margine_future.label }}
+                                        {{ form_singolo.margine_future }}
+                                    </label>
+                                </div>
                             </div>
                             <div class="row">
                                 <div class="col-md-3">
@@ -475,6 +481,7 @@
                     <p>La tabella è ordinata per rendimento, quindi la prima riga in alto ti mostra il tappeto migliore.</p>
                     <p>Se clicchi sui nomi delle colonne della tabella puoi cambiare l'ordine della tabella.</p>
                     <p><strong>Clicca su una riga della tabella in alto a destra per aggiornare il riepilogo del tappeto qui accanto e l'elenco delle operazioni qui sotto.</strong></p>
+                    <p><strong><a href="{{ filename }}" type="file">Scarica il file delle operazioni</a></strong></p>
                 {% elif bottone == 'crea' and tipo_take == 'take_variabile' %}
                     <br />
                     <p>Nella tabella in alto a destra trovi la struttura del tappeto che hai appena creato.</p>
@@ -486,6 +493,8 @@
                     <p>Nella tabella in alto a destra trovi la struttura del tappeto che hai appena creato.</p>
                     <p><strong>Se la struttura corrisponde a quello che vuoi simulare, clicca sul bottone simula per avviare la simulazione</strong></p>
                     <p>altrimenti modifica i parametri e clicca sul bottone crea tappeto.</p>
+                {% elif bottone == 'simula' and tipo_take == 'take_singolo' %}
+                    <p><strong><a href="{{ filename }}" type="file">Scarica il file delle operazioni</a></strong></p>
                 {% endif %}
             </div>
 		</div>
@@ -837,7 +846,8 @@
             {% endif %}
 		</div>
 	</div>
-	<div class="row" {% if bottone != 'simula' %} hidden {% endif %}>
+    <div class="row" {% if bottone != 'simula' %} hidden {% endif %}>
+    {% comment %}
 		{% for singolo_tappeto in tappeto %}
         <div class="col-md-10" {% if not singolo_tappeto.take == best_take %}style="display: none"{% endif %} id="dettagli_operazioni_{{ singolo_tappeto.take|cut:"." }}">
 			<h4 class="text-center">
@@ -849,7 +859,7 @@
                 <input type="hidden" name="operazioni" value="{{ singolo_tappeto.operazioni }}">
                 <input type="submit" class="btn" name="submit" value="Download" />
             </form>
-            {% endcomment %}
+            {% endcomment2 %}
 			<table class="table table-condensed table-hover stripe table-fabio" style="font-size: 10px; text-align: center" id="tabella_dettagli_operazioni_{{ singolo_tappeto.take|cut:"." }}">
 				<thead>
 					<tr>
