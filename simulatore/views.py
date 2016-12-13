@@ -295,6 +295,7 @@ def index(request):
                     ff = folder2 + f
                     os.remove(ff)
             filename = folder2 + str(user_id) + '_simulazione_tappeto_' + datetime.datetime.strftime(datetime.date.today(), "%Y-%m-%d") + '.csv'
+            filename_url = str(user_id) + '_simulazione_tappeto_' + datetime.datetime.strftime(datetime.date.today(), "%Y-%m-%d") + '.csv'
             with open(filename, 'w', newline='') as csvfile:
                 writer = csv.writer(csvfile)
                 writer.writerow(['#', 'Data', 'Ora', 'Pacco', 'Operazione', 'Prezzo', 'Quantita', 'Gain', 'Commissioni',
@@ -373,7 +374,7 @@ def index(request):
             'form_singolo': form_s,
             'form_variabile': form_v,
             'test': test,
-            'filename': filename
+            'filename': filename_url
         }
     else:
         if settings.DEBUG:
