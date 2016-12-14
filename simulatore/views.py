@@ -1,6 +1,10 @@
 # Create your views here.
 
 """
+1.06.01 - 14/12/2016
+- fix aggiustamento su pacco -3
+- fix per gestire situazione in cui il prezzo esce dai limiti dell'aggiustamento
+- variabile stampa per stampare le strutture di tutte le operazioni
 1.06.00 - 13/12/2016
 - vari fix alla gestione aggiustamento e scalo di uno invece che due
 - lista operazioni in file csv da scaricare
@@ -251,7 +255,7 @@ def index(request):
     else:
         dire = "C:\\Users\\fesposti\\Box Sync\\Simulatore\\intra\\isin.conf"
         folder = "C:\\intra\\"
-        folder2 = "C:\\ope\\"
+        folder2 = "C:\\ope\\simulazioni\\"
     isin_conf = read_csv_files(dire)
     # se method = POST --> c'è una richiesta di creazione del tappeto o simulazione del tappeto
     if request.method == "POST":

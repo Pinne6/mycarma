@@ -8,7 +8,7 @@ import os.path
 import copy
 import csv
 
-
+stampa = False
 # Create your models here.
 
 class CalcoloPacco:
@@ -192,7 +192,8 @@ class Pacco:
             tappeto.pmc_capitale -= (self.buy_price_real * self.quantity_buy) + commissione
         op = Operazione(self.order_type, data, ora, prezzo, self.quantity_buy, gain, commissione,
                         self.buy_price, round(tappeto.capitale, 2), round(costo_operazione, 2), 0, 0, 0, self.autoadj,
-                        self.aggiustamento_carico, 0, 0, 0, 0, pmc_gain, round(tappeto.pmc_capitale, 2), 0, tappeto.punto_flat)
+                        self.aggiustamento_carico, 0, 0, 0, 0, pmc_gain, round(tappeto.pmc_capitale, 2), 0,
+                        tappeto.punto_flat)
         # op.paccus = copy.deepcopy(tappeto.pacchi)
         # tappeto.operazioni.append(Operazione(self.order_type, data, ora, prezzo, self.quantity_buy, gain, commissione,
         #                                      self.buy_price, round(tappeto.capitale, 2), round(costo_operazione, 2),
@@ -272,7 +273,8 @@ class Pacco:
             tappeto.pmc_capitale += (self.quantity_sell * self.sell_price_real) + pmc_gain - commissione
         op = Operazione(self.order_type, data, ora, prezzo, self.quantity_sell, gain, commissione,
                         self.buy_price, round(tappeto.capitale, 2), round(costo_operazione, 2), 0, 0, 0, self.autoadj,
-                        self.aggiustamento_carico, 0, 0, 0, 0, pmc_gain, round(tappeto.pmc_capitale, 2), 0, tappeto.punto_flat)
+                        self.aggiustamento_carico, 0, 0, 0, 0, pmc_gain, round(tappeto.pmc_capitale, 2), 0,
+                        tappeto.punto_flat)
         # op.paccus = copy.deepcopy(tappeto.pacchi)
         # tappeto.operazioni.append(Operazione(self.order_type, data, ora, prezzo, self.quantity_sell, gain, commissione,
         #                                      self.sell_price, round(tappeto.capitale, 2), round(costo_operazione, 2),
@@ -785,7 +787,10 @@ class GeneraSimulazione:
                             #   devo cambiare il carico da long a short, toglierli da carica
                             #
                             elif pacchi_numpy[item]['f5'] == 2 and pacchi_numpy[item]['f2'] == 0:
-                                tappeto[pacchi_numpy[item]['f0'] - 1].punto_flat -= tappeto[pacchi_numpy[item]['f0'] - 1].step * (tappeto[pacchi_numpy[item]['f0'] - 1].aggiustamento_step - 1)
+                                tappeto[pacchi_numpy[item]['f0'] - 1].punto_flat -= tappeto[pacchi_numpy[item][
+                                                                                                'f0'] - 1].step * (
+                                                                                    tappeto[pacchi_numpy[item][
+                                                                                                'f0'] - 1].aggiustamento_step - 1)
                                 # devo attivare tutti quelli con id maggiore e autoadj = 1 e questo che è a 2 lo tengo a 2
 
                                 # gestione del pacco con autoadj == 2
@@ -844,30 +849,34 @@ class GeneraSimulazione:
 
                                 # se c'è un altro pacco con autoadj == 2 sotto e stato disabled, devo abilitarlo
                                 # controllo anche che l'id tappeto sia lo stesso
-                                if pacchi_numpy[item - tappeto[pacchi_numpy[item]['f0'] - 1].aggiustamento_step][
-                                    'f5'] == 2 \
-                                        and pacchi_numpy[
-                                                    item - tappeto[pacchi_numpy[item]['f0'] - 1].aggiustamento_step][
-                                            'f0'] == pacchi_numpy[item]['f0']:
-                                    # imposto autoadj a 0
-                                    # pacchi_numpy[item - tappeto[pacchi_numpy[item]['f0'] - 1].aggiustamento_step]['f5'] = 0
-                                    # imposto disabled a 0
-                                    pacchi_numpy[item - tappeto[pacchi_numpy[item]['f0'] - 1].aggiustamento_step][
-                                        'f6'] = 0
-                                    # ora devo modificare anche nella struttura del tappeto, non solo nell'array numpy
-                                    # imposto autoadj a 0
-                                    # tappeto[pacchi_numpy[item]['f0'] - 1].pacchi[pacchi_numpy[item]['f1'] - 1].autoadj = 0
-                                    # imposto disabled a 0
-                                    tappeto[pacchi_numpy[item]['f0'] - 1].pacchi[pacchi_numpy[item]['f1'] - 1 - tappeto[
-                                        pacchi_numpy[item]['f0'] - 1].aggiustamento_step].disable = 0
-                                    # devo aggiungere il nuovo pacco al carico long
-                                    tappeto[pacchi_numpy[item]['f0'] - 1].valore_carico_long += \
-                                        tappeto[pacchi_numpy[item]['f0'] - 1].pacchi[
-                                            pacchi_numpy[item]['f1'] - 1 - tappeto[
-                                                pacchi_numpy[item]['f0'] - 1].aggiustamento_step].quantity_buy * \
-                                        tappeto[pacchi_numpy[item]['f0'] - 1].pacchi[
-                                            pacchi_numpy[item]['f1'] - 1 - tappeto[
-                                                pacchi_numpy[item]['f0'] - 1].aggiustamento_step].buy_price
+                                if not pacchi_numpy[item]['f2'] - (
+                                    tappeto[pacchi_numpy[item]['f0'] - 1].aggiustamento_step * tappeto[
+                                        pacchi_numpy[item]['f0'] - 1].take) < tappeto[
+                                            pacchi_numpy[item]['f0'] - 1].aggiustamento_limite_inferiore:
+                                    if pacchi_numpy[item - tappeto[pacchi_numpy[item]['f0'] - 1].aggiustamento_step][
+                                        'f5'] == 2 \
+                                            and pacchi_numpy[
+                                                        item - tappeto[pacchi_numpy[item]['f0'] - 1].aggiustamento_step][
+                                                'f0'] == pacchi_numpy[item]['f0']:
+                                        # imposto autoadj a 0
+                                        # pacchi_numpy[item - tappeto[pacchi_numpy[item]['f0'] - 1].aggiustamento_step]['f5'] = 0
+                                        # imposto disabled a 0
+                                        pacchi_numpy[item - tappeto[pacchi_numpy[item]['f0'] - 1].aggiustamento_step][
+                                            'f6'] = 0
+                                        # ora devo modificare anche nella struttura del tappeto, non solo nell'array numpy
+                                        # imposto autoadj a 0
+                                        # tappeto[pacchi_numpy[item]['f0'] - 1].pacchi[pacchi_numpy[item]['f1'] - 1].autoadj = 0
+                                        # imposto disabled a 0
+                                        tappeto[pacchi_numpy[item]['f0'] - 1].pacchi[pacchi_numpy[item]['f1'] - 1 - tappeto[
+                                            pacchi_numpy[item]['f0'] - 1].aggiustamento_step].disable = 0
+                                        # devo aggiungere il nuovo pacco al carico long
+                                        tappeto[pacchi_numpy[item]['f0'] - 1].valore_carico_long += \
+                                            tappeto[pacchi_numpy[item]['f0'] - 1].pacchi[
+                                                pacchi_numpy[item]['f1'] - 1 - tappeto[
+                                                    pacchi_numpy[item]['f0'] - 1].aggiustamento_step].quantity_buy * \
+                                            tappeto[pacchi_numpy[item]['f0'] - 1].pacchi[
+                                                pacchi_numpy[item]['f1'] - 1 - tappeto[
+                                                    pacchi_numpy[item]['f0'] - 1].aggiustamento_step].buy_price
                                 # devo scalare sopra l'autoaggiustamento di x = molt step verso il basso
                                 # cerco pacco con autoadj a -3 e con lo stesso id tappeto f0
                                 pacco_meno_3 = np.flatnonzero(
@@ -876,8 +885,9 @@ class GeneraSimulazione:
                                 # devo scalarlo di moltiplicatore step e questo pacco diventa -2
                                 if pacco_meno_3.size == 0:
                                     pacco_senza_3 = np.flatnonzero(
-                                        np.logical_and(np.logical_and(pacchi_numpy['f5'] == -1, pacchi_numpy['f6'] == 1),
-                                                       pacchi_numpy['f0'] == pacchi_numpy[item]['f0']))
+                                        np.logical_and(
+                                            np.logical_and(pacchi_numpy['f5'] == -1, pacchi_numpy['f6'] == 1),
+                                            pacchi_numpy['f0'] == pacchi_numpy[item]['f0']))
                                     # se non trovo nemmeno il pacco con autoadj 1 allora ho finito l'aggiustamento
                                     # devo ripartire dagli ultimi pacchi short in alto
                                     if pacco_senza_3.size == 0:
@@ -1006,7 +1016,8 @@ class GeneraSimulazione:
                                                     tappeto[pacchi_numpy[item2]['f0'] - 1].pacchi[
                                                         pacchi_numpy[item2]['f1'] - 1 + i - agg_step].disable = 1
                                                 i += 1
-                                                if (item2 - agg_step + i) >= len(tappeto[pacchi_numpy[item2]['f0'] - 1].pacchi):
+                                                if (item2 - agg_step + i) >= len(
+                                                        tappeto[pacchi_numpy[item2]['f0'] - 1].pacchi):
                                                     break
                                             break
                                 for item2 in pacco_meno_3:
@@ -1028,29 +1039,29 @@ class GeneraSimulazione:
                                         pacchi_numpy[item2]['f1'] - 1 - agg_step].carica = 0
                                     # modifico il vecchio pacco -3 e lo metto a stato -1 e disabilitato
                                     # imposto autoadj a -1
-                                    pacchi_numpy[item2]['f5'] = -1
+                                    # pacchi_numpy[item2]['f5'] = -1
                                     # imposto disabled a 1
-                                    pacchi_numpy[item2]['f6'] = 1
+                                    # pacchi_numpy[item2]['f6'] = 1
                                     # ora devo modificare anche nella struttura del tappeto, non solo nell'array numpy
                                     # imposto autoadj a -1
-                                    tappeto[pacchi_numpy[item2]['f0'] - 1].pacchi[
-                                        pacchi_numpy[item2]['f1'] - 1].autoadj = -1
+                                    # tappeto[pacchi_numpy[item2]['f0'] - 1].pacchi[
+                                    #    pacchi_numpy[item2]['f1'] - 1].autoadj = -1
                                     # imposto disabled a 1
-                                    tappeto[pacchi_numpy[item2]['f0'] - 1].pacchi[
-                                        pacchi_numpy[item2]['f1'] - 1].disable = 1
+                                    # tappeto[pacchi_numpy[item2]['f0'] - 1].pacchi[
+                                    #     pacchi_numpy[item2]['f1'] - 1].disable = 1
                                     # imposto carica a 0
-                                    tappeto[pacchi_numpy[item2]['f0'] - 1].pacchi[
-                                        pacchi_numpy[item2]['f1'] - 1].carica = 0
+                                    # tappeto[pacchi_numpy[item2]['f0'] - 1].pacchi[
+                                    #     pacchi_numpy[item2]['f1'] - 1].carica = 0
                                     # lo tolgo dal carico short
-                                    tappeto[pacchi_numpy[item2]['f0'] - 1].valore_carico_short -= \
-                                        tappeto[pacchi_numpy[item2]['f0'] - 1].pacchi[
-                                            pacchi_numpy[item2]['f1'] - 1].quantity_sell * \
-                                        tappeto[pacchi_numpy[item2]['f0'] - 1].pacchi[
-                                            pacchi_numpy[item2]['f1'] - 1].sell_price
+                                    # tappeto[pacchi_numpy[item2]['f0'] - 1].valore_carico_short -= \
+                                    #     tappeto[pacchi_numpy[item2]['f0'] - 1].pacchi[
+                                    #         pacchi_numpy[item2]['f1'] - 1].quantity_sell * \
+                                    #     tappeto[pacchi_numpy[item2]['f0'] - 1].pacchi[
+                                    #         pacchi_numpy[item2]['f1'] - 1].sell_price
                                     # adesso devo ricostruire tutta la parte di aggiustamento avendo scalato
                                     # riparto dal pacco appena sopra il nuovo -3 e ricostruisco
                                     # finchè non sono sopra al limite superiore di aggiustamento, modifico
-                                    while pacchi_numpy[item2 - agg_step + i]['f3'] >= tappeto[
+                                    while pacchi_numpy[item2 - agg_step + i]['f3'] <= tappeto[
                                                 pacchi_numpy[item2]['f0'] - 1].aggiustamento_limite_superiore:
                                         # se i / agg non ha resto --> è pacco -2
                                         # se i / agg ha resto --> è pacco -1
@@ -1116,7 +1127,8 @@ class GeneraSimulazione:
                                 # lo scalare del valore di carico parte dal pacco appena sopra il pacco appena eseguito
                                 # modifico il carico di tutti i pacchi con carico = 1 e con id tappeto
                                 pacco_carico = np.flatnonzero(
-                                    np.logical_and(pacchi_numpy['f7'] == 1, pacchi_numpy['f0'] == pacchi_numpy[item]['f0']))
+                                    np.logical_and(pacchi_numpy['f7'] == 1,
+                                                   pacchi_numpy['f0'] == pacchi_numpy[item]['f0']))
                                 # inverto e parto dall'alto, così i primi n pacchi in carico che trovo li cambio
                                 # a carica = 0 e stato = VENAZ_S
                                 z = 1
@@ -1232,24 +1244,24 @@ class GeneraSimulazione:
                                 # for val in tappeto[pacchi_numpy[item]['f0'] - 1].pacchi:
                                 #    writer.writerow([val.package_number])
                                 # strutture.append(copy.deepcopy(tappeto[pacchi_numpy[item]['f0'] - 1].pacchi))
-                            """
-                            filename = "C:\\ope\\" + str(len(tappeto[0].operazioni)) + ".csv"
-                            with open(filename, 'w', newline='') as csvfile:
-                                writer = csv.writer(csvfile)
-                                writer.writerow(
-                                    ['Pacco', 'Operazione', 'Acquisto', 'Vendita', 'Autoagg', 'Disable', 'Carica',
-                                     'n_Operazione', 'n_Autoagg', 'n_Disable', 'n_Carica'])
-                                for idx, item in enumerate(tappeto[0].pacchi):
-                                    if item.autoadj != 0:
-                                        tipo = item.order_type + '_A'
-                                    else:
-                                        tipo = item.order_type
+                            if stampa:
+                                filename = "C:\\ope\\" + str(len(tappeto[0].operazioni)) + ".csv"
+                                with open(filename, 'w', newline='') as csvfile:
+                                    writer = csv.writer(csvfile)
                                     writer.writerow(
-                                        [item.package_number, tipo, item.buy_price, item.sell_price, item.autoadj,
-                                         item.disable, item.carica, pacchi_numpy[idx]['f2'],
-                                         pacchi_numpy[idx]['f5'], pacchi_numpy[idx]['f6'], pacchi_numpy[idx]['f7']])
-                                csvfile.close()
-                            """
+                                        ['Pacco', 'Operazione', 'Acquisto', 'Vendita', 'Autoagg', 'Disable', 'Carica',
+                                         'n_Operazione', 'n_Autoagg', 'n_Disable', 'n_Carica'])
+                                    for idx, item in enumerate(tappeto[0].pacchi):
+                                        if item.autoadj != 0:
+                                            tipo = item.order_type + '_A'
+                                        else:
+                                            tipo = item.order_type
+                                        writer.writerow(
+                                            [item.package_number, tipo, item.buy_price, item.sell_price, item.autoadj,
+                                             item.disable, item.carica, pacchi_numpy[idx]['f2'],
+                                             pacchi_numpy[idx]['f5'], pacchi_numpy[idx]['f6'], pacchi_numpy[idx]['f7']])
+                                    csvfile.close()
+
                         for item in lis_b:
                             #
                             # se stato aggiustamento == -3, sono in fondo alla sequenza, devo attivare aggiustamento
@@ -1298,8 +1310,8 @@ class GeneraSimulazione:
                                 # devo attivare tutti quelli con id maggiore e autoadj = -1 e questo che è a -2 lo tengo a -2
                                 tappeto[pacchi_numpy[item]['f0'] - 1].punto_flat += tappeto[pacchi_numpy[item][
                                                                                                 'f0'] - 1].step * (
-                                                                                    tappeto[pacchi_numpy[item][
-                                                                                                'f0'] - 1].aggiustamento_step - 1)
+                                                                                        tappeto[pacchi_numpy[item][
+                                                                                                    'f0'] - 1].aggiustamento_step - 1)
                                 # gestione del pacco con autoadj == -2
                                 tappeto[pacchi_numpy[item]['f0'] - 1].pacchi[pacchi_numpy[item]['f1'] - 1].vendita(
                                     prezzo, tappeto[pacchi_numpy[item]['f0'] - 1], data, ora, self.storico)
@@ -1356,30 +1368,31 @@ class GeneraSimulazione:
 
                                 # se c'è un altro pacco con autoadj == -2 sopra e stato disabled, devo abilitarlo
                                 # controllo anche che l'id tappeto sia lo stesso
-                                if pacchi_numpy[item + tappeto[pacchi_numpy[item]['f0'] - 1].aggiustamento_step][
-                                    'f5'] == -2 \
-                                        and pacchi_numpy[
-                                                    item + tappeto[pacchi_numpy[item]['f0'] - 1].aggiustamento_step][
-                                            'f0'] == pacchi_numpy[item]['f0']:
-                                    # imposto autoadj a 0
-                                    # pacchi_numpy[item - tappeto[pacchi_numpy[item]['f0'] - 1].aggiustamento_step]['f5'] = 0
-                                    # imposto disabled a 0
-                                    pacchi_numpy[item + tappeto[pacchi_numpy[item]['f0'] - 1].aggiustamento_step][
-                                        'f6'] = 0
-                                    # ora devo modificare anche nella struttura del tappeto, non solo nell'array numpy
-                                    # imposto autoadj a 0
-                                    # tappeto[pacchi_numpy[item]['f0'] - 1].pacchi[pacchi_numpy[item]['f1'] - 1].autoadj = 0
-                                    # imposto disabled a 0
-                                    tappeto[pacchi_numpy[item]['f0'] - 1].pacchi[pacchi_numpy[item]['f1'] - 1 + tappeto[
-                                        pacchi_numpy[item]['f0'] - 1].aggiustamento_step].disable = 0
-                                    # devo aggiungere il nuovo pacco al carico short
-                                    tappeto[pacchi_numpy[item]['f0'] - 1].valore_carico_short += \
-                                        tappeto[pacchi_numpy[item]['f0'] - 1].pacchi[
-                                            pacchi_numpy[item]['f1'] - 1 + tappeto[
-                                                pacchi_numpy[item]['f0'] - 1].aggiustamento_step].quantity_sell * \
-                                        tappeto[pacchi_numpy[item]['f0'] - 1].pacchi[
-                                            pacchi_numpy[item]['f1'] - 1 + tappeto[
-                                                pacchi_numpy[item]['f0'] - 1].aggiustamento_step].sell_price
+                                if not pacchi_numpy[item]['f3'] + (tappeto[pacchi_numpy[item]['f0'] - 1].aggiustamento_step * tappeto[pacchi_numpy[item]['f0'] - 1].take) > tappeto[pacchi_numpy[item]['f0'] - 1].aggiustamento_limite_superiore:
+                                    if pacchi_numpy[item + tappeto[pacchi_numpy[item]['f0'] - 1].aggiustamento_step][
+                                        'f5'] == -2 \
+                                            and pacchi_numpy[
+                                                        item + tappeto[pacchi_numpy[item]['f0'] - 1].aggiustamento_step][
+                                                'f0'] == pacchi_numpy[item]['f0']:
+                                        # imposto autoadj a 0
+                                        # pacchi_numpy[item - tappeto[pacchi_numpy[item]['f0'] - 1].aggiustamento_step]['f5'] = 0
+                                        # imposto disabled a 0
+                                        pacchi_numpy[item + tappeto[pacchi_numpy[item]['f0'] - 1].aggiustamento_step][
+                                            'f6'] = 0
+                                        # ora devo modificare anche nella struttura del tappeto, non solo nell'array numpy
+                                        # imposto autoadj a 0
+                                        # tappeto[pacchi_numpy[item]['f0'] - 1].pacchi[pacchi_numpy[item]['f1'] - 1].autoadj = 0
+                                        # imposto disabled a 0
+                                        tappeto[pacchi_numpy[item]['f0'] - 1].pacchi[pacchi_numpy[item]['f1'] - 1 + tappeto[
+                                            pacchi_numpy[item]['f0'] - 1].aggiustamento_step].disable = 0
+                                        # devo aggiungere il nuovo pacco al carico short
+                                        tappeto[pacchi_numpy[item]['f0'] - 1].valore_carico_short += \
+                                            tappeto[pacchi_numpy[item]['f0'] - 1].pacchi[
+                                                pacchi_numpy[item]['f1'] - 1 + tappeto[
+                                                    pacchi_numpy[item]['f0'] - 1].aggiustamento_step].quantity_sell * \
+                                            tappeto[pacchi_numpy[item]['f0'] - 1].pacchi[
+                                                pacchi_numpy[item]['f1'] - 1 + tappeto[
+                                                    pacchi_numpy[item]['f0'] - 1].aggiustamento_step].sell_price
                                 # devo scalare sopra l'autoaggiustamento di x = molt step - 1 verso l'alto
                                 # cerco pacco con autoadj a 3 e con lo stesso id tappeto f0
                                 pacco_meno_3 = np.flatnonzero(
@@ -1564,7 +1577,8 @@ class GeneraSimulazione:
                                     # adesso devo ricostruire tutta la parte di aggiustamento avendo scalato
                                     # riparto dal pacco appena sotto il nuovo 3 e ricostruisco
                                     # finchè non sono sotto al limite inferiore di aggiustamento, modifico
-                                    while pacchi_numpy[item2 + agg_step - i]['f3'] >= tappeto[pacchi_numpy[item2]['f0'] - 1].aggiustamento_limite_inferiore:
+                                    while pacchi_numpy[item2 + agg_step - i]['f3'] >= tappeto[
+                                                pacchi_numpy[item2]['f0'] - 1].aggiustamento_limite_inferiore:
                                         # se i / agg non ha resto --> è pacco 2
                                         # se i / agg ha resto --> è pacco 1
                                         if (i % (agg_step + 1)) == 0:
@@ -1577,7 +1591,8 @@ class GeneraSimulazione:
                                             # ora devo modificare anche nella struttura del tappeto, non solo nell'array numpy
                                             # se il vecchio disabled è 0 allora lo devo togliere dal carico long
                                             if tappeto[pacchi_numpy[item2]['f0'] - 1].pacchi[
-                                                pacchi_numpy[item2]['f1'] - 1 - i + agg_step].disable == 0:
+                                                                        pacchi_numpy[item2][
+                                                                            'f1'] - 1 - i + agg_step].disable == 0:
                                                 # lo tolgo dal carico long
                                                 tappeto[pacchi_numpy[item2]['f0'] - 1].valore_carico_long -= \
                                                     tappeto[pacchi_numpy[item2]['f0'] - 1].pacchi[
@@ -1603,7 +1618,8 @@ class GeneraSimulazione:
                                             # ora devo modificare anche nella struttura del tappeto, non solo nell'array numpy
                                             # se il vecchio disabled è 0 allora lo devo togliere dal carico long
                                             if tappeto[pacchi_numpy[item2]['f0'] - 1].pacchi[
-                                                                pacchi_numpy[item2]['f1'] - 1 - i + agg_step].disable == 0:
+                                                                        pacchi_numpy[item2][
+                                                                            'f1'] - 1 - i + agg_step].disable == 0:
                                                 # lo tolgo dal carico long
                                                 tappeto[pacchi_numpy[item2]['f0'] - 1].valore_carico_long -= \
                                                     tappeto[pacchi_numpy[item2]['f0'] - 1].pacchi[
@@ -1627,7 +1643,8 @@ class GeneraSimulazione:
                                 # lo scalare del valore di carico parte dal pacco appena sopra il pacco appena eseguito
                                 # modifico il carico di tutti i pacchi con carico == 1 e con id tappeto
                                 pacco_carico = np.flatnonzero(
-                                    np.logical_and(pacchi_numpy['f7'] == 1, pacchi_numpy['f0'] == pacchi_numpy[item]['f0']))
+                                    np.logical_and(pacchi_numpy['f7'] == 1,
+                                                   pacchi_numpy['f0'] == pacchi_numpy[item]['f0']))
                                 # parto dal basso, così i primi n pacchi in carico che trovo li cambio
                                 # a carica = 0 e stato = ACQAZ_L
                                 z = 1
@@ -1744,24 +1761,24 @@ class GeneraSimulazione:
                                 # for val in tappeto[pacchi_numpy[item]['f0'] - 1].pacchi:
                                 # writer.writerow([tappeto[pacchi_numpy[item]['f0'] - 1].pacchi])
                                 # strutture.append(copy.deepcopy(tappeto[pacchi_numpy[item]['f0'] - 1].pacchi))
-                            """
-                            filename = "C:\\ope\\" + str(len(tappeto[0].operazioni)) + ".csv"
-                            with open(filename, 'w', newline='') as csvfile:
-                                writer = csv.writer(csvfile)
-                                writer.writerow(
-                                    ['Pacco', 'Operazione', 'Acquisto', 'Vendita', 'Autoagg', 'Disable', 'Carica',
-                                     'n_Operazione', 'n_Autoagg', 'n_Disable', 'n_Carica'])
-                                for idx, item in enumerate(tappeto[0].pacchi):
-                                    if item.autoadj != 0:
-                                        tipo = item.order_type + '_A'
-                                    else:
-                                        tipo = item.order_type
+                            if stampa:
+                                filename = "C:\\ope\\" + str(len(tappeto[0].operazioni)) + ".csv"
+                                with open(filename, 'w', newline='') as csvfile:
+                                    writer = csv.writer(csvfile)
                                     writer.writerow(
-                                        [item.package_number, tipo, item.buy_price, item.sell_price, item.autoadj,
-                                         item.disable, item.carica, pacchi_numpy[idx]['f2'],
-                                         pacchi_numpy[idx]['f5'], pacchi_numpy[idx]['f6'], pacchi_numpy[idx]['f7']])
-                                csvfile.close()
-                            """
+                                        ['Pacco', 'Operazione', 'Acquisto', 'Vendita', 'Autoagg', 'Disable', 'Carica',
+                                         'n_Operazione', 'n_Autoagg', 'n_Disable', 'n_Carica'])
+                                    for idx, item in enumerate(tappeto[0].pacchi):
+                                        if item.autoadj != 0:
+                                            tipo = item.order_type + '_A'
+                                        else:
+                                            tipo = item.order_type
+                                        writer.writerow(
+                                            [item.package_number, tipo, item.buy_price, item.sell_price, item.autoadj,
+                                             item.disable, item.carica, pacchi_numpy[idx]['f2'],
+                                             pacchi_numpy[idx]['f5'], pacchi_numpy[idx]['f6'], pacchi_numpy[idx]['f7']])
+                                    csvfile.close()
+
                 self.data_inizio += datetime.timedelta(days=1)
                 csvfile.close()
                 # opfile.close()
