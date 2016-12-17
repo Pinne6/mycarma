@@ -11,6 +11,7 @@ import csv
 stampa = False
 # Create your models here.
 
+
 class CalcoloPacco:
     def __init__(self, primo_acquisto, copertura, capitale, incremento_step, step_iniziale, step_finale):
         self.primo_acquisto = primo_acquisto
@@ -169,18 +170,19 @@ class Pacco:
 
     def acquisto(self, prezzo, tappeto, data, ora, storico):
         self.nr_acquisti += 1
-        self.buy_price_real = prezzo
+        if tappeto.con_gap:
+            self.buy_price_real = prezzo
         if self.carica == 1:
             gain = round((self.sell_price_real * self.quantity_sell) - (self.buy_price_real * self.quantity_buy), 4)
             self.gain += gain
             storico[len(storico) - 1].gain += gain
-            pmc_gain = (prezzo - tappeto.pmc) * self.quantity_buy
+            pmc_gain = (self.buy_price_real - tappeto.pmc) * self.quantity_buy
             self.pmc_gain += pmc_gain * (-1)
         else:
             gain = 0
             self.aggiustamento_carico = round(self.buy_price_real * self.quantity_buy, 2)
             pmc_gain = 0
-        commissione = self.calcola_commissioni(self.quantity_buy, prezzo, tappeto)
+        commissione = self.calcola_commissioni(self.quantity_buy, self.buy_price_real, tappeto)
         self.commissioni += commissione
         if self.order_type == "ACQAZ_S":
             tappeto.capitale += round((self.sell_price_real * self.quantity_buy) - commissione + gain, 2)
@@ -190,7 +192,7 @@ class Pacco:
             tappeto.capitale -= round((self.buy_price_real * self.quantity_buy) + commissione, 2)
             costo_operazione = round(((self.buy_price_real * self.quantity_buy) + commissione) * -1, 2)
             tappeto.pmc_capitale -= (self.buy_price_real * self.quantity_buy) + commissione
-        op = Operazione(self.order_type, data, ora, prezzo, self.quantity_buy, gain, commissione,
+        op = Operazione(self.order_type, data, ora, self.buy_price_real, self.quantity_buy, gain, commissione,
                         self.buy_price, round(tappeto.capitale, 2), round(costo_operazione, 2), 0, 0, 0, self.autoadj,
                         self.aggiustamento_carico, 0, 0, 0, 0, pmc_gain, round(tappeto.pmc_capitale, 2), 0,
                         tappeto.punto_flat)
@@ -198,7 +200,7 @@ class Pacco:
         # tappeto.operazioni.append(Operazione(self.order_type, data, ora, prezzo, self.quantity_buy, gain, commissione,
         #                                      self.buy_price, round(tappeto.capitale, 2), round(costo_operazione, 2),
         #                                      copy.deepcopy(tappeto.pacchi)))
-        tappeto.operazione(self.order_type, data, ora, prezzo, self.quantity_buy, gain, commissione, self.carica,
+        tappeto.operazione(self.order_type, data, ora, self.buy_price_real, self.quantity_buy, gain, commissione, self.carica,
                            self.aggiustamento_carico)
         # if data in storico:
         #    i = storico.index(data)
@@ -250,18 +252,19 @@ class Pacco:
 
     def vendita(self, prezzo, tappeto, data, ora, storico):
         self.nr_vendite += 1
-        self.sell_price_real = prezzo
+        if tappeto.con_gap:
+            self.sell_price_real = prezzo
         if self.carica == 1:
             gain = round((prezzo * self.quantity_sell) - (self.buy_price_real * self.quantity_buy), 4)
             self.gain += gain
             storico[len(storico) - 1].gain += gain
-            pmc_gain = (prezzo - tappeto.pmc) * self.quantity_sell
+            pmc_gain = (self.sell_price_real - tappeto.pmc) * self.quantity_sell
             self.pmc_gain += pmc_gain
         else:
             gain = 0
             self.aggiustamento_carico = round(self.sell_price_real * self.quantity_sell, 2)
             pmc_gain = 0
-        commissione = self.calcola_commissioni(self.quantity_sell, prezzo, tappeto)
+        commissione = self.calcola_commissioni(self.quantity_sell, self.sell_price_real, tappeto)
         self.commissioni += commissione
         if self.order_type == "VENAZ_S":
             tappeto.capitale -= round((self.quantity_sell * self.sell_price_real) + commissione, 2)
@@ -271,15 +274,16 @@ class Pacco:
             tappeto.capitale += round((self.quantity_sell * self.sell_price_real) - commissione, 2)
             costo_operazione = round((self.quantity_sell * self.sell_price_real) - commissione, 2)
             tappeto.pmc_capitale += (self.quantity_sell * self.sell_price_real) + pmc_gain - commissione
-        op = Operazione(self.order_type, data, ora, prezzo, self.quantity_sell, gain, commissione,
+        op = Operazione(self.order_type, data, ora, self.sell_price_real, self.quantity_sell, gain, commissione,
                         self.buy_price, round(tappeto.capitale, 2), round(costo_operazione, 2), 0, 0, 0, self.autoadj,
                         self.aggiustamento_carico, 0, 0, 0, 0, pmc_gain, round(tappeto.pmc_capitale, 2), 0,
                         tappeto.punto_flat)
         # op.paccus = copy.deepcopy(tappeto.pacchi)
-        # tappeto.operazioni.append(Operazione(self.order_type, data, ora, prezzo, self.quantity_sell, gain, commissione,
+        # tappeto.operazioni.append(Operazione(self.order_type, data, ora, prezzo, self.quantity_sell, gain,
+        #                                       commissione,
         #                                      self.sell_price, round(tappeto.capitale, 2), round(costo_operazione, 2),
         #                                      copy.deepcopy(tappeto.pacchi)))
-        tappeto.operazione(self.order_type, data, ora, prezzo, self.quantity_sell, gain, commissione, self.carica,
+        tappeto.operazione(self.order_type, data, ora, self.sell_price_real, self.quantity_sell, gain, commissione, self.carica,
                            self.aggiustamento_carico)
         for item in tappeto.storico:
             if item.data == data:
@@ -400,7 +404,7 @@ class Tappeto:
                  crea_quantita_acquisto, crea_quantita_vendita, crea_primo_acquisto, crea_checkFX, tick, tipo_tappeto,
                  percentuale_incrementale, tipo_steptake, tipo_commissione, commissione, min_commissione,
                  max_commissione, in_carico, while_counter, aggiustamento, aggiustamento_step,
-                 aggiustamento_limite_inferiore, aggiustamento_limite_superiore, capitale):
+                 aggiustamento_limite_inferiore, aggiustamento_limite_superiore, capitale, con_gap):
         self.isin = crea_isin
         self.limite_inferiore = round(crea_limite_inferiore, tick)
         self.limite_superiore = round(crea_limite_superiore, tick)
@@ -459,6 +463,7 @@ class Tappeto:
             self.tick = 5
         else:
             self.tick = 4
+        self.con_gap = con_gap
         check = round(round((self.primo_acquisto - self.limite_inferiore), self.tick) / self.step, self.tick)
         check2 = round(round((self.limite_superiore - self.limite_inferiore), self.tick) / self.step, self.tick)
         # controlli per verificare che i parametri abbiano senso
@@ -652,6 +657,11 @@ class GeneraSimulazione:
             self.aggiustamento_limite_inferiore = float(request.POST.get('aggiustamento_limite_inferiore'))
             self.aggiustamento_limite_superiore = float(request.POST.get('aggiustamento_limite_superiore'))
             self.capitale = float(request.POST.get('capitale'))
+        self.con_gap = request.POST.get('con_gap')
+        if self.con_gap == 'True':
+            self.con_gap = True
+        else:
+            self.con_gap = False
         self.tappeto = []
         self.storico = []
         self.take_array = []
@@ -687,7 +697,7 @@ class GeneraSimulazione:
                                       self.tipo_commissione, self.commissione, self.min_commissione,
                                       self.max_commissione, self.crea_in_carico, while_counter, self.aggiustamento,
                                       self.aggiustamento_step, self.aggiustamento_limite_inferiore,
-                                      self.aggiustamento_limite_superiore, self.capitale)
+                                      self.aggiustamento_limite_superiore, self.capitale, self.con_gap)
             self.tappeto.append(tappeto_singolo)
             # se è il primo giro devo creare l'array, se è dopo allora devo appendere i pacchi all'array già creato
             if while_counter == 1:

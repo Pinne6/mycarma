@@ -1,6 +1,8 @@
 # Create your views here.
 
 """
+1.07.00 - 17/12/2016
+- aggiunta opione senza gap
 1.06.01 - 14/12/2016
 - fix aggiustamento su pacco -3
 - fix per gestire situazione in cui il prezzo esce dai limiti dell'aggiustamento
@@ -135,6 +137,7 @@ from django import forms
 import csv
 import json
 
+
 def json_serial(obj):
     """JSON serializer for objects not serializable by default json code"""
 
@@ -241,7 +244,7 @@ def costruzione_pacco(request):
 
 # line_profiler
 def index(request):
-    version = '1.06.00'
+    version = '1.07.00'
     if not request.user:
         user_id = User.objects.get(username='Anonymous')
     elif request.user.is_anonymous:
@@ -342,6 +345,7 @@ def index(request):
         request.session['aggiustamento_limite_inferiore'] = simulazione.aggiustamento_limite_inferiore
         request.session['aggiustamento_limite_superiore'] = simulazione.aggiustamento_limite_superiore
         request.session['capitale'] = simulazione.capitale
+        request.session['con_gap'] = simulazione.con_gap
         # json_str = json.dumps([ob.__dict__ for ob in tappeto[0].operazioni], default=json_serial)
         # request.session['operazioni'] = json_str
         form_s = FormTakeSingolo(request=request, isin_conf=isin_conf)

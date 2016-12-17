@@ -99,6 +99,10 @@ class FormTakeSingolo(forms.Form):
         self.fields['capitale'] = forms.DecimalField(
             widget=forms.NumberInput(attrs={'class': 'form-control', 'step': 0.0001, 'placeholder': 20000}),
             initial=self.request.session.get('capitale'), label='Capitale iniziale')
+        self.fields['con_gap'] = forms.ChoiceField(
+            widget=forms.Select(attrs={'id': 'con_gap', 'class': 'form-control'}),
+            choices=[(True, 'Sì'), (False, 'No')], label='Con gap?',
+            initial=self.request.session.get('con_gap'))
 
     def clean_crea_data_inizio(self):
 
