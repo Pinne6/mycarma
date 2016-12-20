@@ -1,6 +1,8 @@
 # Create your views here.
 
 """
+1.07.01 - 20/12/2016
+- corretto verifica che con nuovo pacco 2 non si è fuori dal tappeto
 1.07.00 - 17/12/2016
 - aggiunta opione senza gap
 1.06.01 - 14/12/2016
@@ -244,7 +246,7 @@ def costruzione_pacco(request):
 
 # line_profiler
 def index(request):
-    version = '1.07.00'
+    version = '1.07.01'
     if not request.user:
         user_id = User.objects.get(username='Anonymous')
     elif request.user.is_anonymous:

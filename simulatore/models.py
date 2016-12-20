@@ -8,7 +8,7 @@ import os.path
 import copy
 import csv
 
-stampa = False
+stampa = True
 # Create your models here.
 
 
@@ -859,9 +859,9 @@ class GeneraSimulazione:
 
                                 # se c'è un altro pacco con autoadj == 2 sotto e stato disabled, devo abilitarlo
                                 # controllo anche che l'id tappeto sia lo stesso
-                                if not pacchi_numpy[item]['f2'] - (
+                                if not pacchi_numpy[item]['f3'] - (
                                     tappeto[pacchi_numpy[item]['f0'] - 1].aggiustamento_step * tappeto[
-                                        pacchi_numpy[item]['f0'] - 1].take) < tappeto[
+                                        pacchi_numpy[item]['f0'] - 1].step) < tappeto[
                                             pacchi_numpy[item]['f0'] - 1].aggiustamento_limite_inferiore:
                                     if pacchi_numpy[item - tappeto[pacchi_numpy[item]['f0'] - 1].aggiustamento_step][
                                         'f5'] == 2 \
@@ -1378,7 +1378,7 @@ class GeneraSimulazione:
 
                                 # se c'è un altro pacco con autoadj == -2 sopra e stato disabled, devo abilitarlo
                                 # controllo anche che l'id tappeto sia lo stesso
-                                if not pacchi_numpy[item]['f3'] + (tappeto[pacchi_numpy[item]['f0'] - 1].aggiustamento_step * tappeto[pacchi_numpy[item]['f0'] - 1].take) > tappeto[pacchi_numpy[item]['f0'] - 1].aggiustamento_limite_superiore:
+                                if not pacchi_numpy[item]['f4'] + (tappeto[pacchi_numpy[item]['f0'] - 1].aggiustamento_step * tappeto[pacchi_numpy[item]['f0'] - 1].step) > tappeto[pacchi_numpy[item]['f0'] - 1].aggiustamento_limite_superiore:
                                     if pacchi_numpy[item + tappeto[pacchi_numpy[item]['f0'] - 1].aggiustamento_step][
                                         'f5'] == -2 \
                                             and pacchi_numpy[
