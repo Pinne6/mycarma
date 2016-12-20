@@ -8,7 +8,7 @@ import os.path
 import copy
 import csv
 
-stampa = True
+stampa = False
 # Create your models here.
 
 
@@ -211,7 +211,11 @@ class Pacco:
             if item.data == data:
                 item.nr_acquisti += 1
                 item.commissioni += commissione
-                item.profitto += (gain - commissione)
+                item.gain += pmc_gain
+                item.profitto += (pmc_gain - commissione)
+                item.liquidita = tappeto.pmc_capitale
+                item.valore_in_carico = tappeto.valore_in_carico
+                item.patrimonio = tappeto.patrimonio
                 break
         storico[len(storico) - 1].nr_acquisti += 1
         storico[len(storico) - 1].commissioni += commissione
@@ -381,6 +385,9 @@ class Storico:
         self.gain = 0
         self.commissioni = 0
         self.profitto = 0
+        self.liquidita = 0
+        self.valore_in_carico = 0
+        self.patrimonio = 0
 
     def reset(self):
         self.valore = 0
@@ -390,6 +397,9 @@ class Storico:
         self.gain = 0
         self.commissioni = 0
         self.profitto = 0
+        self.liquidita = 0
+        self.valore_in_carico = 0
+        self.patrimonio = 0
         return
 
 
