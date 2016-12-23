@@ -1,6 +1,8 @@
 # Create your views here.
 
 """
+1.07.02 - 23/12/2016
+- aggiunta tabella con performance annuale
 1.07.01 - 20/12/2016
 - corretto verifica che con nuovo pacco 2 non si è fuori dal tappeto
 1.07.00 - 17/12/2016
@@ -246,7 +248,7 @@ def costruzione_pacco(request):
 
 # line_profiler
 def index(request):
-    version = '1.07.01'
+    version = '1.07.02'
     if not request.user:
         user_id = User.objects.get(username='Anonymous')
     elif request.user.is_anonymous:
@@ -284,7 +286,7 @@ def index(request):
             time = datetime.datetime.today() - start_time
             #
             # calcolo e memorizzo le statistiche
-            simsingolamax, take_array, take_array_size = simulazione.genera_statistiche(request, tappeto, time)
+            simsingolamax, take_array, take_array_size, perf = simulazione.genera_statistiche(request, tappeto, time)
             #
         # context è un dizionario che associa variabili del template a oggetti python
         if request.POST.get('bottone') == 'simula':
@@ -325,6 +327,7 @@ def index(request):
             take_array = []
             take_array_size = 0
             filename_url = ''
+            perf = []
         request.session['isin'] = simulazione.crea_isin
         request.session['data_inizio'] = datetime.datetime.strftime(simulazione.data_inizio_2, "%d/%m/%Y")
         request.session['data_fine'] = datetime.datetime.strftime(simulazione.data_fine_2, "%d/%m/%Y")
@@ -384,7 +387,8 @@ def index(request):
             'form_singolo': form_s,
             'form_variabile': form_v,
             'test': test,
-            'filename': filename_url
+            'filename': filename_url,
+            'perf' : perf
         }
     else:
         if settings.DEBUG:

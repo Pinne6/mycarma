@@ -9,6 +9,8 @@ import copy
 import csv
 
 stampa = False
+
+
 # Create your models here.
 
 
@@ -200,8 +202,8 @@ class Pacco:
         # tappeto.operazioni.append(Operazione(self.order_type, data, ora, prezzo, self.quantity_buy, gain, commissione,
         #                                      self.buy_price, round(tappeto.capitale, 2), round(costo_operazione, 2),
         #                                      copy.deepcopy(tappeto.pacchi)))
-        tappeto.operazione(self.order_type, data, ora, self.buy_price_real, self.quantity_buy, gain, commissione, self.carica,
-                           self.aggiustamento_carico)
+        tappeto.operazione(self.order_type, data, ora, self.buy_price_real, self.quantity_buy, gain, commissione,
+                           self.carica, self.aggiustamento_carico)
         # if data in storico:
         #    i = storico.index(data)
         #    storico[i].acquisti += 1
@@ -287,13 +289,17 @@ class Pacco:
         #                                       commissione,
         #                                      self.sell_price, round(tappeto.capitale, 2), round(costo_operazione, 2),
         #                                      copy.deepcopy(tappeto.pacchi)))
-        tappeto.operazione(self.order_type, data, ora, self.sell_price_real, self.quantity_sell, gain, commissione, self.carica,
-                           self.aggiustamento_carico)
+        tappeto.operazione(self.order_type, data, ora, self.sell_price_real, self.quantity_sell, gain, commissione,
+                           self.carica, self.aggiustamento_carico)
         for item in tappeto.storico:
             if item.data == data:
                 item.nr_vendite += 1
                 item.commissioni += commissione
-                item.profitto += (gain - commissione)
+                item.gain += pmc_gain
+                item.profitto += (pmc_gain - commissione)
+                item.liquidita = tappeto.pmc_capitale
+                item.valore_in_carico = tappeto.valore_in_carico
+                item.patrimonio = tappeto.patrimonio
                 break
         storico[len(storico) - 1].nr_vendite += 1
         storico[len(storico) - 1].commissioni += commissione
@@ -411,7 +417,7 @@ class Tappeto:
     take = 0
 
     def __init__(self, crea_isin, crea_limite_inferiore, crea_limite_superiore, crea_step, crea_take,
-                 crea_quantita_acquisto, crea_quantita_vendita, crea_primo_acquisto, crea_checkFX, tick, tipo_tappeto,
+                 crea_quantita_acquisto, crea_quantita_vendita, crea_primo_acquisto, crea_checkfx, tick, tipo_tappeto,
                  percentuale_incrementale, tipo_steptake, tipo_commissione, commissione, min_commissione,
                  max_commissione, in_carico, while_counter, aggiustamento, aggiustamento_step,
                  aggiustamento_limite_inferiore, aggiustamento_limite_superiore, capitale, con_gap):
@@ -423,7 +429,7 @@ class Tappeto:
         self.quantita_acquisto = round(crea_quantita_acquisto, tick)
         self.quantita_vendita = round(crea_quantita_vendita, tick)
         self.primo_acquisto = round(crea_primo_acquisto, tick)
-        self.checkFX = crea_checkFX
+        self.checkFX = crea_checkfx
         self.tick = tick
         self.tipo_tappetino = tipo_tappeto
         self.percentuale_incrementale = percentuale_incrementale
@@ -458,6 +464,7 @@ class Tappeto:
         self.valore_carico_aggiustamento_short = 0
         self.aggiustamento_carichi = 0
         self.capitale = capitale
+        self.capitale_iniziale = capitale
         self.valore_in_carico = 0
         self.marginazione = 0
         self.marginazione_fattore = 0.8
@@ -469,6 +476,7 @@ class Tappeto:
         self.pmc_profitto = 0
         self.negativo = False
         self.rendimento_capitale = 0
+        self.perf_annuale = []
         if self.checkFX is True:
             self.tick = 5
         else:
@@ -728,11 +736,17 @@ class GeneraSimulazione:
                 tappeto[c].storico.append(Storico(data_ciclo))
                 data_ciclo += datetime.timedelta(days=1)
         # per ogni data cerco il file del tick by tick
+        for item in tappeto:
+            item.perf_annuale.append((self.data_inizio, item.pmc_capitale, item.valore_in_carico, item.patrimonio))
         for i in range(data_diff.days + 1):
             if settings.SERVER_DEV is False:
                 filename = folder + self.crea_isin + "/" + self.data_inizio.strftime("%Y%m%d") + ".csv"
             else:
                 filename = folder + self.crea_isin + "\\" + self.data_inizio.strftime("%Y%m%d") + ".csv"
+            if self.data_inizio.month == 12 and self.data_inizio.day == 31:
+                for item in tappeto:
+                    item.perf_annuale.append((self.data_inizio, item.pmc_capitale, item.valore_in_carico,
+                                              item.patrimonio))
             # per ogni file giornaliero ciclo tra tutti i prezzi
             if os.path.exists(filename):
                 with open(filename, newline='') as csvfile:
@@ -801,7 +815,7 @@ class GeneraSimulazione:
                             # - se stato aggiustamento == 2, devo attivare n pacchi sopra questo, n = molt step - 1
                             # - se c'è un altro pacco con autoadj == 2 sotto e stato disabled, devo abilitarlo
                             # - devo scalare sopra l'autoaggiustamento di x = molt step verso il basso
-                            # - devo scalare tutto il carico di n = molt step - 1, quindi il pacco z ha carico del pacco z + n
+                            # - devo scalare tutto il carico di n = molt step - 1, il pacco z ha carico del pacco z + n
                             #   lo scalare del valore di carico parte dal pacco appena sopra il pacco appena eseguito
                             # - devo modificare gli ultimi n pacchi long (n = agg_step - 1) da VENAZ_L a VENAZ_S
                             #   devo cambiare il carico da long a short, toglierli da carica
@@ -809,9 +823,10 @@ class GeneraSimulazione:
                             elif pacchi_numpy[item]['f5'] == 2 and pacchi_numpy[item]['f2'] == 0:
                                 tappeto[pacchi_numpy[item]['f0'] - 1].punto_flat -= tappeto[pacchi_numpy[item][
                                                                                                 'f0'] - 1].step * (
-                                                                                    tappeto[pacchi_numpy[item][
-                                                                                                'f0'] - 1].aggiustamento_step - 1)
-                                # devo attivare tutti quelli con id maggiore e autoadj = 1 e questo che è a 2 lo tengo a 2
+                                                                                        tappeto[pacchi_numpy[item][
+                                                                                                    'f0'] - 1].
+                                                                                        aggiustamento_step - 1)
+                                # devo attivare tutti quelli con id maggiore e autoadj = 1 e questo che è a 2 lo tengo 2
 
                                 # gestione del pacco con autoadj == 2
                                 tappeto[pacchi_numpy[item]['f0'] - 1].pacchi[pacchi_numpy[item]['f1'] - 1].acquisto(
@@ -823,7 +838,8 @@ class GeneraSimulazione:
                                 # imposto carico a 1
                                 pacchi_numpy[item]['f7'] = 1
 
-                                # prendo l'aggiustamento step del tappeto corrispondente a questo pacco (-1 perchè conto da 0)
+                                # prendo l'aggiustamento step del tappeto corrispondente a questo pacco
+                                # (-1 perchè conto da 0)
                                 # così so quanti pacchi in stato == 1 devo attivare (aggiustamento_step - 1)
                                 numero_pacchi_da_attivare = tappeto[pacchi_numpy[item]['f0'] - 1].aggiustamento_step
                                 i = 1
@@ -838,14 +854,16 @@ class GeneraSimulazione:
                                     pacchi_numpy[item + i]['f7'] = 1
                                     # ora devo modificare anche nella struttura del tappeto, non solo nell'array numpy
                                     # imposto autoadj a 0
-                                    # tappeto[pacchi_numpy[item]['f0'] - 1].pacchi[pacchi_numpy[item]['f1'] - 1 + i].autoadj = 0
+                                    # tappeto[pacchi_numpy[item]['f0'] - 1].
+                                    # pacchi[pacchi_numpy[item]['f1'] - 1 + i].autoadj = 0
                                     # imposto disabled a 0
                                     tappeto[pacchi_numpy[item]['f0'] - 1].pacchi[
                                         pacchi_numpy[item]['f1'] - 1 + i].disable = 0
                                     # imposto stato in VENAZ_L
                                     tappeto[pacchi_numpy[item]['f0'] - 1].pacchi[
                                         pacchi_numpy[item]['f1'] - 1 + i].order_type = 'VENAZ_L'
-                                    # imposto un finto acquisto al prezzo di carico: pacco_acq + (step*aggiustamento_step)
+                                    # imposto un finto acquisto al prezzo di carico:
+                                    # pacco_acq + (step*aggiustamento_step)
                                     # imposto il buy_real_price
                                     tappeto[pacchi_numpy[item]['f0'] - 1].pacchi[
                                         pacchi_numpy[item]['f1'] - 1 + i].buy_price_real = \
@@ -853,8 +871,9 @@ class GeneraSimulazione:
                                                   pacchi_numpy[item]['f1'] - 1 + i].buy_price + (
                                                   tappeto[pacchi_numpy[item]['f0'] - 1].step * (tappeto[
                                                                                                     pacchi_numpy[item][
-                                                                                                        'f0'] - 1].aggiustamento_step - 1)),
-                                              5)
+                                                                                                        'f0'] - 1].
+                                                                                                aggiustamento_step - 1))
+                                              , 5)
                                     # imposto il valore di carico di aggiustamento al buy price * quantita
                                     tappeto[pacchi_numpy[item]['f0'] - 1].pacchi[
                                         pacchi_numpy[item]['f1'] - 1 + i].aggiustamento_carico = round(
@@ -870,25 +889,30 @@ class GeneraSimulazione:
                                 # se c'è un altro pacco con autoadj == 2 sotto e stato disabled, devo abilitarlo
                                 # controllo anche che l'id tappeto sia lo stesso
                                 if not pacchi_numpy[item]['f3'] - (
-                                    tappeto[pacchi_numpy[item]['f0'] - 1].aggiustamento_step * tappeto[
-                                        pacchi_numpy[item]['f0'] - 1].step) < tappeto[
+                                            tappeto[pacchi_numpy[item]['f0'] - 1].aggiustamento_step * tappeto[
+                                                pacchi_numpy[item]['f0'] - 1].step) < tappeto[
                                             pacchi_numpy[item]['f0'] - 1].aggiustamento_limite_inferiore:
                                     if pacchi_numpy[item - tappeto[pacchi_numpy[item]['f0'] - 1].aggiustamento_step][
                                         'f5'] == 2 \
                                             and pacchi_numpy[
-                                                        item - tappeto[pacchi_numpy[item]['f0'] - 1].aggiustamento_step][
+                                                        item - tappeto[
+                                                            pacchi_numpy[item]['f0'] - 1].aggiustamento_step][
                                                 'f0'] == pacchi_numpy[item]['f0']:
                                         # imposto autoadj a 0
-                                        # pacchi_numpy[item - tappeto[pacchi_numpy[item]['f0'] - 1].aggiustamento_step]['f5'] = 0
+                                        # pacchi_numpy[item -
+                                        # tappeto[pacchi_numpy[item]['f0'] - 1].aggiustamento_step]['f5'] = 0
                                         # imposto disabled a 0
                                         pacchi_numpy[item - tappeto[pacchi_numpy[item]['f0'] - 1].aggiustamento_step][
                                             'f6'] = 0
-                                        # ora devo modificare anche nella struttura del tappeto, non solo nell'array numpy
+                                        # ora devo modificare anche nella struttura del tappeto,
+                                        # non solo nell'array numpy
                                         # imposto autoadj a 0
-                                        # tappeto[pacchi_numpy[item]['f0'] - 1].pacchi[pacchi_numpy[item]['f1'] - 1].autoadj = 0
+                                        # tappeto[pacchi_numpy[item]['f0'] - 1].
+                                        # pacchi[pacchi_numpy[item]['f1'] - 1].autoadj = 0
                                         # imposto disabled a 0
-                                        tappeto[pacchi_numpy[item]['f0'] - 1].pacchi[pacchi_numpy[item]['f1'] - 1 - tappeto[
-                                            pacchi_numpy[item]['f0'] - 1].aggiustamento_step].disable = 0
+                                        tappeto[pacchi_numpy[item]['f0'] - 1].pacchi[
+                                            pacchi_numpy[item]['f1'] - 1 - tappeto[
+                                                pacchi_numpy[item]['f0'] - 1].aggiustamento_step].disable = 0
                                         # devo aggiungere il nuovo pacco al carico long
                                         tappeto[pacchi_numpy[item]['f0'] - 1].valore_carico_long += \
                                             tappeto[pacchi_numpy[item]['f0'] - 1].pacchi[
@@ -924,7 +948,8 @@ class GeneraSimulazione:
                                             pacchi_numpy[item2 - agg_step]['f2'] = 1
                                             # imposto disable a 1
                                             pacchi_numpy[item2 - agg_step]['f6'] = 1
-                                            # ora devo modificare anche nella struttura del tappeto, non solo nell'array numpy
+                                            # ora devo modificare anche nella struttura del tappeto,
+                                            # non solo nell'array numpy
                                             # imposto autoadj a -1
                                             tappeto[pacchi_numpy[item2]['f0'] - 1].pacchi[
                                                 pacchi_numpy[item2]['f1'] - 1 - agg_step].autoadj = -1
@@ -942,7 +967,8 @@ class GeneraSimulazione:
                                             # pacchi_numpy[item2]['f5'] = -1
                                             # imposto disabled a 1
                                             # pacchi_numpy[item2]['f6'] = 1
-                                            # ora devo modificare anche nella struttura del tappeto, non solo nell'array numpy
+                                            # ora devo modificare anche nella struttura del tappeto,
+                                            # non solo nell'array numpy
                                             # imposto autoadj a -1
                                             # tappeto[pacchi_numpy[item2]['f0'] - 1].pacchi[
                                             #     pacchi_numpy[item2]['f1'] - 1].autoadj = -1
@@ -978,11 +1004,14 @@ class GeneraSimulazione:
                                                     else:
                                                         # imposto disabled a 1
                                                         pacchi_numpy[item2 - agg_step + i]['f6'] = 1
-                                                    # ora devo modificare anche nella struttura del tappeto, non solo nell'array numpy
-                                                    # se il vecchio disabled è 0 allora lo devo togliere dal carico short
+                                                    # ora devo modificare anche nella struttura del tappeto,
+                                                    # non solo nell'array numpy
+                                                    # se il vecchio disabled è 0 allora lo devo togliere
+                                                    # dal carico short
                                                     if tappeto[pacchi_numpy[item2]['f0'] - 1].pacchi[
                                                                                 pacchi_numpy[item2][
-                                                                                    'f1'] - 1 + i - agg_step].disable == 0:
+                                                                                    'f1'] - 1 + i - agg_step].disable \
+                                                            == 0:
                                                         # lo tolgo dal carico short
                                                         tappeto[pacchi_numpy[item2]['f0'] - 1].valore_carico_short -= \
                                                             tappeto[pacchi_numpy[item2]['f0'] - 1].pacchi[
@@ -1013,11 +1042,13 @@ class GeneraSimulazione:
                                                     pacchi_numpy[item2 - agg_step + i]['f2'] = 1
                                                     # imposto disabled a 1
                                                     pacchi_numpy[item2 - agg_step + i]['f6'] = 1
-                                                    # ora devo modificare anche nella struttura del tappeto, non solo nell'array numpy
+                                                    # ora devo modificare anche nella struttura del tappeto,
+                                                    # non solo nell'array numpy
                                                     # se il vecchio disabled è 0 allora lo devo togliere dal carico long
                                                     if tappeto[pacchi_numpy[item2]['f0'] - 1].pacchi[
                                                                                 pacchi_numpy[item2][
-                                                                                    'f1'] - 1 + i - agg_step].disable == 0:
+                                                                                    'f1'] - 1 + i - agg_step].disable \
+                                                            == 0:
                                                         # lo tolgo dal carico short
                                                         tappeto[pacchi_numpy[item2]['f0'] - 1].valore_carico_short -= \
                                                             tappeto[pacchi_numpy[item2]['f0'] - 1].pacchi[
@@ -1092,7 +1123,8 @@ class GeneraSimulazione:
                                             pacchi_numpy[item2 - agg_step + i]['f2'] = 1
                                             # imposto disabled a 1
                                             pacchi_numpy[item2 - agg_step + i]['f6'] = 1
-                                            # ora devo modificare anche nella struttura del tappeto, non solo nell'array numpy
+                                            # ora devo modificare anche nella struttura del tappeto,
+                                            # non solo nell'array numpy
                                             # se il vecchio disabled è 0 allora lo devo togliere dal carico short
                                             if tappeto[pacchi_numpy[item2]['f0'] - 1].pacchi[
                                                                         pacchi_numpy[item2][
@@ -1119,7 +1151,8 @@ class GeneraSimulazione:
                                             pacchi_numpy[item2 - agg_step + i]['f2'] = 1
                                             # imposto disabled a 1
                                             pacchi_numpy[item2 - agg_step + i]['f6'] = 1
-                                            # ora devo modificare anche nella struttura del tappeto, non solo nell'array numpy
+                                            # ora devo modificare anche nella struttura del tappeto,
+                                            # non solo nell'array numpy
                                             # se il vecchio disabled è 0 allora lo devo togliere dal carico short
                                             if tappeto[pacchi_numpy[item2]['f0'] - 1].pacchi[
                                                                         pacchi_numpy[item2][
@@ -1143,7 +1176,8 @@ class GeneraSimulazione:
                                         if (item2 - agg_step + i) >= len(tappeto[pacchi_numpy[item2]['f0'] - 1].pacchi):
                                             break
 
-                                # devo scalare tutto il carico di n = molt step - 1, quindi il pacco z ha carico del pacco z + n
+                                # devo scalare tutto il carico di n = molt step - 1,
+                                # quindi il pacco z ha carico del pacco z + n
                                 # lo scalare del valore di carico parte dal pacco appena sopra il pacco appena eseguito
                                 # modifico il carico di tutti i pacchi con carico = 1 e con id tappeto
                                 pacco_carico = np.flatnonzero(
@@ -1179,7 +1213,8 @@ class GeneraSimulazione:
                                             tappeto[pacchi_numpy[pac]['f0'] - 1].pacchi[
                                                 pacchi_numpy[pac]['f1'] - 1].buy_price + (
                                                 tappeto[pacchi_numpy[pac]['f0'] - 1].step * (tappeto[pacchi_numpy[pac][
-                                                                                                         'f0'] - 1].aggiustamento_step - 1))
+                                                                                                         'f0'] - 1].
+                                                                                             aggiustamento_step - 1))
                                         # imposto il nuovo carico aggiustamento
                                         tappeto[pacchi_numpy[pac]['f0'] - 1].pacchi[
                                             pacchi_numpy[pac]['f1'] - 1].aggiustamento_carico = \
@@ -1234,7 +1269,8 @@ class GeneraSimulazione:
                                 pacchi_numpy[item]['f2'] = 1
 
                             #
-                            # se autoadj == -2 e stato ACQ vuol dire che sto comprando un pacco venduto short in aggiustamento
+                            # se autoadj == -2 e stato ACQ vuol dire che sto comprando un pacco venduto short
+                            # in aggiustamento
                             #
                             elif pacchi_numpy[item]['f5'] == -2 and pacchi_numpy[item]['f6'] == 0:
                                 tappeto[pacchi_numpy[item]['f0'] - 1].pacchi[pacchi_numpy[item]['f1'] - 1].acquisto(
@@ -1248,7 +1284,8 @@ class GeneraSimulazione:
                                 tappeto[pacchi_numpy[item]['f0'] - 1].pacchi[pacchi_numpy[item]['f1'] - 1].autoadj = 0
 
                             #
-                            # se autoadj == -1 e stato ACQ vuol dire che sto comprando un pacco venduto short in aggiustamento
+                            # se autoadj == -1 e stato ACQ vuol dire che sto comprando un pacco venduto short
+                            # in aggiustamento
                             #
                             elif pacchi_numpy[item]['f5'] == -1 and pacchi_numpy[item]['f6'] == 0:
                                 tappeto[pacchi_numpy[item]['f0'] - 1].pacchi[pacchi_numpy[item]['f1'] - 1].acquisto(
@@ -1321,17 +1358,20 @@ class GeneraSimulazione:
                             # - se stato aggiustamento == -2, devo attivare n pacchi sopra questo, n = molt step - 1
                             # - se c'è un altro pacco con autoadj == -2 sotto e stato disabled, devo abilitarlo
                             # - devo scalare sopra l'autoaggiustamento di x = molt step verso l'alto
-                            # - devo scalare tutto il carico di n = molt step - 1, quindi il pacco z ha carico del pacco z + n
+                            # - devo scalare tutto il carico di n = molt step - 1,
+                            # quindi il pacco z ha carico del pacco z + n
                             #   lo scalare del valore di carico parte dal pacco appena sopra il pacco appena eseguito
                             # - devo modificare gli ultimi n pacchi short (n = agg_step - 1) da ACQAZ_S a ACQAZ_L
                             #   devo cambiare il carico da short a long, toglierli da carica
                             #
                             elif pacchi_numpy[item]['f5'] == -2 and pacchi_numpy[item]['f2'] == 1:
-                                # devo attivare tutti quelli con id maggiore e autoadj = -1 e questo che è a -2 lo tengo a -2
+                                # devo attivare tutti quelli con id maggiore e autoadj = -1 e questo che è a -2
+                                # lo tengo a -2
                                 tappeto[pacchi_numpy[item]['f0'] - 1].punto_flat += tappeto[pacchi_numpy[item][
                                                                                                 'f0'] - 1].step * (
                                                                                         tappeto[pacchi_numpy[item][
-                                                                                                    'f0'] - 1].aggiustamento_step - 1)
+                                                                                                    'f0'] - 1].
+                                                                                        aggiustamento_step - 1)
                                 # gestione del pacco con autoadj == -2
                                 tappeto[pacchi_numpy[item]['f0'] - 1].pacchi[pacchi_numpy[item]['f1'] - 1].vendita(
                                     prezzo, tappeto[pacchi_numpy[item]['f0'] - 1], data, ora, self.storico)
@@ -1342,7 +1382,8 @@ class GeneraSimulazione:
                                 # imposto carico a 1
                                 pacchi_numpy[item]['f7'] = 1
 
-                                # prendo l'aggiustamento step del tappeto corrispondente a questo pacco (-1 perchè conto da 0)
+                                # prendo l'aggiustamento step del tappeto corrispondente a questo pacco
+                                # (-1 perchè conto da 0)
                                 # così so quanti pacchi in stato == -1 devo attivare (aggiustamento_step - 1)
                                 numero_pacchi_da_attivare = tappeto[pacchi_numpy[item]['f0'] - 1].aggiustamento_step
                                 i = 1
@@ -1357,14 +1398,16 @@ class GeneraSimulazione:
                                     pacchi_numpy[item - i]['f7'] = 1
                                     # ora devo modificare anche nella struttura del tappeto, non solo nell'array numpy
                                     # imposto autoadj a 0
-                                    # tappeto[pacchi_numpy[item]['f0'] - 1].pacchi[pacchi_numpy[item]['f1'] - 1 + i].autoadj = 0
+                                    # tappeto[pacchi_numpy[item]['f0'] - 1].
+                                    # pacchi[pacchi_numpy[item]['f1'] - 1 + i].autoadj = 0
                                     # imposto disabled a 0
                                     tappeto[pacchi_numpy[item]['f0'] - 1].pacchi[
                                         pacchi_numpy[item]['f1'] - 1 - i].disable = 0
                                     # imposto stato in ACQAZ_S
                                     tappeto[pacchi_numpy[item]['f0'] - 1].pacchi[
                                         pacchi_numpy[item]['f1'] - 1 - i].order_type = 'ACQAZ_S'
-                                    # imposto una finta vendita al prezzo di carico: pacco_ven - (step*aggiustamento_step)
+                                    # imposto una finta vendita al prezzo di carico:
+                                    # pacco_ven - (step*aggiustamento_step)
                                     # imposto il sell_real_price
                                     tappeto[pacchi_numpy[item]['f0'] - 1].pacchi[
                                         pacchi_numpy[item]['f1'] - 1 - i].sell_price_real = \
@@ -1388,23 +1431,31 @@ class GeneraSimulazione:
 
                                 # se c'è un altro pacco con autoadj == -2 sopra e stato disabled, devo abilitarlo
                                 # controllo anche che l'id tappeto sia lo stesso
-                                if not pacchi_numpy[item]['f4'] + (tappeto[pacchi_numpy[item]['f0'] - 1].aggiustamento_step * tappeto[pacchi_numpy[item]['f0'] - 1].step) > tappeto[pacchi_numpy[item]['f0'] - 1].aggiustamento_limite_superiore:
+                                if not pacchi_numpy[item]['f4'] + (
+                                    tappeto[pacchi_numpy[item]['f0'] - 1].aggiustamento_step * tappeto[
+                                        pacchi_numpy[item]['f0'] - 1].step) > tappeto[
+                                            pacchi_numpy[item]['f0'] - 1].aggiustamento_limite_superiore:
                                     if pacchi_numpy[item + tappeto[pacchi_numpy[item]['f0'] - 1].aggiustamento_step][
                                         'f5'] == -2 \
                                             and pacchi_numpy[
-                                                        item + tappeto[pacchi_numpy[item]['f0'] - 1].aggiustamento_step][
+                                                        item + tappeto[
+                                                            pacchi_numpy[item]['f0'] - 1].aggiustamento_step][
                                                 'f0'] == pacchi_numpy[item]['f0']:
                                         # imposto autoadj a 0
-                                        # pacchi_numpy[item - tappeto[pacchi_numpy[item]['f0'] - 1].aggiustamento_step]['f5'] = 0
+                                        # pacchi_numpy[item -
+                                        # tappeto[pacchi_numpy[item]['f0'] - 1].aggiustamento_step]['f5'] = 0
                                         # imposto disabled a 0
                                         pacchi_numpy[item + tappeto[pacchi_numpy[item]['f0'] - 1].aggiustamento_step][
                                             'f6'] = 0
-                                        # ora devo modificare anche nella struttura del tappeto, non solo nell'array numpy
+                                        # ora devo modificare anche nella struttura del tappeto,
+                                        # non solo nell'array numpy
                                         # imposto autoadj a 0
-                                        # tappeto[pacchi_numpy[item]['f0'] - 1].pacchi[pacchi_numpy[item]['f1'] - 1].autoadj = 0
+                                        # tappeto[pacchi_numpy[item]['f0'] - 1].
+                                        # pacchi[pacchi_numpy[item]['f1'] - 1].autoadj = 0
                                         # imposto disabled a 0
-                                        tappeto[pacchi_numpy[item]['f0'] - 1].pacchi[pacchi_numpy[item]['f1'] - 1 + tappeto[
-                                            pacchi_numpy[item]['f0'] - 1].aggiustamento_step].disable = 0
+                                        tappeto[pacchi_numpy[item]['f0'] - 1].pacchi[
+                                            pacchi_numpy[item]['f1'] - 1 + tappeto[
+                                                pacchi_numpy[item]['f0'] - 1].aggiustamento_step].disable = 0
                                         # devo aggiungere il nuovo pacco al carico short
                                         tappeto[pacchi_numpy[item]['f0'] - 1].valore_carico_short += \
                                             tappeto[pacchi_numpy[item]['f0'] - 1].pacchi[
@@ -1441,7 +1492,8 @@ class GeneraSimulazione:
                                             pacchi_numpy[item2 + agg_step]['f2'] = 0
                                             # imposto disable a 1
                                             pacchi_numpy[item2 + agg_step]['f6'] = 1
-                                            # ora devo modificare anche nella struttura del tappeto, non solo nell'array numpy
+                                            # ora devo modificare anche nella struttura del tappeto,
+                                            # non solo nell'array numpy
                                             # imposto autoadj a 1
                                             tappeto[pacchi_numpy[item2]['f0'] - 1].pacchi[
                                                 pacchi_numpy[item2]['f1'] - 1 + agg_step].autoadj = 1
@@ -1459,7 +1511,8 @@ class GeneraSimulazione:
                                             # pacchi_numpy[item2]['f5'] = 1
                                             # imposto disabled a 1
                                             # pacchi_numpy[item2]['f6'] = 1
-                                            # ora devo modificare anche nella struttura del tappeto, non solo nell'array numpy
+                                            # ora devo modificare anche nella struttura del tappeto,
+                                            # non solo nell'array numpy
                                             # imposto autoadj a 1
                                             # tappeto[pacchi_numpy[item2]['f0'] - 1].pacchi[
                                             #     pacchi_numpy[item2]['f1'] - 1].autoadj = 1
@@ -1495,11 +1548,13 @@ class GeneraSimulazione:
                                                     else:
                                                         # imposto disabled a 1
                                                         pacchi_numpy[item2 + agg_step - i]['f6'] = 1
-                                                    # ora devo modificare anche nella struttura del tappeto, non solo nell'array numpy
+                                                    # ora devo modificare anche nella struttura del tappeto,
+                                                    # non solo nell'array numpy
                                                     # se il vecchio disabled è 0 allora lo devo togliere dal carico long
                                                     if tappeto[pacchi_numpy[item2]['f0'] - 1].pacchi[
                                                                                 pacchi_numpy[item2][
-                                                                                    'f1'] - 1 - i + agg_step].disable == 0:
+                                                                                    'f1'] - 1 - i + agg_step].disable \
+                                                            == 0:
                                                         # lo tolgo dal carico long
                                                         tappeto[pacchi_numpy[item2]['f0'] - 1].valore_carico_long -= \
                                                             tappeto[pacchi_numpy[item2]['f0'] - 1].pacchi[
@@ -1530,11 +1585,13 @@ class GeneraSimulazione:
                                                     pacchi_numpy[item2 + agg_step - i]['f2'] = 0
                                                     # imposto disabled a 1
                                                     pacchi_numpy[item2 + agg_step - i]['f6'] = 1
-                                                    # ora devo modificare anche nella struttura del tappeto, non solo nell'array numpy
+                                                    # ora devo modificare anche nella struttura del tappeto,
+                                                    # non solo nell'array numpy
                                                     # se il vecchio disabled è 0 allora lo devo togliere dal carico long
                                                     if tappeto[pacchi_numpy[item2]['f0'] - 1].pacchi[
                                                                                 pacchi_numpy[item2][
-                                                                                    'f1'] - 1 - i + agg_step].disable == 0:
+                                                                                    'f1'] - 1 - i + agg_step].disable \
+                                                            == 0:
                                                         # lo tolgo dal carico long
                                                         tappeto[pacchi_numpy[item2]['f0'] - 1].valore_carico_long -= \
                                                             tappeto[pacchi_numpy[item2]['f0'] - 1].pacchi[
@@ -1608,7 +1665,8 @@ class GeneraSimulazione:
                                             pacchi_numpy[item2 + agg_step - i]['f2'] = 0
                                             # imposto disabled a 1
                                             pacchi_numpy[item2 + agg_step - i]['f6'] = 1
-                                            # ora devo modificare anche nella struttura del tappeto, non solo nell'array numpy
+                                            # ora devo modificare anche nella struttura del tappeto,
+                                            # non solo nell'array numpy
                                             # se il vecchio disabled è 0 allora lo devo togliere dal carico long
                                             if tappeto[pacchi_numpy[item2]['f0'] - 1].pacchi[
                                                                         pacchi_numpy[item2][
@@ -1635,7 +1693,8 @@ class GeneraSimulazione:
                                             pacchi_numpy[item2 + agg_step - i]['f2'] = 0
                                             # imposto disabled a 1
                                             pacchi_numpy[item2 + agg_step - i]['f6'] = 1
-                                            # ora devo modificare anche nella struttura del tappeto, non solo nell'array numpy
+                                            # ora devo modificare anche nella struttura del tappeto,
+                                            # non solo nell'array numpy
                                             # se il vecchio disabled è 0 allora lo devo togliere dal carico long
                                             if tappeto[pacchi_numpy[item2]['f0'] - 1].pacchi[
                                                                         pacchi_numpy[item2][
@@ -1659,7 +1718,8 @@ class GeneraSimulazione:
                                         if (item2 + agg_step - i) < 0:
                                             break
 
-                                # devo scalare tutto il carico di n = molt step - 1, quindi il pacco z ha carico del pacco z + n
+                                # devo scalare tutto il carico di n = molt step - 1,
+                                # quindi il pacco z ha carico del pacco z + n
                                 # lo scalare del valore di carico parte dal pacco appena sopra il pacco appena eseguito
                                 # modifico il carico di tutti i pacchi con carico == 1 e con id tappeto
                                 pacco_carico = np.flatnonzero(
@@ -1699,7 +1759,8 @@ class GeneraSimulazione:
                                             tappeto[pacchi_numpy[pac]['f0'] - 1].pacchi[
                                                 pacchi_numpy[pac]['f1'] - 1].sell_price - (
                                                 tappeto[pacchi_numpy[pac]['f0'] - 1].step * (tappeto[pacchi_numpy[pac][
-                                                                                                         'f0'] - 1].aggiustamento_step - 1))
+                                                                                                         'f0'] - 1].
+                                                                                             aggiustamento_step - 1))
                                         # imposto il nuovo aggiustamento carico
                                         tappeto[pacchi_numpy[pac]['f0'] - 1].pacchi[
                                             pacchi_numpy[pac]['f1'] - 1].aggiustamento_carico = \
@@ -1918,19 +1979,23 @@ class GeneraSimulazione:
                                            rendimento_teorico=tappeto[
                                                classifica_rendimenti[0]].rendimento_teorico)
         SimulazioneSingola.objects.bulk_create([simsingolamax, simsingolamin])
-        i = 0
-        take_array = []
+        perf = []
         for item in tappeto:
-            lista = [sto.profitto for sto in item.storico]
-            if i == 0:
-                dt = np.dtype('float')
-                xarr = np.array(lista, dtype=dt)
-            else:
-                xarr = np.vstack((xarr, np.array(lista)))
-            i += 1
-        xarr.round(4)
-        # print(xarr)
-        # maxi = np.amax(xarr, axis=0)
+            for idx, it in enumerate(item.perf_annuale):
+                if idx == 0:
+                    # data - liquidità - carico - patrimonio - performance YoY
+                    perf.append((datetime.datetime.strftime(it[0], "%d/%m/%Y"), round(it[1], 2), round(it[2], 2),
+                                 round(it[1], 2), 0))
+                    continue
+                else:
+                    if it[3] == 0:
+                        patrimonio = it[1]
+                    else:
+                        patrimonio = it[3]
+                    performanceyoy = round(((patrimonio - perf[idx - 1][3]) / perf[idx - 1][3]) * 100, 2)
+                    perf.append((datetime.datetime.strftime(it[0], "%Y"), round(it[1], 2), round(it[2], 2),
+                                 round(patrimonio, 2), performanceyoy))
+        """
         maxi_index = np.argmax(xarr, axis=0)
         # print(maxi)
         if maxi_index.size > 1:
@@ -1940,4 +2005,7 @@ class GeneraSimulazione:
         else:
             take_array = maxi_index
             take_array_size = 0
-        return simsingolamax, take_array, take_array_size
+        """
+        take_array = []
+        take_array_size = 0
+        return simsingolamax, take_array, take_array_size, perf
