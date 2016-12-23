@@ -1,6 +1,8 @@
 # Create your views here.
 
 """
+1.07.03 - 23/12/2016
+- spostato performance annuale alla fine degli eseguiti e aggiunta anche data fine
 1.07.02 - 23/12/2016
 - aggiunta tabella con performance annuale
 1.07.01 - 20/12/2016
@@ -248,7 +250,7 @@ def costruzione_pacco(request):
 
 # line_profiler
 def index(request):
-    version = '1.07.02'
+    version = '1.07.03'
     if not request.user:
         user_id = User.objects.get(username='Anonymous')
     elif request.user.is_anonymous:

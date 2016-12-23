@@ -743,10 +743,6 @@ class GeneraSimulazione:
                 filename = folder + self.crea_isin + "/" + self.data_inizio.strftime("%Y%m%d") + ".csv"
             else:
                 filename = folder + self.crea_isin + "\\" + self.data_inizio.strftime("%Y%m%d") + ".csv"
-            if self.data_inizio.month == 12 and self.data_inizio.day == 31:
-                for item in tappeto:
-                    item.perf_annuale.append((self.data_inizio, item.pmc_capitale, item.valore_in_carico,
-                                              item.patrimonio))
             # per ogni file giornaliero ciclo tra tutti i prezzi
             if os.path.exists(filename):
                 with open(filename, newline='') as csvfile:
@@ -1432,8 +1428,8 @@ class GeneraSimulazione:
                                 # se c'è un altro pacco con autoadj == -2 sopra e stato disabled, devo abilitarlo
                                 # controllo anche che l'id tappeto sia lo stesso
                                 if not pacchi_numpy[item]['f4'] + (
-                                    tappeto[pacchi_numpy[item]['f0'] - 1].aggiustamento_step * tappeto[
-                                        pacchi_numpy[item]['f0'] - 1].step) > tappeto[
+                                            tappeto[pacchi_numpy[item]['f0'] - 1].aggiustamento_step * tappeto[
+                                                pacchi_numpy[item]['f0'] - 1].step) > tappeto[
                                             pacchi_numpy[item]['f0'] - 1].aggiustamento_limite_superiore:
                                     if pacchi_numpy[item + tappeto[pacchi_numpy[item]['f0'] - 1].aggiustamento_step][
                                         'f5'] == -2 \
@@ -1860,10 +1856,26 @@ class GeneraSimulazione:
                                              pacchi_numpy[idx]['f5'], pacchi_numpy[idx]['f6'], pacchi_numpy[idx]['f7']])
                                     csvfile.close()
 
+                if self.data_inizio.month == 12 and self.data_inizio.day == 31:
+                    for item in tappeto:
+                        item.perf_annuale.append((self.data_inizio, item.pmc_capitale, item.valore_in_carico,
+                                                  item.patrimonio))
+                elif self.data_inizio == self.data_fine:
+                    for item in tappeto:
+                        item.perf_annuale.append((self.data_inizio, item.pmc_capitale, item.valore_in_carico,
+                                                  item.patrimonio))
                 self.data_inizio += datetime.timedelta(days=1)
                 csvfile.close()
                 # opfile.close()
             else:
+                if self.data_inizio.month == 12 and self.data_inizio.day == 31:
+                    for item in tappeto:
+                        item.perf_annuale.append((self.data_inizio, item.pmc_capitale, item.valore_in_carico,
+                                                  item.patrimonio))
+                elif self.data_inizio == self.data_fine:
+                    for item in tappeto:
+                        item.perf_annuale.append((self.data_inizio, item.pmc_capitale, item.valore_in_carico,
+                                                  item.patrimonio))
                 self.data_inizio += datetime.timedelta(days=1)
         return tappeto, pacchi_numpy
 
