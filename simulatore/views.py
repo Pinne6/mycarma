@@ -1,6 +1,8 @@
 # Create your views here.
 
 """
+1.08.03 - 22/02/2017
+- aggiunto fle path per CARMA FULL
 1.08.02 - 22/02/2017
 - prima revisione errore simulatore normale senza aggiustamento
 1.08.01 - 22/02/2017
