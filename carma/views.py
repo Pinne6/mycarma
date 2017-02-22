@@ -4,6 +4,7 @@ import tempfile
 import zipfile
 from wsgiref.util import FileWrapper
 from django.http import HttpResponse, FileResponse
+from django.contrib.auth.models import User
 
 # Create your views here.
 
@@ -25,9 +26,10 @@ def send_file(request):
     iterator for chunks of 8KB.
     """
     if (request.GET.get('versione') == 'FULL' or request.GET.get('versione') == 'LIGHT') and request.user:
-        if request.user.has_perm('carma_full') and request.GET.get('versione') == 'FULL':
+        user_id = User.objects.get(username=request.user.username)
+        if user_id.has_perm('simulatore.carma_full') and request.GET.get('versione') == 'FULL':
             filename = "/home/carma/software/" + request.GET.get('file')  # Select your file here.
-        elif request.user.has_perm('carma_light') and request.GET.get('versione') == 'LIGHT':
+        elif user_id.has_perm('simulatore.carma_light') and request.GET.get('versione') == 'LIGHT':
             filename = "/home/carma/software/" + request.GET.get('file')  # Select your file here.
         else:
             return
