@@ -672,11 +672,15 @@ class GeneraSimulazione:
         self.data_inizio_2 = self.data_inizio
         self.data_fine_2 = self.data_fine
         self.aggiustamento = request.POST.get('aggiustamento')
-        if self.aggiustamento:
+        if self.aggiustamento == 'True':
             self.aggiustamento_step = int(request.POST.get('aggiustamento_step'))
             self.aggiustamento_limite_inferiore = float(request.POST.get('aggiustamento_limite_inferiore'))
             self.aggiustamento_limite_superiore = float(request.POST.get('aggiustamento_limite_superiore'))
-            self.capitale = float(request.POST.get('capitale'))
+        else:
+            self.aggiustamento_step = 0
+            self.aggiustamento_limite_inferiore = 0
+            self.aggiustamento_limite_superiore = 0
+        self.capitale = float(request.POST.get('capitale'))
         self.con_gap = request.POST.get('con_gap')
         if self.con_gap == 'True':
             self.con_gap = True
