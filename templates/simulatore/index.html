@@ -133,6 +133,7 @@
                                     </label>
                                 </div>
                             </div>
+                            {% if perms.simulatore.aggiustamento %}
                             <div class="row">
                                 <div class="col-md-3 form-group-sm">
                                     <label>
@@ -159,6 +160,9 @@
                                     </label>
                                 </div>
                             </div>
+                            {% else %}
+                                <input type="hidden" value="False" name="aggiustamento">
+                            {% endif %}
                              <div class="row">
                                 <div class="col-md-3 form-group-sm">
                                     <label>
