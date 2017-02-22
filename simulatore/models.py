@@ -76,7 +76,9 @@ class UserPerm(models.Model):
         permissions = (
             ("take_fisso", "Può simulare senza limiti a take fisso"),
             ("take_variabile", "Può simulare senza limiti a take variabile"),
-            ("aggiustamento", "Può simulare con aggiustamento")
+            ("aggiustamento", "Può simulare con aggiustamento"),
+            ("carma_light", "CarMa Light licenza"),
+            ("carma_full", "CarMa Full licenza")
         )
 
 

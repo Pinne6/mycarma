@@ -2,13 +2,17 @@ import os
 import datetime
 import csv
 
-data_inizio = datetime.date(2002, 11, 17)
-data_fine = datetime.date(2016, 11, 25)
+data_inizio = datetime.date(2002, 1, 2)
+data_fine = datetime.date(2017, 1, 9)
 data_diff = data_fine - data_inizio
-crea_isin = 'IT0000000002'
+# il ticker di destinazione
+crea_isin = 'US5949181045'
+# non serve
 crea_isin2 = 'NL6666666666'
+# la cartella di destinazione
 folder = "C:\\intra\\"
-tappa_buchi = "C:\\intra\\mini_14.csv"
+# il file sorgente con i dati daily
+tappa_buchi = "C:\\intra\\microsoft.csv"
 alternare = True
 
 if os.path.exists(tappa_buchi):

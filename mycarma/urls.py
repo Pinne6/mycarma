@@ -31,6 +31,7 @@ urlpatterns = [
     # url(r'^logout/$', auth_views.logout, name='logout'),
     url(r'^accounts/', include('allauth.urls')),
     url(r'^api/', include(entry_resource.urls)),
+    url(r'^carma/', include('carma.urls')),
 ]  # + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 if settings.DEBUG:

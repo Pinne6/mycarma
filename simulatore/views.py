@@ -1,6 +1,9 @@
 # Create your views here.
 
 """
+1.08.00 - 22/02/2017
+- aggiunta pagina carma per download versioni
+- aggiunti permessi per pagina carma
 1.07.03 - 23/12/2016
 - spostato performance annuale alla fine degli eseguiti e aggiunta anche data fine
 1.07.02 - 23/12/2016
@@ -390,7 +393,7 @@ def index(request):
             'form_variabile': form_v,
             'test': test,
             'filename': filename_url,
-            'perf' : perf
+            'perf': perf
         }
     else:
         if settings.DEBUG:

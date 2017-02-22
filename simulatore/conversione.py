@@ -7,6 +7,7 @@ data_fine = datetime.date(2014, 11, 13)
 data_diff = data_fine - data_inizio
 crea_isin = 'NL0010877643'
 crea_isin2 = 'NL6666666666'
+# la cartella di destinazione
 folder = "C:\\intra\\"
 
 for i in range(data_diff.days + 1):
