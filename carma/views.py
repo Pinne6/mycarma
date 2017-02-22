@@ -24,7 +24,7 @@ def send_file(request):
     memory at once. The FileWrapper will turn the file object into an
     iterator for chunks of 8KB.
     """
-    filename = "/software/" + request.GET.get('file')  # Select your file here.
+    filename = "home/carma/software/" + request.GET.get('file')  # Select your file here.
     wrapper = FileResponse(open(filename, 'rb'))
     response = HttpResponse(wrapper, content_type='application/zip')
     response['Content-Disposition'] = 'attachment; filename=CARMA.zip'
