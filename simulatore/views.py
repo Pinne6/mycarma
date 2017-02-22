@@ -1,6 +1,8 @@
 # Create your views here.
 
 """
+1.08.04 - 22/02/2017
+- gestione permission a livello di view per download file
 1.08.03 - 22/02/2017
 - aggiunto fle path per CARMA FULL
 1.08.02 - 22/02/2017

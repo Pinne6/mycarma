@@ -24,10 +24,18 @@ def send_file(request):
     memory at once. The FileWrapper will turn the file object into an
     iterator for chunks of 8KB.
     """
-    filename = "/home/carma/software/" + request.GET.get('file')  # Select your file here.
+    if (request.GET.get('versione') == 'FULL' or request.GET.get('versione') == 'LIGHT') and request.user:
+        if request.user.has_perm('carma_full') and request.GET.get('versione') == 'FULL':
+            filename = "/home/carma/software/" + request.GET.get('file')  # Select your file here.
+        elif request.user.has_perm('carma_light') and request.GET.get('versione') == 'LIGHT':
+            filename = "/home/carma/software/" + request.GET.get('file')  # Select your file here.
+        else:
+            return
+    else:
+        return
     wrapper = FileResponse(open(filename, 'rb'))
     response = HttpResponse(wrapper, content_type='application/zip')
-    response['Content-Disposition'] = 'attachment; filename=CARMA.zip'
+    response['Content-Disposition'] = 'attachment; filename=' + request.GET.get('file')
     response['Content-Length'] = os.path.getsize(filename)
     return response
 
