@@ -261,7 +261,7 @@ def costruzione_pacco(request):
 
 # line_profiler
 def index(request):
-    version = '1.07.03'
+    version = '1.08.04'
     if not request.user:
         user_id = User.objects.get(username='Anonymous')
     elif request.user.is_anonymous:
