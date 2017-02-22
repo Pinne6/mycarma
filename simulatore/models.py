@@ -601,7 +601,10 @@ class Tappeto:
             self.valore_attuale += aggiustamento_carico
             self.valore_in_carico = self.quantita_totale * prezzo
             self.carico_pmc += (prezzo * quantita)  # + commissioni
-            self.pmc = round(self.carico_pmc / self.quantita_totale, 4)
+            if self.quantita_totale == 0:
+                self.pmc = 0
+            else:
+                self.pmc = round(self.carico_pmc / self.quantita_totale, 4)
             self.marginazione = self.capitale + (self.marginazione_fattore * self.valore_in_carico)
             self.patrimonio = self.pmc_capitale + self.valore_in_carico
         elif tipo_operazione == "ACQAZ_S" and carica == 1:
@@ -624,7 +627,10 @@ class Tappeto:
             self.valore_in_carico = self.quantita_totale * prezzo
             self.marginazione = self.capitale + (self.marginazione_fattore * self.valore_in_carico)
             self.carico_pmc += (quantita * prezzo)  # + commissioni
-            self.pmc = round(self.carico_pmc / self.quantita_totale, 4)
+            if self.quantita_totale == 0:
+                self.pmc = 0
+            else:
+                self.pmc = round(self.carico_pmc / self.quantita_totale, 4)
             self.patrimonio = self.pmc_capitale + self.carico_pmc + self.carico_pmc - self.valore_in_carico
         if self.carico_pmc >= self.valore_max:
             self.valore_max = round(self.carico_pmc, 2)

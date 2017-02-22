@@ -1,6 +1,8 @@
 # Create your views here.
 
 """
+1.08.02 - 22/02/2017
+- prima revisione errore simulatore normale senza aggiustamento
 1.08.01 - 22/02/2017
 - nascosto aggiustamento per chi è senza permesso
 1.08.00 - 22/02/2017
