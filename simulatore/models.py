@@ -582,6 +582,7 @@ class Tappeto:
                 self.valore_attuale += (pacchi_acquisto[i] * self.quantita_acquisto)
                 self.quantita_totale += self.quantita_vendita
                 self.carico_pmc += self.valore_attuale * self.quantita_totale
+                self.pmc = round(self.carico_pmc / self.quantita_totale, 4)
             elif pacchi_stato[i] == 'VENAZ_S' and pacchi_carica[i] == 0:
                 lista_per_panda.append(
                     (while_counter, i + 1, 1, pacchi_acquisto[i], pacchi_vendita[i], autoadj, disable, 0))
@@ -595,6 +596,7 @@ class Tappeto:
                 self.valore_attuale += (pacchi_acquisto[i] + self.quantita_acquisto)
                 self.quantita_totale += self.quantita_acquisto
                 self.carico_pmc += self.valore_attuale * self.quantita_totale
+                self.pmc = round(self.carico_pmc / self.quantita_totale, 4)
             i += 1
         dt = np.dtype('int,int,int,float,float,int,int,float')
         self.numpy = np.array(lista_per_panda, dtype=dt)
