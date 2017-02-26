@@ -33,9 +33,9 @@
 		    <a href="#" class="list-group-item active">Download</a>
 			{% if user.is_authenticated and perms.simulatore.carma_light %}
             <div class="list-group-item">
-                <b>CarMa Light versione 1.06.18 - 20/02/2017</b> <a href="download?file=CARMA_LIGHT_1.06.18.zip&versione=LIGHT" class="btn btn-success btn-sm" type="button">Download</a>
+                <b>CarMa Light versione 1.06.21 - 22/02/2017</b> <a href="download?file=CARMA_LIGHT_1.06.21.zip&versione=LIGHT" class="btn btn-success btn-sm" type="button">Download</a>
                 <p class="list-group-item-text">
-				    - modificata password di invio email che mancava da aggiornamento precedente
+				    - rimosse tutte le chiamate al db per leggere il setup. Viene passato come parametro per velocizzare esecuzione
                 </p>
             </div>
 			<div class="list-group-item">
@@ -65,15 +65,21 @@
 		    <a href="#" class="list-group-item active">Download</a>
 			{% if user.is_authenticated and perms.simulatore.carma_full %}
             <div class="list-group-item">
-                <b>CarMa Full versione 1.06.18 - 20/02/2017</b> <a href="download?file=CARMA_FULL_1.06.18.zip&versione=FULL" class="btn btn-success btn-sm" type="button">Download</a>
+                <b>CarMa Full versione 1.06.21 - 22/02/2017</b> <a href="download?file=CARMA_FULL_1.06.21.zip&versione=FULL" class="btn btn-success btn-sm" type="button">Download</a>
                 <p class="list-group-item-text">
-				    - modificata password di invio email che mancava da aggiornamento precedente
+				    - rimosse tutte le chiamate al db per leggere il setup. Viene passato come parametro per velocizzare esecuzione
                 </p>
             </div>
 			<div class="list-group-item">
 				<h4 class="list-group-item-heading">
 			    	Versioni precedenti
 				</h4>
+            </div>
+            <div class="list-group-item">
+                <b>CarMa Full versione 1.06.18 - 20/02/2017</b> <a href="download?file=CARMA_FULL_1.06.18.zip&versione=FULL" class="btn btn-success btn-sm" type="button">Download</a>
+                <p class="list-group-item-text">
+				    - modificata password di invio email che mancava da aggiornamento precedente
+                </p>
             </div>
             {% elif user.is_authenticated and not perms.simulatore.carma_full %}
             <div class="list-group-item">
