@@ -43,19 +43,19 @@
 			    	Versioni precedenti
 				</h4>
             </div>
-            {% elif user.is_authenticated and not perms.simulatore.carma_light %}
             <div class="list-group-item">
-                <b>CarMa Light versione 1.06.25 - 19/05/2017</b> <a href="download?file=CARMA_LIGHT_1.06.25.zip&versione=LIGHT" class="btn btn-success btn-sm" type="button">Download</a>
+                <b>CarMa Light versione 1.06.25 - 19/05/2017</b> <!--<a href="download?file=CARMA_LIGHT_1.06.25.zip&versione=LIGHT" class="btn btn-success btn-sm" type="button">Download</a>-->
                 <p class="list-group-item-text">
 				    - implementata la gestione dell'after hour. In "modifica tappeto" puoi abilitare l'AH. Carma in automatico si aprirà alle 17:55 e inserirà gli ordini.
                 </p>
             </div>
             <div class="list-group-item">
-                <b>CarMa Light versione 1.06.21 - 24/02/2017</b> <a href="download?file=CARMA_LIGHT_1.06.21.zip&versione=LIGHT" class="btn btn-success btn-sm" type="button">Download</a>
+                <b>CarMa Light versione 1.06.21 - 24/02/2017</b> <!--<a href="download?file=CARMA_LIGHT_1.06.21.zip&versione=LIGHT" class="btn btn-success btn-sm" type="button">Download</a>-->
                 <p class="list-group-item-text">
 				    - rimosse tutte le chiamate al db per leggere il setup. Viene passato come parametro per velocizzare esecuzione
                 </p>
             </div>
+            {% elif user.is_authenticated and not perms.simulatore.carma_light %}
             <div class="list-group-item">
                 <b>Non hai i permessi per scaricare CarMa Light. Contatta gli sviluppatori per ottenere una licenza.</b>
             </div>
