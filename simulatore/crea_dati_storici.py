@@ -2,17 +2,17 @@ import os
 import datetime
 import csv
 
-data_inizio = datetime.date(2002, 1, 2)
-data_fine = datetime.date(2017, 1, 9)
+data_inizio = datetime.date(2015, 9, 29)
+data_fine = datetime.date(2017, 9, 28)
 data_diff = data_fine - data_inizio
 # il ticker di destinazione
-crea_isin = 'US5949181045'
+crea_isin = 'US43289P1066'
 # non serve
 crea_isin2 = 'NL6666666666'
 # la cartella di destinazione
 folder = "C:\\intra\\"
 # il file sorgente con i dati daily
-tappa_buchi = "C:\\intra\\microsoft.csv"
+tappa_buchi = "C:\\intra\\HIMAX.csv"
 alternare = True
 
 if os.path.exists(tappa_buchi):

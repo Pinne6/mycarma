@@ -3,9 +3,11 @@ import csv
 import datetime
 import smtplib
 import os
+import time
 import scraping_settings
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from scrapinghub import ScrapinghubClient
 
 # server 'local' o 'remoto'
 server = scraping_settings.server
@@ -73,9 +75,23 @@ else:
     send_email(mail_from, mail_to_error, mail_username, mail_password, mail_server, mail_port, mail_subject, mail_body)
     exit()
 
-hc = HubstorageClient(auth=API)
+# hc = HubstorageClient(auth=API)
+hc = ScrapinghubClient(API)
+project = hc.get_project(119655)
+spider = project.spiders.get('opzioni')
+# eseguo un nuovo job per lo spider
+job_run = spider.jobs.run()
+while job_run.metadata.get('state') == 'running' or job_run.metadata.get('state') == 'pending':
+    time.sleep(2)
+if job_run.metadata.get('state') == 'deleted':
+    mail_subject = "Problema, job è stato cancellato"
+    mail_body = "Problema, stato job cancellato " + job_run.key
+    send_email(mail_from, mail_to_error, mail_username, mail_password, mail_server, mail_port, mail_subject, mail_body)
+    exit()
+time.sleep(5)
 # lista dei job, il primo della lista e' l'ultimo eseguito
-jobs = hc.get_project('119655').jobq.list()
+jobs = spider.jobs.iter()
+# jobs = hc.get_project('119655').jobq.list()
 for job in jobs:
     if job['state'] != 'finished':
         mail_subject = "Problema, stato job non finito"

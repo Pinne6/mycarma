@@ -16,7 +16,7 @@ class FixedFileWrapper(FileWrapper):
 
 
 def index(request):
-    return render(request, 'carma/carma.html')
+    return render(request, 'carma/../templates/carma/carma.html')
 
 
 def send_file(request):
