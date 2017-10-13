@@ -190,7 +190,8 @@ def export_operazioni(request):
     response['Content-Disposition'] = 'attachment; filename="eggs.csv"'
     # operazioni = request.session.get('operazioni')
     # writer = csv.writer(response)
-    # writer.writerow(['#', 'Data', 'Ora', 'Pacco', 'Operazione', 'Prezzo', 'Quantita', 'Gain', 'Commissioni', 'Profitto', 'Costo', 'Capitale', 'Valore attuale', 'Quantita attuale', 'Valore max'])
+    # writer.writerow(['#', 'Data', 'Ora', 'Pacco', 'Operazione', 'Prezzo', 'Quantita', 'Gain', 'Commissioni',
+    # 'Profitto', 'Costo', 'Capitale', 'Valore attuale', 'Quantita attuale', 'Valore max'])
     # for idx, item in enumerate(operazioni):
     #     writer.writerow([idx, item.ora, item.pacco, '"Testing"', "Here's a quote"])
 
@@ -318,8 +319,10 @@ def index(request):
                 for f in filelist:
                     ff = folder2 + f
                     os.remove(ff)
-            filename = folder2 + str(user_id) + '_simulazione_tappeto_' + datetime.datetime.strftime(datetime.date.today(), "%Y-%m-%d") + '.csv'
-            filename_url = "/simulazioni/" + str(user_id) + "/" + str(user_id) + '_simulazione_tappeto_' + datetime.datetime.strftime(datetime.date.today(), "%Y-%m-%d") + '.csv'
+            filename = folder2 + str(user_id) + '_simulazione_tappeto_' + \
+                       datetime.datetime.strftime(datetime.date.today(), "%Y-%m-%d") + '.csv'
+            filename_url = "/simulazioni/" + str(user_id) + "/" + str(user_id) + '_simulazione_tappeto_' + \
+                           datetime.datetime.strftime(datetime.date.today(), "%Y-%m-%d") + '.csv'
             with open(filename, 'w', newline='') as csvfile:
                 writer = csv.writer(csvfile)
                 writer.writerow(['#', 'Data', 'Ora', 'Pacco', 'Operazione', 'Prezzo', 'Quantita', 'Gain', 'Commissioni',
