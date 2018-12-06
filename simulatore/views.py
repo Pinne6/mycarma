@@ -274,7 +274,8 @@ def Futbpm(request):
     pack = FutBpm.objects.all()
     context = {
         'pack': pack,
-        'request': request
+        'request': request,
+        'pack_id': request.POST.get('pack_id')
     }
     return render(request, 'simulatore/futbpm.html', context)
 
