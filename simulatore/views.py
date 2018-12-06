@@ -269,7 +269,7 @@ def FutBpm(request):
                               rating=int(request.POST.get('rating')), sold_price=int(request.POST.get('sold_price')),
                               profit=int(request.POST.get('profit')))
 
-    return render(request, 'simulatore/futbpm.html', context)
+    return render(request, 'simulatore/futbpm.html')
 
 
 # line_profiler
