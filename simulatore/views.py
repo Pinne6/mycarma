@@ -153,6 +153,8 @@ from .forms import FormTakeSingolo, FormTakeVariabile, FormCostruzione
 from django import forms
 import csv
 import json
+from django.views.decorators.csrf import csrf_exempt
+
 
 
 def json_serial(obj):
@@ -261,6 +263,7 @@ def costruzione_pacco(request):
     return render(request, 'simulatore/costruzione_pacco.html', context)
 
 
+@csrf_exempt
 def Futbpm(request):
     if request.POST.get('pack_id'):
         FutBpm.objects.create(pack_id=int(request.POST.get('pack_id')), carta=request.POST.get('carta'),
