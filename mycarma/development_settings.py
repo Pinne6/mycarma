@@ -4,6 +4,6 @@ from .settings import *
 
 DEBUG = True
 
-STATIC_ROOT = "C:\\Users\\fesposti\\Box Sync\\mycarma\\static"
+STATIC_ROOT = "C:\\Users\\fesposti\\One Drive - eBay Inc\\mycarma\\static"
 
 SERVER_DEV = True

@@ -218,7 +218,7 @@ def form_singolo(request):
         dire = "/home/carma/dati/isin.conf"
         folder = "/home/carma/dati/intra/"
     else:
-        dire = "C:\\Users\\fesposti\\Box Sync\\Simulatore\\intra\\isin.conf"
+        dire = "C:\\Users\\fesposti\\One Drive - eBay Inc\\Simulatore\\intra\\isin.conf"
         folder = "C:\\intra\\"
     isin_conf = read_csv_files(dire)
     form = FormTakeSingolo(request=request, isin_conf=isin_conf)
@@ -286,7 +286,7 @@ def index(request):
         folder = "/home/carma/dati/intra/"
         folder2 = "/home/carma/simulazioni/" + str(user_id) + "/"
     else:
-        dire = "C:\\Users\\fesposti\\Box Sync\\Simulatore\\intra\\isin.conf"
+        dire = "C:\\Users\\fesposti\\One Drive - eBay Inc\\Simulatore\\intra\\isin.conf"
         folder = "C:\\intra\\"
         folder2 = "C:\\ope\\simulazioni\\"
     isin_conf = read_csv_files(dire)

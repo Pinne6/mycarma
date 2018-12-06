@@ -107,12 +107,12 @@ class SimulazioneStatistiche(models.Model):
 class FutBpm(models.Model):
 
     pack_id = models.IntegerField()
-    carta = models.CharField()
+    carta = models.CharField(max_length=50)
     playerId = models.IntegerField()
     uniqueId = models.IntegerField()
-    nome = models.CharField()
+    nome = models.CharField(max_length=50)
     rare = models.BooleanField()
-    rating = models.IntegerField(max_length=3)
+    rating = models.IntegerField()
     sold_price = models.IntegerField()
     profit = models.IntegerField()
 
