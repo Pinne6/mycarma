@@ -103,6 +103,19 @@ class SimulazioneStatistiche(models.Model):
     min_commissione = models.DecimalField(max_digits=15, decimal_places=5)
     max_commissione = models.DecimalField(max_digits=15, decimal_places=5)
 
+
+class FutBpm(models.Model):
+
+    pack_id = models.IntegerField()
+    carta = models.CharField()
+    playerId = models.IntegerField()
+    uniqueId = models.IntegerField()
+    nome = models.CharField()
+    rare = models.BooleanField()
+    rating = models.IntegerField(max_length=3)
+    sold_price = models.IntegerField()
+    profit = models.IntegerField()
+
     def salvare(self):
         self.save()
 

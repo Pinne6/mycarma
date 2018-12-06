@@ -260,6 +260,18 @@ def costruzione_pacco(request):
         }
     return render(request, 'simulatore/costruzione_pacco.html', context)
 
+
+def FutBpm(request):
+    if request.POST.get:
+        FutBpm.objects.create(pack_id=int(request.POST.get('pack_id')), carta=request.POST.get('carta'),
+                              playerId=request.POST.get('playerId'), uniqueId=request.POST.get('uniqueId'),
+                              nome=request.POST.get('nome'), rare=int(request.POST.get('rare')),
+                              rating=int(request.POST.get('rating')), sold_price=int(request.POST.get('sold_price')),
+                              profit=int(request.POST.get('profit')))
+
+    return render(request, 'simulatore/futbpm.html', context)
+
+
 # line_profiler
 def index(request):
     version = '1.08.04'
