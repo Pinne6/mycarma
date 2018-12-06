@@ -261,7 +261,7 @@ def costruzione_pacco(request):
     return render(request, 'simulatore/costruzione_pacco.html', context)
 
 
-def FutBpm(request):
+def Futbpm(request):
     if request.POST.get('pack_id'):
         FutBpm.objects.create(pack_id=int(request.POST.get('pack_id')), carta=request.POST.get('carta'),
                               playerId=request.POST.get('playerId'), uniqueId=request.POST.get('uniqueId'),
