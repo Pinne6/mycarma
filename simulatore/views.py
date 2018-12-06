@@ -268,8 +268,11 @@ def FutBpm(request):
                               nome=request.POST.get('nome'), rare=int(request.POST.get('rare')),
                               rating=int(request.POST.get('rating')), sold_price=int(request.POST.get('sold_price')),
                               profit=int(request.POST.get('profit')))
-
-    return render(request, 'simulatore/futbpm.html')
+    pack = FutBpm.objects.all()
+    context = {
+        'pack': pack
+    }
+    return render(request, 'simulatore/futbpm.html', context)
 
 
 # line_profiler

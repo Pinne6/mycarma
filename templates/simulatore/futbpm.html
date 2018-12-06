@@ -4,5 +4,7 @@
 {% block nav_class_simulatore %}active{% endblock %}
 <!--{% block nav_class_carma %}inactive{% endblock %}-->
 {% block corpo_centrale %}
-
+{% for item in pack %}
+    {{ item }}
+{% endfor %}
 {% endblock %}
