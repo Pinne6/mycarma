@@ -265,7 +265,7 @@ def costruzione_pacco(request):
 
 @csrf_exempt
 def Futbpm(request):
-    if request.POST.get('pack_id'):
+    if request.GET.get('pack_id'):
         FutBpm.objects.create(pack_id=int(request.POST.get('pack_id')), carta=request.POST.get('carta'),
                               playerId=request.POST.get('playerId'), uniqueId=request.POST.get('uniqueId'),
                               nome=request.POST.get('nome'), rare=int(request.POST.get('rare')),
@@ -275,7 +275,7 @@ def Futbpm(request):
     context = {
         'pack': pack,
         'request': request,
-        'pack_id': request.POST.get('pack_id')
+        'pack_id': request.GET.get('pack_id')
     }
     return render(request, 'simulatore/futbpm.html', context)
 
