@@ -263,14 +263,14 @@ def costruzione_pacco(request):
     return render(request, 'simulatore/costruzione_pacco.html', context)
 
 
-@csrf_exempt
+# @csrf_exempt
 def Futbpm(request):
     if request.GET.get('pack_id'):
-        FutBpm.objects.create(pack_id=int(request.POST.get('pack_id')), carta=request.POST.get('carta'),
-                              playerId=request.POST.get('playerId'), uniqueId=request.POST.get('uniqueId'),
-                              nome=request.POST.get('nome'), rare=int(request.POST.get('rare')),
-                              rating=int(request.POST.get('rating')), sold_price=int(request.POST.get('sold_price')),
-                              profit=int(request.POST.get('profit')))
+        FutBpm.objects.create(pack_id=int(request.GET.get('pack_id')), carta=request.GET.get('carta'),
+                              playerId=request.GET.get('playerId'), uniqueId=request.GET.get('uniqueId'),
+                              nome=request.GET.get('nome'), rare=int(request.GET.get('rare')),
+                              rating=int(request.GET.get('rating')), sold_price=int(request.GET.get('sold_price')),
+                              profit=int(request.GET.get('profit')))
     pack = FutBpm.objects.all()
     context = {
         'pack': pack,
