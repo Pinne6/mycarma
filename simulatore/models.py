@@ -103,6 +103,9 @@ class SimulazioneStatistiche(models.Model):
     min_commissione = models.DecimalField(max_digits=15, decimal_places=5)
     max_commissione = models.DecimalField(max_digits=15, decimal_places=5)
 
+    def salvare(self):
+        self.save()
+
 
 class FutBpm(models.Model):
 
