@@ -4,6 +4,6 @@ from .settings import *
 
 DEBUG = True
 
-STATIC_ROOT = "C:\\Users\\fesposti\\One Drive - eBay Inc\\mycarma\\static"
+STATIC_ROOT = "C:\\Users\\fesposti\\iCloudDrive\\mycarma\\static"
 
 SERVER_DEV = True

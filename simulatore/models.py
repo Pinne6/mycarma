@@ -85,7 +85,7 @@ class UserPerm(models.Model):
 class SimulazioneStatistiche(models.Model):
     data_ora = models.DateTimeField(default=django.utils.timezone.now)
     durata = models.DurationField()
-    user_id = models.ForeignKey(User)
+    user_id = models.ForeignKey(User, on_delete=models.PROTECT)
     indirizzo_ip = models.GenericIPAddressField()
     isin = models.CharField(max_length=15)
     limite_inferiore = models.DecimalField(max_digits=15, decimal_places=5)
